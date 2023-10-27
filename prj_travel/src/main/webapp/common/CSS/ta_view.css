@@ -1,0 +1,323 @@
+@charset "UTF-8";
+
+.header {
+    height: 90px;
+	border-bottom: 1px solid #333;
+}
+
+.header_contents{
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 30px;
+    justify-content: space-between;
+}
+
+.flex { 
+    display : flex; 
+ }
+
+ .nav_top > ul{
+    list-style: none;
+ }
+
+ .nav_top > ul > li{
+    display: inline-block;
+    margin-left: 30px;
+ }
+.login {
+    margin-left: 30px;
+}
+
+.main_content{
+    background-color: red;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.container {
+}
+
+.page_title{
+	width: auto;
+	height : 120px;
+	padding: 10px;
+	border-bottom : 1px solid #333;
+	flex-direction : column;
+	align-items : center;
+	justify-content: center;
+}
+
+.page_title h3{
+	margin: 30px 0;
+}
+
+.h3_txt {
+	text-align:center;
+	margin:20px 0;
+}
+div.tagBox{
+    position: relative;
+    margin: 10px auto;
+    width: auto;
+    font-size: 0;
+    padding: 0 100px 0 0;
+    height: 52px;
+    overflow: hidden;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+div.tagBox label {
+    display: inline-block;
+    font-size: 18px;
+    color: #191919;
+    line-height: 40px;
+    padding: 0 20px;
+    border: 1px solid #572a2a;
+    border-radius: 40px;
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+div.tagBox input {
+ position: absolute;
+ opacity: 0;
+}
+
+div.tagBox input:checked+label {
+    border-color: #ef6d00;
+    color: #ef6d00;
+}
+
+.recommend_area {
+	margin-top: 50px;
+}
+
+.map_outline[data-v-2fbcbd64] {
+    position: relative;
+    height: calc(100vh - 165px);
+    margin: 30px 0;
+}
+
+.map_outline .map_box[data-v-2fbcbd64] {
+    position: absolute;
+    width: 100%;
+    left: 50%;
+	margin-left: -50vw;
+}
+
+ol, ul{
+	list-style:none;
+}
+
+li {
+    text-align: -webkit-match-parent;
+}
+
+
+
+.item_list_map [data-v-2fbcbd64] {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.item_list_map.type_map li[data-v-2fbcbd64] {
+    position: relative;
+    background: #fff;
+    margin: 0 0 30px;
+}
+
+
+
+.item_list_map.type_map {
+    position: absolute;
+    background: #f8f8f8;
+    padding: 60px 30px 40px 60px;
+    width: 650px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    -webkit-transition: width .4s linear;
+    transition: width .4s linear;
+    min-height:500px;
+}
+
+.item_list_map.type_map li .item_top>a {
+    display: block;
+    position: relative;
+	width: 551.5px;
+    height: 140px;
+    padding: 15px 15px 15px 210px;
+}
+
+.item_list_map.type_map li .item_top>a img[data-v-2fbcbd64] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 190px;
+    height: 140px;
+}
+
+.item_list_map.type_map li .item_top>a .s_tit[data-v-2fbcbd64] {
+    font-size: 22px;
+    font-weight: 600;
+    color: #191919;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+    white-space: nowrap;
+    margin: 0 0 6px;
+}
+
+.item_list_map.type_map li .item_top>a .s_theme[data-v-2fbcbd64] {
+    font-size: 16px;
+    color: #191919;
+    min-height: 28px;
+    padding: 0;
+    margin-bottom : 3px
+}
+
+.item_list_map.type_map li .item_top>a .item_tag[data-v-2fbcbd64] {
+    font-size: 16px;
+    color: #767676;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+    white-space: nowrap;
+}
+
+.item_list_map.type_map li .item_top>a .item_tag.next[data-v-2fbcbd64] {
+    margin: 0 0 6px;
+}
+
+.item_list_map.type_map li .item_top>a .score_area[data-v-2fbcbd64] {
+    display: inline-block;
+    position: absolute;
+    left: 95px;
+    bottom: 10px;
+    width: 88px;
+    height: 15px;
+    font-size: 0;
+}
+
+.item_list_map.type_map .item_count_area {
+    position: absolute;
+    left: 210px;
+    bottom: -20px;
+    width: 326px;
+}
+
+.item_list_map.type_map .item_count_area a {
+    position: relative;
+    display: inline-block;
+    margin-right: 20px;
+    font-size: 14px;
+}
+
+a, a:active, a:hover, a:link, a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
+.item_list_map.type_map li .item_top>a .score_area p.score_count[data-v-2fbcbd64] {
+    height: 15px;
+    background: url(../bg_star_on.png) no-repeat 50%/100% auto;
+}
+
+.map-sticky-wrapper{
+	position:absolute;
+	right:0;
+	width: calc(100% - 660px);
+}
+
+.map_area{
+	position: sticky;
+	overflow:auto;
+	top:0px;
+	width: 100%;
+	height:800px;
+}
+
+#map {
+	width: 100%;
+	height:798px;
+}
+
+
+
+.map_area .map_cont2 a {
+    display: inline-block;
+    background: #fff;
+    padding: 5px 0;
+    margin: 0 10px;
+    width: 200px;
+}
+
+.map_area .map_cont2 a, .map_area .map_cont2 p {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 20px;
+}
+
+.map_paging[data-v-2fbcbd64] {
+    background: none!important;
+}
+
+.map_paging .map_paging_inner[data-v-2fbcbd64] {
+    position: relative;
+    text-align: center;
+}
+
+.map_paging .map_paging_inner .page-wrap[data-v-2fbcbd64] {
+    display: inline-block;
+}
+
+.map_paging .map_paging_inner .page-wrap a[data-v-2fbcbd64] {
+    display: inline-block;
+    width: 38px;
+    line-height: 38px;
+    margin: 0 6px;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 16px;
+    color: 767676;
+    border-radius: 50%;
+}
+
+.map_paging .map_paging_inner .page-wrap a.current[data-v-2fbcbd64] {
+    font-weight: 700;
+    background: #ef6d00;
+    color: #fff;
+}
+
+
+.map_paging .map_paging_inner .page-wrap a.page-first[data-v-2fbcbd64] {
+    background: url(../ico_first.svg) no-repeat 50%/80%;
+     color: transparent;
+}
+
+.map_paging .map_paging_inner .page-wrap a.page-prev[data-v-2fbcbd64] {
+    background: url(../ico_prev.svg) no-repeat 50%/80%;
+     color: transparent;
+}
+
+
+.util_area2 div.counter p strong[data-v-2fbcbd64] {
+    color: #ef6d00;
+    padding: 0 4px 0 0;
+}
+
+.map_paging .map_paging_inner .page-wrap a.page-next[data-v-2fbcbd64] {
+    background: url(../ico_next.svg) no-repeat 50%/80%;
+     color: transparent;
+}
+.map_paging .map_paging_inner .page-wrap a.page-last[data-v-2fbcbd64] {
+    background: url(../ico_last.svg) no-repeat 50%/80%;
+    color: transparent;
+}
