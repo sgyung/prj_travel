@@ -1,13 +1,9 @@
-<%@page import="pageUtil.PageVO"%>
-<%@page import="pageUtil.PageDAO"%>
-<%@page import="java.sql.SQLException"%>
 <%@page import="admin.vo.NoticeVO"%>
-<%@page import="java.util.List"%>
+<%@page import="java.sql.SQLException"%>
 <%@page import="admin.dao.NoticeManageDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+<%@ page info = "" %>    
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,52 +13,36 @@
 <link rel="stylesheet" type="text/css"
 	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
-thead {
-	text-align: center
-}
 
-td {
-	text-align: center
-}
-</style>
+</style> 
 <!-- jQuery CDN -->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
 	$(function() {
-		$("#btn").click(function() {
-			location.href = "admin_post_add.jsp"
+		$("#list").click(function() {
+			location.href = "admin_post_list.jsp"
 		});
 		
-		$("#search").click(function() {
-			chkNull();
-		});//click
 		
-		$("#keyword").keyup(function(evt) {// keydown은 값을 받을 수 없다. 값을 받으려면 keyup을 사용
-			if(evt.which == 13){
-				chkNull();
-			}//end if
-		});//keyup
-
+		$("#delete").click(function() {
+			deletePost();
+		});
 	})//ready
 	
-	function postDetail( id ) {
-		$("#noticeId").val(id);
+	function postModify( id ) {
+		$("#postId").val(id);
 		$("#postFrm").submit();
 	}
 	
-	function chkNull() {
-		var keyword = $("#keyword").val();
-		
-		if(keyword.trim()==""){
-			alert("검색 키워드를 입력해주세요.");
-			return;
-		}//end if
-		
-		//글자수 제한
-		
-		$("#frmSearch").submit();
-	}//chkNull
+	 function deletePost() {
+	    if (confirm("공지사항을 삭제 하시겠습니까?")) {
+	    	$("#deleteId").val(${ param.noticeId });
+	    	 $("#deleteFrm").submit();
+	     } else {
+	    	return;
+	     }
+	 }
 	
 </script>
 
@@ -182,50 +162,6 @@ td {
 			</nav>
 			<!-- /.sidebar-menu -->
 		</aside>
-<%
-PageDAO pDAO = PageDAO.getInstance();
-PageVO pVO = new PageVO();
-
-String field=request.getParameter("field");
-String keyword=request.getParameter("keyword");
-
-// 페이지가 최초 호출시에는 field나 keyword가 없다. 검색을 하지 않는 경우에도 값이 없다.
-pVO.setField(request.getParameter("field"));
-pVO.setKeyword(request.getParameter("keyword"));
-
-
-
-// 1. 총 레코드의 수 => 검색키워드에 해당하는 총 레코드의 수
-int totalCount = pDAO.noticeTotalCount(pVO);
-
-// 2. 한 화면에 보여줄 게시물의 수
-int pageScale = 10;
-
-// 3. 총 페이지 수
-int totalPage = 0;
-
-totalPage = (int)Math.ceil(totalCount/(double)pageScale);
-
-
-// 현재 페이지의 시작번호 구하기
-String  tempPage = request.getParameter("currentPage");
-int currentPage = 1;
-
-if(tempPage != null){
-	currentPage = Integer.parseInt(tempPage);
-}
-
-int startNum = currentPage * pageScale - pageScale + 1;
-int endNum = startNum + pageScale -1;
-
-// Dynamic Query에 의해서 구해진 시작번호와 끝번호를 VO에 넣는다.
-pVO.setStartNum(startNum);
-pVO.setEndNum(endNum);
-
-pageContext.setAttribute("startNum", startNum);
-
-%>
-
 		<!-- Content Wrapper. Contains page content -->
 		<div class="content-wrapper" >
 			<div class="content-header">
@@ -240,26 +176,8 @@ pageContext.setAttribute("startNum", startNum);
 				</div>
 				<!-- /.container-fluid -->
 			</div>
-			<!-- /.content-header -->
-<%
-	NoticeManageDAO nmDAO = NoticeManageDAO.getInstance();
-	try{
-		List<NoticeVO> postList = null;
-
-		if(field != null){
-			postList = pDAO.selectNotice(pVO);
-		}else if(field == null){
-		postList = nmDAO.selectAllnotice();
-		}
-		pageContext.setAttribute("postList", postList);
-	}catch(SQLException se){
-		se.printStackTrace();
-	}
-%>			
-	<form action="admin_post_detail.jsp" method="post" id="postFrm">
-		<input type="hidden" id="noticeId" name="noticeId"/>
-	</form>			
-	<section class="content">
+			
+			<section class="content">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
@@ -269,62 +187,75 @@ pageContext.setAttribute("startNum", startNum);
               </div>
               <!-- /.card-header -->
               <div class="card-body" style="height: 650px">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 40px">번호</th>
-                      <th style="width: 300px">제목</th>
-                      <th style="width: 70px">작성자</th>
-                      <th style="width: 100px">작성일</th>
-                      <th style="width: 70px">조회수</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-				    <c:forEach var="post" items="${ postList }" varStatus="i" >
-				    <tr>
-                      <td><c:out value="${i.count}"/></td>
-                      <td><a href="#void" onclick="postDetail('${ post.id }')"><c:out value="${post.title}"/></a></td>
-                      <td><c:out value="관리자"/></td>
-                      <td><c:out value="${post.registrationDate}"/></td>
-                      <td><c:out value="${post.viewNum}"/></td>
-                    </tr>
-				    </c:forEach>       	
-                    
-                  </tbody>
-                </table>
-              <input type="button" class="btn btn-primary" id="btn" value="등록" style="position: absolute; bottom: 10px; right: 20px; width: 100px">
-              </div>
-              <!-- /.card-body -->
-              <div class="card-footer clearfix">
-                <ul class="pagination justify-content-center" >
-                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <%for(int i = 1; i < totalPage+1; i++){ %>
-                  <li class="page-item"><a class="page-link" href = "admin_post_list.jsp?currentPage=<%= i %>&keyword=${ param.keyword }&field=${ param.field }"><%= i %></a></li>
-                  <%} %>
-                 <!--  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li> -->
-                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-                </ul>
-                <div style="text-align: center" >
-                <form name = "frmSearch" id="frmSearch" action="admin_post_list.jsp" method="get">
-                <select name="field" class="inputBox" style="height: 30px;">
-					<option value="1"${ param.field eq '1'?"selected = 'selected'":"" }>아이디</option>
-					<option value="2"${ param.field eq '2'?"selected = 'selected'":"" }>제목</option>
-				</select>
-                <input type="text" name="keyword" id="keyword" class="inputBox" value ="${ param.keyword ne 'null'? parma.keyword:'' }" style="width: 200px; height: 30px;" placeholder="내용을 입력해주세요."/>
-                <div style="display: inline-block;" >
-                <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
-                </div>
-                </form>
-                </div>
-              </div>
+<%
+	NoticeManageDAO nmDAO = NoticeManageDAO.getInstance();
+
+	try{
+		String noticeId = request.getParameter("noticeId");
+		
+		if(noticeId != null){
+			NoticeVO nVO = nmDAO.selectNotice(noticeId);
+			pageContext.setAttribute("nVO", nVO);
+%>
+                <table class="table" style=" border-left: 0px; border-right: 0px; border-top: 3px solid #535353; 
+	border-bottom: 1px solid #535353; border-spacing: 0px" >
+			<tbody>
+			<tr>
+			<th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">제목</th>
+			<td>${ nVO.title }</td>
+            </tr>
+            <tr style="height: 300px">
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">내용</th>
+            <td>
+            <div style="margin: 10px 0px;">
+            ${ nVO.content }
             </div>
-            <!-- /.card -->
+            </td>
+            </tr>
+            <tr>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">작성자</th>
+            <td>관리자</td>
+            </tr>
+            <tr>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">작성일</th>
+            <td>${ nVO.registrationDate }</td>
+            </tr>
+            <tr>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">조회수</th>
+            <td>${ nVO.viewNum }</td>
+            </tr>
+            <!-- <tr>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353;">공지글 여부</th>
+            <td>y</td>
+            </tr> -->
+            </tbody>
+            </table>
+			<form action="admin_post_add.jsp" method="post" id="postFrm">
+			<input type="hidden" id="postId" name="postId">
+			</form>
+			<div style="text-align: right; margin-top: 10px">
+			<form action="admin_post_delete_proccess.jsp" method="post" id="deleteFrm">
+			<input type="hidden" id="deleteId" name="deleteId">
+			</form>
+			<input type="button" value="수정" class="btn btn-info" id="modify" style="width: 80px;"onclick="postModify('${ nVO.id }')">
+			<input type="button" value="삭제" class="btn btn-info" id="delete" style="width: 80px; margin-left: 20px;">
+			</div>
+						
+            <div style="text-align: center; margin-top: 10px">
+            <input type="button" value="목록" class="btn btn-outline-warning" id="list" style="width: 150px">
             </div>
             </div>
-           </div>
-         </section>
-          
+            </div>
+            </div>
+            </div>
+            </div>
+            </section>
+<%
+		}
+	}catch(SQLException se){
+		se.printStackTrace();
+	}		
+%>			
 		</div>
 		<footer class="main-footer">
 			<strong>Copyright &copy; 2014-2021 <a
@@ -342,5 +273,6 @@ pageContext.setAttribute("startNum", startNum);
 		<!-- /.control-sidebar -->
 	</div>
 	<!-- ./wrapper -->
+	
 </body>
 </html>	

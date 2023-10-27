@@ -1,6 +1,11 @@
+<%@page import="admin.vo.QandAVO"%>
+<%@page import="java.util.List"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="admin.dao.QAndAManageDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>    
+<%@ page info = "" %>  
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>  
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -25,61 +30,42 @@ td {
 	$(function() {
 		
 	})//ready
+	
+	function questionDetail(id) {
+		$("#questionId").val(id);
+		$("#questionFrm").submit();
+	}
 </script>
 
-<!-- bootstrap CDN -->
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-	crossorigin="anonymous">
-<!-- bootstrap CDN-->
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<!-- Google Font: Source Sans Pro -->
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-<!-- Font Awesome -->
-<link rel="stylesheet"
-	href="resource/plugins/fontawesome-free/css/all.min.css">
-<!-- Ionicons -->
-<link rel="stylesheet"
-	href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<!-- Tempusdominus Bootstrap 4 -->
-<link rel="stylesheet"
-	href="resource/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-<!-- iCheck -->
-<link rel="stylesheet"
-	href="resource/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-<!-- JQVMap -->
-<link rel="stylesheet" href="resource/plugins/jqvmap/jqvmap.min.css">
-<!-- Theme style -->
-<link rel="stylesheet" href="resource/dist/css/adminlte.min.css">
-<!-- overlayScrollbars -->
-<link rel="stylesheet"
-	href="resource/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-<!-- Daterange picker -->
-<link rel="stylesheet"
-	href="resource/plugins/daterangepicker/daterangepicker.css">
-<!-- summernote -->
-<link rel="stylesheet"
-	href="resource/plugins/summernote/summernote-bs4.min.css">
+
+
+<jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 	<div class="wrapper">
+<!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="../admin_dashboard/dashboard.jsp" class="nav-link">Home</a>
+      </li>
+    </ul>
 
-		<!-- Preloader -->
-		<div
-			class="preloader flex-column justify-content-center align-items-center">
-			<img class="animation__shake" src="dist/img/AdminLTELogo.png"
-				alt="AdminLTELogo" height="60" width="60">
-		</div>
-
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      <li class="nav-item">
+        <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
+       </li>
+       </ul>
+  </nav>
+  <!-- /.navbar -->
 
 		<!-- Main Sidebar Container -->
 		<aside class="main-sidebar sidebar-dark-primary elevation-4">
 			<!-- Brand Logo -->
-			<a href="index3.html" class="brand-link"> <span
+			<a href="../admin_dashboard/dashboard.jsp" class="brand-link"> <span
 				class="brand-text font-weight-light">Visit JEJU</span>
 			</a>
 
@@ -90,12 +76,12 @@ td {
 					data-widget="treeview" role="menu" data-accordion="true">
 					<!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-					<li class="nav-item"><a href="dashboard.jsp" class="nav-link">
+					<li class="nav-item"><a href="../admin_dashboard/dashboard.jsp" class="nav-link">
 							<i class="bi bi-speedometer"></i>
 							<p>Dashboard</p>
 					</a></li>
 
-					<li class="nav-item"><a href="admin_user.jsp" class="nav-link">
+					<li class="nav-item"><a href="../admin_user/admin_user.jsp" class="nav-link">
 							<i class="bi-people-fill"></i>
 							<p>회원관리</p>
 					</a></li>
@@ -190,10 +176,17 @@ td {
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">문의사항 관리</h3>
+                <h3 class="card-title">맛집 문의사항 관리</h3>
               </div>
               <!-- /.card-header -->
-              <div class="card-body" style="height: 650px">
+              <div class="card-body" style="height: 350px">
+<%
+	QAndAManageDAO qamDAO = QAndAManageDAO.getInstance();
+	try{
+		List<QandAVO> list = qamDAO.selectAllRestaurantQnA();
+		
+		pageContext.setAttribute("restaurantList", list);
+%>
                 <table class="table table-bordered">
                   <thead>
                     <tr>
@@ -206,50 +199,121 @@ td {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>맛집</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>관리자</td>
-                      <td>2023-10-12</td>
-                      <td>답변완료</td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>맛집</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>관리자</td>
-                      <td>2023-10-12</td>
-                      <td>답변대기</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>맛집</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>관리자</td>
-                      <td>2023-10-12</td>
-                      <td>답변완료</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>맛집</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>관리자</td>
-                      <td>2023-10-12</td>
-                      <td>답변완료</td>
-                    </tr>
+                  <c:forEach var="restaurantList" items="${restaurantList}" varStatus="i">
+				        <tr>
+				            <td>${i.count}</td>
+				            <td>${restaurantList.category}</td>
+				            <td onclick="questionDetail('${ restaurantList.QAndAId }')">${restaurantList.title}</td>
+				            <td>${restaurantList.userId}</td>
+				            <td>${restaurantList.registrationDate}</td>
+				                <c:if test="${restaurantList.answerType eq 'n'}">
+				                    <td>답변 대기</td>
+				                 </c:if>
+				                <c:if test="${restaurantList.answerType eq 'y'}">
+				                    <td>답변완료</td>
+				                 </c:if>
+				        </tr>
+				</c:forEach>
+                 
                   </tbody>
                 </table>
               </div>
+<%
+}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>
               <!-- /.card-body -->
               <div class="card-footer clearfix">
-                <ul class="pagination pagination-sm m-0 float-center" >
+                <ul class="pagination justify-content-center" >
                   <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
                   <li class="page-item"><a class="page-link" href="#">1</a></li>
                   <li class="page-item"><a class="page-link" href="#">2</a></li>
                   <li class="page-item"><a class="page-link" href="#">3</a></li>
                   <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
                 </ul>
+                <div style="text-align: center" >
+                <input type="text" id="input" class="inputBox" style="width: 200px; height: 30px;" placeholder="제목을 입력해주세요."/>
+                <div style="display: inline-block;" >
+                <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
+                </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.card -->
+            </div>
+            </div>
+           </div>
+         </section>
+         <form action="admin_question_detail_proccess.jsp" method="post" id="questionFrm">
+         <input type="hidden" id="questionId" name="questionId"/>
+         </form>
+         <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">관광지 문의사항 관리</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body" style="height: 350px">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th style="width: 40px">번호</th>
+                      <th style="width: 50px">카테고리</th>
+                      <th style="width: 300px">제목</th>
+                      <th style="width: 70px">작성자</th>
+                      <th style="width: 100px">작성일</th>
+                      <th style="width: 70px">답변상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+<%
+	try{
+		List<QandAVO> list = qamDAO.selectAllTouristQnA();
+		
+		pageContext.setAttribute("touristlist", list);
+%>                  
+                    <c:forEach var="touristList" items="${touristlist}" varStatus="i">
+				        <tr>
+				            <td>${i.count}</td>
+				            <td>${touristList.category}</td>
+				            <td onclick="questionDetail('${ touristList.QAndAId }')">${touristList.title}</td>
+				            <td>${touristList.userId}</td>
+				            <td>${touristList.registrationDate}</td>
+				                <c:if test="${touristList.answerType eq 'n'}">
+				                    <td>답변 대기</td>
+				                 </c:if>
+				                <c:if test="${touristList.answerType eq 'y'}">
+				                    <td>답변완료</td>
+				                 </c:if>
+				        </tr>
+				</c:forEach>
+                  </tbody>
+                </table>
+              </div>
+<%              
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>                  
+              <!-- /.card-body -->
+              <div class="card-footer clearfix">
+                <ul class="pagination justify-content-center" >
+                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                </ul>
+                <div style="text-align: center" >
+                <input type="text" id="input" class="inputBox" style="width: 200px; height: 30px;" placeholder="제목을 입력해주세요."/>
+                <div style="display: inline-block;" >
+                <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
+                </div>
+                </div>
               </div>
             </div>
             <!-- /.card -->
@@ -276,41 +340,6 @@ td {
 		<!-- /.control-sidebar -->
 	</div>
 	<!-- ./wrapper -->
-	<!-- jQuery -->
-	<script src="resource/plugins/jquery/jquery.min.js"></script>
-	<!-- jQuery UI 1.11.4 -->
-	<script src="resource/plugins/jquery-ui/jquery-ui.min.js"></script>
-	<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-	<script>
-		$.widget.bridge('uibutton', $.ui.button)
-	</script>
-	<!-- Bootstrap 4 -->
-	<script src="resource/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- ChartJS -->
-	<script src="resource/plugins/chart.js/Chart.min.js"></script>
-	<!-- Sparkline -->
-	<script src="resource/plugins/sparklines/sparkline.js"></script>
-	<!-- JQVMap -->
-	<script src="resource/plugins/jqvmap/jquery.vmap.min.js"></script>
-	<script src="resource/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-	<!-- jQuery Knob Chart -->
-	<script src="resource/plugins/jquery-knob/jquery.knob.min.js"></script>
-	<!-- daterangepicker -->
-	<script src="resource/plugins/moment/moment.min.js"></script>
-	<script src="resource/plugins/daterangepicker/daterangepicker.js"></script>
-	<!-- Tempusdominus Bootstrap 4 -->
-	<script
-		src="resource/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-	<!-- Summernote -->
-	<script src="resource/plugins/summernote/summernote-bs4.min.js"></script>
-	<!-- overlayScrollbars -->
-	<script
-		src="resource/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-	<!-- AdminLTE App -->
-	<script src="resource/dist/js/adminlte.js"></script>
-	<!-- AdminLTE for demo purposes -->
-	<script src="resource/dist/js/demo.js"></script>
-	<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-	<script src="resource/dist/js/pages/dashboard.js"></script>
+	
 </body>
 </html>	

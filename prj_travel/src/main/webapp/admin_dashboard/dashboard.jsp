@@ -1,3 +1,13 @@
+<%@page import="admin.vo.RestaurantReviewVO"%>
+<%@page import="admin.vo.TourReviewVO"%>
+<%@page import="com.google.gson.Gson"%>
+<%@page import="admin.vo.RankVO"%>
+<%@page import="admin.vo.QandAVO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="admin.vo.NoticeVO"%>
+<%@page import="java.util.List"%>
+<%@page import="admin.dao.DashboardDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info = "" %>    
@@ -7,118 +17,169 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>관리자 | Dashboard</title>
-<link rel = "stylesheet" type="text/css" href = "http://192.168.10.134/html_prj/common/css/main_v20230906">
+<!-- <link rel = "stylesheet" type="text/css" href = "http://192.168.10.134/html_prj/common/css/main_v20230906"> -->
 <style type="text/css">
 thead{ text-align : center }
 td{ text-align : center }
 </style>
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<%
+
+DashboardDAO dDAO = DashboardDAO.getInstance();
+try{
+	List<RankVO> restaurantRankList = dDAO.selectRestaurantRank();
+	List<RankVO> touristAreaRankList = dDAO.selectTouristAreaRank();
+	 Gson gson = new Gson();
+	String restaurantRankJson = gson.toJson(restaurantRankList);
+	String touristAreaRankJson = gson.toJson(touristAreaRankList);
+	
+	
+	pageContext.setAttribute("restaurantRankList", restaurantRankJson);
+	pageContext.setAttribute("touristAreaRankList", touristAreaRankJson);
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>
+
 <script type="text/javascript">
 $(function(){
+		   
+	    
+   // JSTL에서 가져온 JSON 데이터를 JavaScript 변수에 할당
+    var touristAreaRankList = ${touristAreaRankList};
+
+    // labels와 data 배열 초기화
+    var labels = [];
+    var data = [];
+
+    // restaurantRankList에서 데이터 추출
+    for (var i = 0; i < touristAreaRankList.length; i++) {
+        var rankVO = touristAreaRankList[i];
+        labels.push(rankVO.name);
+        data.push(rankVO.like);
+    }
+    /*     var labelsString = "labels = ['" + labels.join("', '") + "'];";
+    var dataString = "data = [" + data.join(", ") + "];";
+    
+    var labelArr = new Function(labelsString);
+    labelArr();
+    
+    var dataArr = new Function(dataString);
+    dataArr();
+    
+    // labels와 data를 console로 출력
+    console.log(labels);
+    console.log(data); */
 
 	    var areaChartData = {
-	      labels  : ['우도', '성산일출봉', '섭지코지', '금능해수욕장', '동문시장'],
-	      datasets: [
-	        {
-	          label               : '좋아요',
-	          backgroundColor     : '#BFE9E5',
-	          borderColor         : 'BFE9E5',
-	          pointRadius         : false,
-	          pointColor          : 'BFE9E5',
-	          pointStrokeColor    : '#c1c7d1',
-	          pointHighlightFill  : '#fff',
-	          pointHighlightStroke: 'rgba(220,220,220,1)',
-	          data                : [65, 59, 80, 81, 56, 0]
-	        }
-	      ]
-	    }
+		  	      labels  : labels,
+		  	      datasets: [
+		  	        {
+		  	          label               : '좋아요',
+		  	          backgroundColor     : '#BFE9E5',
+		  	          borderColor         : 'BFE9E5',
+		  	          pointRadius         : false,
+		  	          pointColor          : 'BFE9E5',
+		  	          pointStrokeColor    : '#c1c7d1',
+		  	          pointHighlightFill  : '#fff',
+		  	          pointHighlightStroke: 'rgba(220,220,220,1)',
+		  	          data                : data
+		  	        }
+		  	      ]
+		  	    }
+		    
+		    var barChartCanvas = $('#barChart').get(0).getContext('2d');
+		    var barChartData = $.extend(true, {}, areaChartData);
+		    var temp0 = areaChartData.datasets[0];
+		    barChartData.datasets[0] = temp0;
+
+		    var barChartOptions = {
+		      responsive              : true,
+		      maintainAspectRatio     : false,
+		      datasetFill             : false
+		    }
+
+		    new Chart(barChartCanvas, {
+		      type: 'bar',
+		      data: barChartData,
+		      options: barChartOptions
+		    });
+		    
+		 // JSTL에서 가져온 JSON 데이터를 JavaScript 변수에 할당
+		    var restaurantRankList = ${restaurantRankList};
+
+		    // labels와 data 배열 초기화
+		    var labels = [];
+		    var data = [];
+
+		    // restaurantRankList에서 데이터 추출
+		    for (var i = 0; i < restaurantRankList.length; i++) {
+		        var rankVO = restaurantRankList[i];
+		        labels.push(rankVO.name);
+		        data.push(rankVO.like);
+		    }
+		    
+		    var areaChartData2 = {
+		  	      labels  : labels,
+		  	      datasets: [
+		  	        {
+		  	          label               : '좋아요',
+		  	          backgroundColor     : '#BFE9E5',
+		  	          borderColor         : 'BFE9E5',
+		  	          pointRadius         : false,
+		  	          pointColor          : 'BFE9E5',
+		  	          pointStrokeColor    : '#c1c7d1',
+		  	          pointHighlightFill  : '#fff',
+		  	          pointHighlightStroke: 'rgba(220,220,220,1)',
+		  	          data                : data
+		  	        }
+		  	      ]
+		  	    }
+		  	    
+		  		var barChartCanvas = $('#barChart2').get(0).getContext('2d');
+		  	    var barChartData = $.extend(true, {}, areaChartData2);
+		  	    var temp0 = areaChartData2.datasets[0];
+		  	    barChartData.datasets[0] = temp0;
+
+		  	    var barChartOptions = {
+		  	      responsive              : true,
+		  	      maintainAspectRatio     : false,
+		  	      datasetFill             : false
+		  	    }
+
+		  	    new Chart(barChartCanvas, {
+		  	      type: 'bar',
+		  	      data: barChartData,
+		  	      options: barChartOptions
+		  	    });
 	    
-		var barChartCanvas = $('#barChart').get(0).getContext('2d');
-	    var barChartData = $.extend(true, {}, areaChartData);
-	    var temp0 = areaChartData.datasets[0];
-	    barChartData.datasets[0] = temp0;
-
-	    var barChartOptions = {
-	      responsive              : true,
-	      maintainAspectRatio     : false,
-	      datasetFill             : false
-	    }
-
-	    new Chart(barChartCanvas, {
-	      type: 'bar',
-	      data: barChartData,
-	      options: barChartOptions
-	    });
-		
-	    var areaChartData2 = {
-	  	      labels  : ['가시아방', '갈치조림', '은희네', '고기국수', '횟집'],
-	  	      datasets: [
-	  	        {
-	  	          label               : '좋아요',
-	  	          backgroundColor     : '#BFE9E5',
-	  	          borderColor         : 'BFE9E5',
-	  	          pointRadius         : false,
-	  	          pointColor          : 'BFE9E5',
-	  	          pointStrokeColor    : '#c1c7d1',
-	  	          pointHighlightFill  : '#fff',
-	  	          pointHighlightStroke: 'rgba(220,220,220,1)',
-	  	          data                : [65, 59, 80, 81, 56, 0]
-	  	        }
-	  	      ]
-	  	    }
-	    
-	    var barChartCanvas = $('#barChart2').get(0).getContext('2d');
-	    var barChartData = $.extend(true, {}, areaChartData2);
-	    var temp0 = areaChartData2.datasets[0];
-	    barChartData.datasets[0] = temp0;
-
-	    var barChartOptions = {
-	      responsive              : true,
-	      maintainAspectRatio     : false,
-	      datasetFill             : false
-	    }
-
-	    new Chart(barChartCanvas, {
-	      type: 'bar',
-	      data: barChartData,
-	      options: barChartOptions
-	    });
 })//ready
 </script>
-  
-  <!-- bootstrap CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-  <!-- bootstrap CDN-->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="resource/plugins/fontawesome-free/css/all.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-  <!-- Tempusdominus Bootstrap 4 -->
-  <link rel="stylesheet" href="resource/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-  <!-- iCheck -->
-  <link rel="stylesheet" href="resource/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-  <!-- JQVMap -->
-  <link rel="stylesheet" href="resource/plugins/jqvmap/jqvmap.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="resource/dist/css/adminlte.min.css">
-  <!-- overlayScrollbars -->
-  <link rel="stylesheet" href="resource/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Daterange picker -->
-  <link rel="stylesheet" href="resource/plugins/daterangepicker/daterangepicker.css">
-  <!-- summernote -->
-  <link rel="stylesheet" href="resource/plugins/summernote/summernote-bs4.min.css">
+<jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-  <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__shake" src="dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-  </div>
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="index3.html" class="nav-link">Home</a>
+      </li>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      <li class="nav-item">
+        <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
+       </li>
+       </ul>
+  </nav>
+  <!-- /.navbar -->
   
 
   <!-- Main Sidebar Container -->
@@ -144,7 +205,7 @@ $(function(){
           </li>
           
           <li class="nav-item">
-          <a href="admin_user.jsp" class="nav-link">
+          <a href="../admin_user/admin_user.jsp" class="nav-link">
                <i class="bi-people-fill"></i>
               <p> 회원관리</p>
             </a>
@@ -158,19 +219,19 @@ $(function(){
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="admin_post_list.jsp" class="nav-link">
+                <a href="../admin_post/admin_post_list.jsp" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>공지사항 관리</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index2.html" class="nav-link">
+                <a href="../admin_post/admin_question_list.jsp" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>문의사항 관리</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index3.html" class="nav-link">
+                <a href="../admin_post/admin_board_list.jsp" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>자유게시판 관리</p>
                 </a>
@@ -186,13 +247,13 @@ $(function(){
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="./index.html" class="nav-link">
+                <a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>관광지 추가</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index2.html" class="nav-link">
+                <a href="../admin_tourarea/admin_tourarea_review.jsp" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>관광지 리뷰 관리</p>
                 </a>
@@ -270,7 +331,7 @@ $(function(){
     <!-- /.content-header -->
 		<div class="row">
           <div class="col-md-6">
-            <div class="card" style="margin-left: 20px; margin-right: 20px">
+            <div class="card" style="margin-left: 20px; margin-right: 20px; min-height: 380px">
               <div class="card-header">
                 <h3 class="card-title">최근 공지사항</h3>
               </div>
@@ -285,26 +346,32 @@ $(function(){
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>2.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>3.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>4.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
+
+<%
+
+ 
+try{
+List<NoticeVO> list = dDAO.selectRecentNotice();
+for(int i = 0; i < list.size(); i++ ){
+	if( i != 5){
+%>
+ 		  <tr>
+            <td><%= i+1%></td>
+            <td><%= list.get(i).getTitle() %></td>
+            <td><%= list.get(i).getRegistrationDate() %></td>
+          </tr>
+<%
+
+
+	}else{
+		break;
+	}
+}
+
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>             
                   </tbody>
                 </table>
               </div>
@@ -337,7 +404,7 @@ $(function(){
           </div>
           <!-- /.col -->
           <div class="col-md-6">
-            <div class="card" style="margin-left: 20px; margin-right: 20px">
+            <div class="card" style="margin-left: 20px; margin-right: 20px; min-height: 380px">
               <div class="card-header">
                 <h3 class="card-title">답변 대기 문의사항</h3> 
               </div>
@@ -346,32 +413,37 @@ $(function(){
                 <table class="table">
                   <thead>
                     <tr>
-                      <th style="width: 60px">번호</th>
+                      <th style="width: 80px">번호</th>
+                      <th style="width: 100px">카테고리</th>
                       <th>제목</th>
                       <th style="width: 150px">작성일</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
+<%
+
+try{
+	List<QandAVO> waitingAnswerList = dDAO.selectWaitingAnswer();
+	
+	for(int i = 0; i < waitingAnswerList.size(); i++){
+		if(i != 5 ){
+%>
+                   <tr>
+                      <td><%= i+1 %></td>
+                      <td><%= waitingAnswerList.get(i).getCategory() %></td>
+                      <td><%= waitingAnswerList.get(i).getTitle() %></td>
+                      <td><%= waitingAnswerList.get(i).getRegistrationDate() %></td>
                     </tr>
-                    <tr>
-                      <td>2.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>3.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>4.</td>
-                      <td>Update software</td>
-                      <td>2023-10-12</td>
-                    </tr>
+<%
+		}else{
+			break;
+		}
+	}
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>     			
+
                   </tbody>
                 </table>
               </div>
@@ -423,47 +495,34 @@ $(function(){
                     <tr>
                       <th style="width:60px">번호</th>
                       <th>리뷰 내용</th>
-                      <th style="width:80px">분류</th>
                       <th style="width:150px">아이디</th>
                       <th style="width:150px">작성일</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>경치가 좋아요</td>
-                      <td>관광지</td>
-                      <td><span class="tag tag-success">aaa</span></td>
-                      <td>2023-10-12</td>
+                  <%
+try{
+	List<TourReviewVO> tourReviewList = dDAO.selectRecentTourReview();
+	
+	for(int i = 0; i < tourReviewList.size(); i++){
+		if(i != 5 ){
+%>
+                   <tr>
+                      <td><%= i+1 %></td>
+                      <td><%= tourReviewList.get(i).getContent() %></td>
+                      <td><span class="tag tag-success"><%= tourReviewList.get(i).getUserId() %></span></td>
+                      <td><%= tourReviewList.get(i).getReviewDate() %></td>
                     </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>경치가 좋아요</td>
-                      <td>관광지</td>
-                      <td><span class="tag tag-success">bbb</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>경치가 좋아요</td>
-                      <td>관광지</td>
-                      <td><span class="tag tag-success">ccc</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>경치가 좋아요</td>
-                      <td>관광지</td>
-                      <td><span class="tag tag-success">ddd</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>경치가 좋아요</td>
-                      <td>관광지</td>
-                      <td><span class="tag tag-success">eee</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
+<%
+		}else{
+			break;
+		}
+	}
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>     	
+                  
                   </tbody>
                 </table>
               </div>
@@ -491,47 +550,33 @@ $(function(){
                     <tr>
                       <th style="width:60px">번호</th>
                       <th>리뷰 내용</th>
-                      <th style="width:80px">분류</th>
                       <th style="width:150px">아이디</th>
                       <th style="width:150px">작성일</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>맛있어요</td>
-                      <td>맛집</td>
-                      <td><span class="tag tag-success">aaa</span></td>
-                      <td>2023-10-12</td>
+<%                 
+try{
+	List<RestaurantReviewVO> restaurantReviewList = dDAO.selectRecentRestaurantReview();
+	
+	for(int i = 0; i < restaurantReviewList.size(); i++){
+		if(i != 5 ){
+%>
+                   <tr>
+                      <td><%= i+1 %></td>
+                      <td><%= restaurantReviewList.get(i).getContent() %></td>
+                      <td><span class="tag tag-success"><%= restaurantReviewList.get(i).getUserId() %></span></td>
+                      <td><%= restaurantReviewList.get(i).getReviewDate() %></td>
                     </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>맛있어요</td>
-                      <td>맛집</td>
-                      <td><span class="tag tag-success">bbb</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>맛있어요</td>
-                      <td>맛집</td>
-                      <td><span class="tag tag-success">ccc</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>맛있어요</td>
-                      <td>맛집</td>
-                      <td><span class="tag tag-success">ddd</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>맛있어요</td>
-                      <td>맛집</td>
-                      <td><span class="tag tag-success">eee</span></td>
-                      <td>2023-10-12</td>
-                    </tr>
+<%
+		}else{
+			break;
+		}
+	}
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>  
                   </tbody>
                 </table>
               </div>
@@ -614,39 +659,6 @@ $(function(){
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery -->
-<script src="resource/plugins/jquery/jquery.min.js"></script>
-<!-- jQuery UI 1.11.4 -->
-<script src="resource/plugins/jquery-ui/jquery-ui.min.js"></script>
-<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-<script>
-  $.widget.bridge('uibutton', $.ui.button)
-</script>
-<!-- Bootstrap 4 -->
-<script src="resource/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- ChartJS -->
-<script src="resource/plugins/chart.js/Chart.min.js"></script>
-<!-- Sparkline -->
-<script src="resource/plugins/sparklines/sparkline.js"></script>
-<!-- JQVMap -->
-<script src="resource/plugins/jqvmap/jquery.vmap.min.js"></script>
-<script src="resource/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-<!-- jQuery Knob Chart -->
-<script src="resource/plugins/jquery-knob/jquery.knob.min.js"></script>
-<!-- daterangepicker -->
-<script src="resource/plugins/moment/moment.min.js"></script>
-<script src="resource/plugins/daterangepicker/daterangepicker.js"></script>
-<!-- Tempusdominus Bootstrap 4 -->
-<script src="resource/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-<!-- Summernote -->
-<script src="resource/plugins/summernote/summernote-bs4.min.js"></script>
-<!-- overlayScrollbars -->
-<script src="resource/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
-<script src="resource/dist/js/adminlte.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="resource/dist/js/demo.js"></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="resource/dist/js/pages/dashboard.js"></script>
+
 </body>
 </html>

@@ -1,6 +1,11 @@
+<%@page import="admin.vo.UserCommentVO"%>
+<%@page import="admin.dao.UserManageDAO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>    
+<%@ page info = "" %> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>   
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -46,58 +51,34 @@ td {
 		   
 		
 	})//ready
+
+	function commentDetail(commentId) {
+		
+	}
 </script>
 
-<!-- bootstrap CDN -->
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-	crossorigin="anonymous">
-<!-- bootstrap CDN-->
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<!-- Google Font: Source Sans Pro -->
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-<!-- Font Awesome -->
-<link rel="stylesheet"
-	href="resource/plugins/fontawesome-free/css/all.min.css">
-<!-- Ionicons -->
-<link rel="stylesheet"
-	href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<!-- Tempusdominus Bootstrap 4 -->
-<link rel="stylesheet"
-	href="resource/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-<!-- iCheck -->
-<link rel="stylesheet"
-	href="resource/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-<!-- JQVMap -->
-<link rel="stylesheet" href="resource/plugins/jqvmap/jqvmap.min.css">
-<!-- Theme style -->
-<link rel="stylesheet" href="resource/dist/css/adminlte.min.css">
-<!-- overlayScrollbars -->
-<link rel="stylesheet"
-	href="resource/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-<!-- Daterange picker -->
-<link rel="stylesheet"
-	href="resource/plugins/daterangepicker/daterangepicker.css">
-<!-- summernote -->
-<link rel="stylesheet"
-	href="resource/plugins/summernote/summernote-bs4.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+<jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 	<div class="wrapper">
+<!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="index3.html" class="nav-link">Home</a>
+      </li>
+    </ul>
 
-		<!-- Preloader -->
-		<div
-			class="preloader flex-column justify-content-center align-items-center">
-			<img class="animation__shake" src="dist/img/AdminLTELogo.png"
-				alt="AdminLTELogo" height="60" width="60">
-		</div>
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      <li class="nav-item">
+        <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
+       </li>
+       </ul>
+  </nav>
+  <!-- /.navbar -->
 
 
 		<!-- Main Sidebar Container -->
@@ -214,7 +195,23 @@ td {
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">김선경님의 작성 댓글</h3>
+<%
+UserManageDAO umDAO = UserManageDAO.getInstance();
+try{
+	String id = request.getParameter("id");
+	List<UserCommentVO> userAllCommentList = umDAO.selectUserAllComment(id);
+	pageContext.setAttribute("list", userAllCommentList);
+		for(int i = 0; i < userAllCommentList.size(); i++ ){
+    		  if(userAllCommentList.get(i).getUserId().equals(request.getParameter("id"))){
+%>
+                <h3 class="card-title"><%=userAllCommentList.get(i).getUserName()%>님의 작성 댓글</h3>
+<% 
+    		  }
+		}
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -227,29 +224,24 @@ td {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td class="modal-trigger">우도 너무 재미있다 재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다
-                      재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다
-                      재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있
-                      재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다재미있다</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>우도 너무 재미있다</td>
-                      <td>2023-10-12</td>
-                    </tr>
+    <c:forEach var="comment" items="${list}" varStatus="i">
+<c:choose>
+  <c:when test="${not empty comment.content}">
+      <tr>
+        <td><c:out value="${i.count}" /></td>
+        <td class="modal-trigger">
+        <a href="#void" onclick="commentDetail(${comment.commentId})"><c:out value="${comment.content}" /></a></td>
+        <td><c:out value="${comment.registrationDate}" /></td>
+      </tr>
+  </c:when>
+  <c:otherwise>
+    <tr>
+      <td colspan="3">작성하신 댓글이 없습니다.</td>
+    </tr>
+  </c:otherwise>
+</c:choose>
+</c:forEach>
+
                   </tbody>
                 </table>
               </div>
@@ -270,8 +262,16 @@ td {
             </div>
            </div>
          </section>
-         
 
+<%
+try{
+	
+	String commentId = request.getParameter("commentId");
+
+	if(commentId != null){
+	UserCommentVO ucVO = umDAO.selectUserComment(commentId);
+	pageContext.setAttribute("ucVO", ucVO);
+%>         
 
         <div id="modal1" class="modal" style="display: none; position: fixed;
     top: 50%;
@@ -283,8 +283,8 @@ td {
 		 <div class="row">
               <div class="col-md-2" style="margin-left: 70px; float: left; text-align: center;">
               <i class="bi bi-person-circle" id="icon"></i>
-              <h6><label style="margin: 0;">김선경</label></h6>
-              <h6><label style="margin: 0;">2023.10.14</label></h6>
+              <h6><label style="margin: 0;">${ ucVO.userName }</label></h6>
+              <h6><label style="margin: 0;">${ ucVO.registrationDate }</label></h6>
               </div>
               <div class="col-md-9" style="display: inline-block; float: left; white-space: normal;">
             <div class="comment-container" style="max-height: 150px; overflow: auto;">
@@ -295,7 +295,13 @@ td {
   		<button type="button" class="btn btn-primary" id="close-modal" style="display: block; margin: 0 auto; text-align: center;">닫기</button>
 			
 </div>
+<% }
+}catch(SQLException se){
+	se.printStackTrace();
+}%>
+
 </div>
+
 		<footer class="main-footer">
 			<strong>Copyright &copy; 2014-2021 <a
 				href="https://adminlte.io">AdminLTE.io</a>.
@@ -312,41 +318,6 @@ td {
 		<!-- /.control-sidebar -->
 	</div>
 	<!-- ./wrapper -->
-	<!-- jQuery -->
-	<script src="resource/plugins/jquery/jquery.min.js"></script>
-	<!-- jQuery UI 1.11.4 -->
-	<script src="resource/plugins/jquery-ui/jquery-ui.min.js"></script>
-	<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-	<script>
-		$.widget.bridge('uibutton', $.ui.button)
-	</script>
-	<!-- Bootstrap 4 -->
-	<script src="resource/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- ChartJS -->
-	<script src="resource/plugins/chart.js/Chart.min.js"></script>
-	<!-- Sparkline -->
-	<script src="resource/plugins/sparklines/sparkline.js"></script>
-	<!-- JQVMap -->
-	<script src="resource/plugins/jqvmap/jquery.vmap.min.js"></script>
-	<script src="resource/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-	<!-- jQuery Knob Chart -->
-	<script src="resource/plugins/jquery-knob/jquery.knob.min.js"></script>
-	<!-- daterangepicker -->
-	<script src="resource/plugins/moment/moment.min.js"></script>
-	<script src="resource/plugins/daterangepicker/daterangepicker.js"></script>
-	<!-- Tempusdominus Bootstrap 4 -->
-	<script
-		src="resource/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-	<!-- Summernote -->
-	<script src="resource/plugins/summernote/summernote-bs4.min.js"></script>
-	<!-- overlayScrollbars -->
-	<script
-		src="resource/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-	<!-- AdminLTE App -->
-	<script src="resource/dist/js/adminlte.js"></script>
-	<!-- AdminLTE for demo purposes -->
-	<script src="resource/dist/js/demo.js"></script>
-	<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-	<script src="resource/dist/js/pages/dashboard.js"></script>
+
 </body>
 </html>	

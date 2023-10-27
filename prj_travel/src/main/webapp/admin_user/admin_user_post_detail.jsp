@@ -1,6 +1,11 @@
+<%@page import="admin.vo.UserPostVO"%>
+<%@page import="admin.dao.UserManageDAO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="admin.vo.PostVO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>    
+<%@ page info = "" %>  
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>  
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -11,69 +16,62 @@
 	href="http://localhost/html_prj/common/css/main_v20230906">
 <style type="text/css">
 #icon{
-	font-size : 7em;
+	font-size : 5em;
 }
 </style>
 <!-- jQuery CDN -->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<%
+			UserManageDAO umDAO = UserManageDAO.getInstance();
+					try{
+						String postId = request.getParameter("postId");
+						
+						UserPostVO postVO = umDAO.selectUserPost(postId);
+						
+						pageContext.setAttribute("pVO", postVO);						
+					}catch(SQLException se){
+						se.printStackTrace();
+					}
+			%>
 <script type="text/javascript">
 	$(function() {
-		$("#btn").click(function() {
-			location.href = "admin_user_post.jsp"
-		})
+		/* $("#list").click(function() {
+			$("#id").val(${  pVO.userId });
+			$("#frm").submit();
+		}); */
 	})//ready
+	
+	function postList( id ) {
+		$("#id").val(id);
+		$("#frm").submit();
+	}
+	
 </script>
 
-<!-- bootstrap CDN -->
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-	crossorigin="anonymous">
-<!-- bootstrap CDN-->
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<!-- Google Font: Source Sans Pro -->
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-<!-- Font Awesome -->
-<link rel="stylesheet"
-	href="resource/plugins/fontawesome-free/css/all.min.css">
-<!-- Ionicons -->
-<link rel="stylesheet"
-	href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<!-- Tempusdominus Bootstrap 4 -->
-<link rel="stylesheet"
-	href="resource/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-<!-- iCheck -->
-<link rel="stylesheet"
-	href="resource/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-<!-- JQVMap -->
-<link rel="stylesheet" href="resource/plugins/jqvmap/jqvmap.min.css">
-<!-- Theme style -->
-<link rel="stylesheet" href="resource/dist/css/adminlte.min.css">
-<!-- overlayScrollbars -->
-<link rel="stylesheet"
-	href="resource/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-<!-- Daterange picker -->
-<link rel="stylesheet"
-	href="resource/plugins/daterangepicker/daterangepicker.css">
-<!-- summernote -->
-<link rel="stylesheet"
-	href="resource/plugins/summernote/summernote-bs4.min.css">
-
+<jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 	<div class="wrapper">
 
-		<!-- Preloader -->
-		<div
-			class="preloader flex-column justify-content-center align-items-center">
-			<img class="animation__shake" src="dist/img/AdminLTELogo.png"
-				alt="AdminLTELogo" height="60" width="60">
-		</div>
+<!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="index3.html" class="nav-link">Home</a>
+      </li>
+    </ul>
 
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      <li class="nav-item">
+        <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
+       </li>
+       </ul>
+  </nav>
+  <!-- /.navbar -->
 
 		<!-- Main Sidebar Container -->
 		<aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -170,8 +168,8 @@
 		</aside>
 		<!-- Content Wrapper. Contains page content -->
 		<div class="content-wrapper">
-			<div class="content-header">
-				<div class="container-fluid">
+			<div class="content-header" >
+				<div class="container-fluid" >
 					<div class="row mb-2">
 						<div class="col-sm-6">
 							<h1 class="m-0">회원관리</h1>
@@ -183,31 +181,31 @@
 				<!-- /.container-fluid -->
 			</div>
 			<!-- /.content-header -->
+			
 	<section class="content">
-      <div class="container-fluid">
+      <div class="container-fluid" style="width: 80%;">
         <div class="row">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">김선경님의 작성 게시물</h3>
+                <h3 class="card-title">${ pVO.userName }님의 작성 게시물</h3>
               </div>
+              <div style="margin-left: 100px">
               <div class="row">
-              <div class="col-md-2" style="margin-left: 70px; float: left; text-align: center;">
+              <div class="col-md-2" style="text-align: center;">
               <i class="bi bi-person-circle" id="icon"></i>
-              <h4><label style="margin: 0;">김선경</label></h4>
-              <h4><label style="margin: 0;">2023.10.14</label></h4>
+              <h4><label style="margin: 0;">${ pVO.userName }</label></h4>
+              <h5><label style="margin: 0;"><fmt:formatDate value="${ pVO.postDate }" pattern="yyyy.MM.dd"/></label></h5>
               </div>
-              <div class="col-md-3" style="display: inline-block; float: left">
-              <h1><label style="margin-left:0px; margin-top: 60px;">글 제목</label></h1>
-              <h1><label style="margin-left:0px; margin-top: 10px;">[맛집]</label></h1>
+              <div class="col-md-6" style="margin-top: 20px; margin-left:50px; display: inline-block; float: left">
+              <h1><label>${ pVO.title }</label></h1>
+              <h1><label>[${ pVO.category }]</label></h1>
               </div>
               </div>
               <div class="row">
-              <div style="width: 1100px; margin-left: 140px; float: left; white-space: normal;">
-              내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-              내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-              내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
-              내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용
+              <div class="col-md-11" style="margin-bottom: 30px; float: left; white-space: normal; margin-left: 3%">
+              ${ pVO.content }
+              </div>
               </div>
               </div>
         </div>
@@ -215,7 +213,13 @@
         </div>
         </div>
         </section>  
-        <button type="submit" class="btn btn-primary" id="btn" style="margin-left: 20px">목록</button>    
+        <form action="admin_user_post.jsp" id="frm" method="post">
+        	<input type="hidden" name="id" id="id">
+        </form>
+              <div style=" text-align: center; margin-top: 20px ">
+            <input type="button" value="목록" class="btn btn-outline-warning" id="list" style="width: 150px;" onclick="postList('${ pVO.userId }')" >
+            </div>
+            
 		</div>
 		<footer class="main-footer">
 			<strong>Copyright &copy; 2014-2021 <a
@@ -233,41 +237,5 @@
 		<!-- /.control-sidebar -->
 	</div>
 	<!-- ./wrapper -->
-	<!-- jQuery -->
-	<script src="resource/plugins/jquery/jquery.min.js"></script>
-	<!-- jQuery UI 1.11.4 -->
-	<script src="resource/plugins/jquery-ui/jquery-ui.min.js"></script>
-	<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-	<script>
-		$.widget.bridge('uibutton', $.ui.button)
-	</script>
-	<!-- Bootstrap 4 -->
-	<script src="resource/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- ChartJS -->
-	<script src="resource/plugins/chart.js/Chart.min.js"></script>
-	<!-- Sparkline -->
-	<script src="resource/plugins/sparklines/sparkline.js"></script>
-	<!-- JQVMap -->
-	<script src="resource/plugins/jqvmap/jquery.vmap.min.js"></script>
-	<script src="resource/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-	<!-- jQuery Knob Chart -->
-	<script src="resource/plugins/jquery-knob/jquery.knob.min.js"></script>
-	<!-- daterangepicker -->
-	<script src="resource/plugins/moment/moment.min.js"></script>
-	<script src="resource/plugins/daterangepicker/daterangepicker.js"></script>
-	<!-- Tempusdominus Bootstrap 4 -->
-	<script
-		src="resource/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-	<!-- Summernote -->
-	<script src="resource/plugins/summernote/summernote-bs4.min.js"></script>
-	<!-- overlayScrollbars -->
-	<script
-		src="resource/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-	<!-- AdminLTE App -->
-	<script src="resource/dist/js/adminlte.js"></script>
-	<!-- AdminLTE for demo purposes -->
-	<script src="resource/dist/js/demo.js"></script>
-	<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-	<script src="resource/dist/js/pages/dashboard.js"></script>
 </body>
 </html>	

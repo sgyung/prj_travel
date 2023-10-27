@@ -1,6 +1,24 @@
+<%@page import="java.sql.SQLException"%>
+<%@page import="admin.vo.NoticeVO"%>
+<%@page import="admin.dao.NoticeManageDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>    
+<%@ page info = "" %>
+
+<%
+	NoticeManageDAO nmDAO = NoticeManageDAO.getInstance();
+try{
+	String noticeId = request.getParameter("postId");
+
+	if(noticeId != null){
+		NoticeVO nVO = nmDAO.selectNotice(noticeId);
+		pageContext.setAttribute("nVO", nVO);
+	}
+}catch(SQLException se){
+	se.printStackTrace();
+}
+%>
+    
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,77 +28,54 @@
 <link rel="stylesheet" type="text/css"
 	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
-thead {
-	text-align: center
-}
 
-td {
-	text-align: center
-}
 </style>
 <!-- jQuery CDN -->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
 	$(function() {
-		 $('#summernote').summernote({
+		 $('#content').summernote({
 			 height: 350,                 // 에디터 높이
 			  minHeight: 100,             // 최소 높이
 			  maxHeight: 350,             // 최대 높이
 			  focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
 			  lang: "ko-KR"					// 한글 설정
 		 });
+		 
 	})//ready
+	
+	function modifyProccess( id ) {
+		if(id != ''){
+		$("#postId").val(id);
+		}
+		$("#postFrm").submit();
+	}
+	
 </script>
 
-<!-- bootstrap CDN -->
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-	crossorigin="anonymous">
-<!-- bootstrap CDN-->
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<!-- Google Font: Source Sans Pro -->
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-<!-- Font Awesome -->
-<link rel="stylesheet"
-	href="resource/plugins/fontawesome-free/css/all.min.css">
-<!-- Ionicons -->
-<link rel="stylesheet"
-	href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<!-- Tempusdominus Bootstrap 4 -->
-<link rel="stylesheet"
-	href="resource/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-<!-- iCheck -->
-<link rel="stylesheet"
-	href="resource/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-<!-- JQVMap -->
-<link rel="stylesheet" href="resource/plugins/jqvmap/jqvmap.min.css">
-<!-- Theme style -->
-<link rel="stylesheet" href="resource/dist/css/adminlte.min.css">
-<!-- overlayScrollbars -->
-<link rel="stylesheet"
-	href="resource/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-<!-- Daterange picker -->
-<link rel="stylesheet"
-	href="resource/plugins/daterangepicker/daterangepicker.css">
-<!-- summernote -->
-<link rel="stylesheet"
-	href="resource/plugins/summernote/summernote-bs4.min.css">
+<jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 	<div class="wrapper">
+<!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="index3.html" class="nav-link">Home</a>
+      </li>
+    </ul>
 
-		<!-- Preloader -->
-		<div
-			class="preloader flex-column justify-content-center align-items-center">
-			<img class="animation__shake" src="dist/img/AdminLTELogo.png"
-				alt="AdminLTELogo" height="60" width="60">
-		</div>
-
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Navbar Search -->
+      <li class="nav-item">
+        <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
+       </li>
+       </ul>
+  </nav>
+  <!-- /.navbar -->
 
 		<!-- Main Sidebar Container -->
 		<aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -191,33 +186,39 @@ td {
 			</div>
 			<!-- /.content-header -->
 	<section class="content">
-      <div class="container-fluid">
+      <div class="container-fluid" style="width: 80%">
         <div class="row">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">공지사항 관리</h3>
               </div>
+              
+              <form action="admin_post_add_proccess.jsp" method="post" name="postFrm" id="postFrm">
+              <input type="hidden" id="postId" name="postId"/>
               <!-- /.card-header -->
-              <div class="card-body" style="height: 700px">
+              <div class="card-body">
                 <table class="table table-bordered">
-                    <tr style="height: 100px">
-                      <th >제목</th>
-                      <td><input type="text" name="title" class="inputBox" id="title"/></td>
+                    <tr style="height: 80px;">
+                      <th style=" width:100px; text-align: center; vertical-align: middle;" >제목</th>
+                      <td><input type="text" name="title" class="inputBox" id="title" style=" width:90% ;height: 40px; margin-top: 10px; text-align: left;" value="${ nVO.title }"/></td>
                     </tr>
                     <tr style="height: 400px; max-height: 400px">
-                      <th>내용</th>
+                      <th style=" width:100px; text-align: center; vertical-align: middle;">내용</th>
                       <td> 
-            			<textarea id="summernote" ></textarea>
+            			<textarea id="content" name="content" >${ nVO.content }</textarea>
        				</td>
                     </tr>
                 </table>
               </div>
-              <button type="submit" class="btn btn-primary" id="btn" style="position: absolute; bottom: 10px; right: 20px; width: 100px">등록</button>
               <!-- /.card-body -->
+              </form>
               
             </div>
             <!-- /.card -->
+            </div>
+          <div style="float: left; text-align: right; "> 
+            <input type="button" value="등록" class="btn btn-primary" id="insert" style="width: 150px;" onclick="modifyProccess('${ nVO.id ne null ?  nVO.id : ''}') " >
             </div>
             </div>
            </div>
@@ -241,41 +242,5 @@ td {
 		<!-- /.control-sidebar -->
 	</div>
 	<!-- ./wrapper -->
-	<!-- jQuery -->
-	<script src="resource/plugins/jquery/jquery.min.js"></script>
-	<!-- jQuery UI 1.11.4 -->
-	<script src="resource/plugins/jquery-ui/jquery-ui.min.js"></script>
-	<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-	<script>
-		$.widget.bridge('uibutton', $.ui.button)
-	</script>
-	<!-- Bootstrap 4 -->
-	<script src="resource/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- ChartJS -->
-	<script src="resource/plugins/chart.js/Chart.min.js"></script>
-	<!-- Sparkline -->
-	<script src="resource/plugins/sparklines/sparkline.js"></script>
-	<!-- JQVMap -->
-	<script src="resource/plugins/jqvmap/jquery.vmap.min.js"></script>
-	<script src="resource/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-	<!-- jQuery Knob Chart -->
-	<script src="resource/plugins/jquery-knob/jquery.knob.min.js"></script>
-	<!-- daterangepicker -->
-	<script src="resource/plugins/moment/moment.min.js"></script>
-	<script src="resource/plugins/daterangepicker/daterangepicker.js"></script>
-	<!-- Tempusdominus Bootstrap 4 -->
-	<script
-		src="resource/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-	<!-- Summernote -->
-	<script src="resource/plugins/summernote/summernote-bs4.min.js"></script>
-	<!-- overlayScrollbars -->
-	<script
-		src="resource/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-	<!-- AdminLTE App -->
-	<script src="resource/dist/js/adminlte.js"></script>
-	<!-- AdminLTE for demo purposes -->
-	<script src="resource/dist/js/demo.js"></script>
-	<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-	<script src="resource/dist/js/pages/dashboard.js"></script>
 </body>
 </html>	

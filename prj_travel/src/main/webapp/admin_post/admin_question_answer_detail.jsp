@@ -1,53 +1,65 @@
-<%@page import="admin.vo.UserPostVO"%>
-<%@page import="admin.dao.UserManageDAO"%>
-<%@page import="java.util.List"%>
+<%@page import="admin.vo.QandAVO"%>
+<%@page import="admin.dao.QAndAManageDAO"%>
 <%@page import="java.sql.SQLException"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info = "" %>    
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%
-request.setCharacterEncoding("UTF-8");
-%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>관리자 | 회원관리</title>
+<title>관리자 | 게시판관리</title>
 <link rel="stylesheet" type="text/css"
 	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
-thead {
-	text-align: center
+#icon{
+	font-size : 3em;
+}
+#icon2{
+	font-size : 3em;
 }
 
-td {
-	text-align: center
+#answer {
+  width: 85%;
+  padding: 5px;
+  border: 5px solid #ffcc00;
 }
+
 </style>
 <!-- jQuery CDN -->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
 	$(function() {
-		$("#btn").click(function() {
-			location.href = "admin_user.jsp"
-		})
+		$("#list").click(function() {
+			location.href = "admin_question_list.jsp";
+		});
+		
+		$("#delete").click(function() {
+			deleteQandA();
+		});
 	})//ready
 	
-	function postDetail( postId ) {
-		$("#id").val(postId);
-		$("#hidFrm").submit();
-	}
+	function answerModify(id){
+		$("#questionId").val(id);
+		$("#modifyFrm").submit();
+	}//answerModify
 	
+	function deleteQandA() {
+	    if (confirm("문의사항을 삭제 하시겠습니까?")) {
+	    	$("#deleteId").val(${ param.questionId });
+	    	 $("#deleteFrm").submit();
+	     } else {
+	    	return;
+	     }
+	 }//deletePost
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 	<div class="wrapper">
-
 <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -66,6 +78,7 @@ td {
        </ul>
   </nav>
   <!-- /.navbar -->
+
 		<!-- Main Sidebar Container -->
 		<aside class="main-sidebar sidebar-dark-primary elevation-4">
 			<!-- Brand Logo -->
@@ -85,12 +98,12 @@ td {
 							<p>Dashboard</p>
 					</a></li>
 
-					<li class="nav-item"><a href="#" class="nav-link active">
+					<li class="nav-item"><a href="admin_user.jsp" class="nav-link">
 							<i class="bi-people-fill"></i>
 							<p>회원관리</p>
 					</a></li>
 
-					<li class="nav-item menu"><a href="#" class="nav-link"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
 							class="bi bi-pencil-square"></i> <i
 							class="right fas fa-angle-left"></i>
 							<p>게시판관리</p>
@@ -100,11 +113,11 @@ td {
 									<i class="far fa-circle nav-icon"></i>
 									<p>공지사항 관리</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
-								class="nav-link"> <i class="far fa-circle nav-icon"></i>
+							<li class="nav-item"><a href="admin_question_list.jsp"
+								class="nav-link active"> <i class="far fa-circle nav-icon"></i>
 									<p>문의사항 관리</p>
 							</a></li>
-							<li class="nav-item"><a href="./index3.html"
+							<li class="nav-item"><a href="admin_board_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>자유게시판 관리</p>
 							</a></li>
@@ -160,12 +173,12 @@ td {
 			<!-- /.sidebar-menu -->
 		</aside>
 		<!-- Content Wrapper. Contains page content -->
-		<div class="content-wrapper">
+		<div class="content-wrapper" >
 			<div class="content-header">
 				<div class="container-fluid">
 					<div class="row mb-2">
 						<div class="col-sm-6">
-							<h1 class="m-0">회원관리</h1>
+							<h1 class="m-0">게시판 관리</h1>
 						</div>
 						<!-- /.col -->
 					</div>
@@ -174,92 +187,98 @@ td {
 				<!-- /.container-fluid -->
 			</div>
 			<!-- /.content-header -->
-<form action="admin_user_post_detail.jsp" method="post" id="hidFrm">
-	<input type="hidden" name="postId" id="id"/>
-</form>
-
 	<section class="content">
-      <div class="container-fluid">
+      <div class="container-fluid" style="width: 80%">
         <div class="row">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-              <%
-              UserManageDAO umDAO = UserManageDAO.getInstance();
-                            try{
-                          	  List<UserPostVO> userAllPostList = umDAO.selectUserAllPost(request.getParameter("id"));
-                          	  for(int i = 0; i < userAllPostList.size(); i++ ){
-                          		  if(userAllPostList.get(i).getUserId().equals(request.getParameter("id"))){
-              %>
-                <h3 class="card-title"><%=userAllPostList.get(i).getUserName()%>님의 작성 게시물</h3>              
-			  <%
-              			  }
-              			              	  }
-              			                }catch(SQLException se){
-              			              	  se.printStackTrace();
-              			                }
-              			  %>            			  
+                <h3 class="card-title">문의사항 관리</h3>
               </div>
+<%
+	String questionId = request.getParameter("questionId");
+
+	QAndAManageDAO qamDAO = QAndAManageDAO.getInstance();
+	
+	try{
+		QandAVO qaVO = qamDAO.selectQnA(questionId);
+		
+		pageContext.setAttribute("qaVO", qaVO);
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+	//System.out.println("----" +  );
+%>              
               <!-- /.card-header -->
               <div class="card-body">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 60px">번호</th>
-                      <th style="width: 300px">글 제목</th>
-                      <th style="width: 120px">작성일</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  
-<%
-                  try{
-                  List<UserPostVO> userAllPostList = umDAO.selectUserAllPost(request.getParameter("id"));
-                  for(int i = 0; i < userAllPostList.size(); i++ ){
-                  	if(userAllPostList.get(i).getTitle() != null && userAllPostList.get(i).getPostDate() != null){
-                  %>
- 		  <tr>
-            <td><%= i+1 %></td>
-            <td id = "title"><a href="#void" onclick="postDetail('<%= userAllPostList.get(i).getPostId() %>')"><%= userAllPostList.get(i).getTitle() %></a></td>
-            <td><%= userAllPostList.get(i).getPostDate() %></td>
-          </tr>
-<%
-	}else{
-%>
-		  <tr>
-            <td colspan="3" style="text-align: center;">게시글이 존재하지 않습니다.</td>
-          </tr>
-<%
-		
-	}
-}
-}catch(SQLException se){
-	se.printStackTrace();
-}
-%>                
-
-                  </tbody>
-                </table>
+                <table class="table" style="border-left: 0px; border-right: 0px; border-top: 3px solid #535353; 
+	border-bottom: 1px solid #535353; border-spacing: 0px;">
+			<tbody>
+			<tr>
+			<td>
+			<div style="margin-left: 100px">
+			<div class="row" >
+              <div class="col-md-1" style="margin-left: 30px;text-align: center;">
+              <i class="bi bi-person-circle" id="icon"></i>
+              <h4><label style="margin: 0;">${ qaVO.userId }</label></h4>
+              <h6><label style="margin: 0;">${ qaVO.registrationDate }</label></h6>
               </div>
-              <!-- /.card-body -->
-              <div class="card-footer clearfix">
-              <button type="submit" class="btn btn-primary" id="btn" >목록</button>
-                <ul class="pagination pagination-sm m-0 float-right">
-                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-                </ul>
+              <div class="col-md-6" style="margin-top: 20px; margin-left:50px;float: left">
+              <h1><label>${ qaVO.title }</label></h1>
+              <h1><label>[${ qaVO.category }]</label></h1>
               </div>
+              </div>
+              <div class="row" style="margin-left: 20px; margin-bottom: 50px">
+              <div class="col-md-11" style="float: left; white-space: normal;">
+             ${ qaVO.content }
+              </div>
+              </div>
+             </div>
+			</td>
+            </tr>
+           <tr>
+			<td>
+			<div style="margin-left: 100px; margin-top: 30px; margin-bottom: 50px"  id="answer">
+			<div class="row" >
+              <div class="col-md-1" style="margin-left: 10px;text-align: center;">
+              <i class="bi bi-mortarboard" id="icon2"></i>
+              </div>
+              <div class="col-md-6" style="margin-top: 20px; margin-left:10px;float: left">
+              <h4><label style="margin: 0;">@제주관광정보센터</label></h4>
+              <h6><label style="margin: 0;">${ qaVO.answerDate }</label></h6>
+              </div>
+              </div>
+              <div class="row" style="margin-left: 20px; margin-right: 20px; margin-bottom: 50px; margin-top: 20px">
+              <div class="col-md-12" style="float: left; white-space: normal;">
+              ${ qaVO.answer }
+              </div>
+              </div>
+             </div>
+			</td>
+            </tr>
+            </tbody>
+            </table>
+            <form action="admin_question_answer.jsp" id="modifyFrm" method="post">
+            <input type="hidden" id="questionId" name="questionId"/>
+            </form>
+            <form action="admin_question_delete_proccess.jsp" method="post" id="deleteFrm">
+			<input type="hidden" id="deleteId" name="deleteId">
+			</form>
+            <div style="text-align: right; margin-top: 10px">
+            <input type="button" value="수정" class="btn btn-info" id="modify" style="width: 80px;"onclick="answerModify('${ param.questionId }')">
+			<input type="button" value="삭제" class="btn btn-info" id="delete" style="width: 80px; margin-left: 20px;">
+			</div>
+            <div style="text-align: center; margin-top: 10px">
+            <input type="button" value="목록" class="btn btn-outline-warning" id="list" style="width: 150px">
             </div>
-            <!-- /.card -->
             </div>
             </div>
-           </div>
-         </section>
+            </div>
+            </div>
+            </div>
+            </section>
             
-			
+              
 		</div>
 		<footer class="main-footer">
 			<strong>Copyright &copy; 2014-2021 <a
@@ -277,5 +296,6 @@ td {
 		<!-- /.control-sidebar -->
 	</div>
 	<!-- ./wrapper -->
+	
 </body>
 </html>	
