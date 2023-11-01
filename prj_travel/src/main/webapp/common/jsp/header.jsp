@@ -5,11 +5,11 @@
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <div class="header">
         <div class="header_contents flex">
-            <div class="logo"><a href="main.jsp">JEJU VISIT</a></div>
+            <div class="logo"><a href="../user_main/main.jsp">JEJU VISIT</a></div>
             <div class="nav_top">
                 <ul>
-                    <li><a href="#">관광지</a></li>
-                    <li><a href="#">맛집</a></li>
+                    <li><a href="../user_tourist_area/touristArea.jsp?tag=전체">관광지</a></li>
+                    <li><a href="../user_restaurant/restaurant.jsp?tag=전체">맛집</a></li>
                     <li><a href="#">게시판</a></li>
                     <li><a href="#">투어예약</a></li>
                 </ul>

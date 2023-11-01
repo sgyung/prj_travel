@@ -5,10 +5,30 @@ a, a:active, a:hover, a:link, a:visited {
     text-decoration: none;
 }
 
+ul, li {
+	margin:0px;
+	padding:0px;
+	list-style: none;	
+}
+
 .flex { 
     display : flex; 
- }
+}
+
+.btn-info {
+    background-color: #ef6d00;
+    border-color: #ef6d00;
+}
+
+.btn-info:hover, .btn-info:active, .btn-info:focus {
+    background-color: #ff9237;
+    border-color: #ff9237;
+    outline: none;
+    /* box-shadow: 0 0 0 0.25rem #ff9237; */
+}
+
  
+/* header  */ 
 .header {
 	background-color: #f6f6f6;
 	position: fixed;
@@ -26,19 +46,87 @@ a, a:active, a:hover, a:link, a:visited {
     justify-content: space-between;
 }
 
- .nav_top > ul{
-    list-style: none;
-}
-
 .nav_top > ul > li{
     display: inline-block;
     margin-left: 30px;
 }
 
+/* footer */
 .footer {
 	width:100%;
 	height:300px;
 	margin-top:100px;
-    background-color: #191919;
-    text-align: center;
+    background: #3c3c3c;
 }
+
+.inner_middle {
+    margin: 0 auto;
+    width: 80%;
+    min-width: 1160px;
+}
+
+.etc_addr {
+    position: relative;
+    padding: 40px 0;
+}
+
+.list_etc {
+	overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.list_etc > li {
+	position: relative;
+    float: left;
+    padding-right: 12px;
+    margin-right: 12px;
+    color: #fff;
+}
+
+.list_addr {
+    margin-bottom: 17px;
+    font-size: 12px;
+    color: #fff;
+    line-height: 16px;
+}
+
+.list_addr > li > span {
+    margin-right: 10px;
+}
+
+.txt_copyright {
+    margin-bottom: 17px;
+    font-size: 11px;
+    color: #fff;
+}
+
+.txt_legal {
+    font-size: 12px;
+    color: #fff;
+}
+
+.waCertification {
+    position: absolute;
+    left: 50%;
+    bottom: 35px;
+    margin-left: 50px;
+    width: 160px;
+}
+
+.waCertification img {
+    width: 100%;
+}
+
+.cetifications {
+    position: absolute;
+    left: 50%;
+    bottom: 35px;
+    margin-left: 250px;
+    width: 331px;
+    height: 102px;
+}
+
+.cetifications img {
+    width: 100%;
+}
+

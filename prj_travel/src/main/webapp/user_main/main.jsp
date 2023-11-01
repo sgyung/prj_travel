@@ -1,6 +1,31 @@
+<%@page import="user.vo.RestRankTagVO"%>
+<%@page import="user.vo.TourRankTagVO"%>
+<%@page import="java.util.List"%>
+<%@page import="user.dao.MainDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info="" %>  
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+	MainDAO dao = MainDAO.getInstance();
+
+	List<TourRankTagVO> tourList = dao.selectTourRank();
+	List<RestRankTagVO> restList = dao.selectRestRank();
+	List<String> tourTags = dao.selectAllTourTags();
+	List<String> restTags = dao.selectAllRestTags();
+	
+	System.out.println( tourList.toString() );
+	System.out.println( restList.toString() );
+	System.out.println( tourTags.toString() );
+	System.out.println( restTags.toString() );
+	
+	pageContext.setAttribute("tourList", tourList);
+	pageContext.setAttribute("restList", restList);
+	pageContext.setAttribute("tourTags", tourTags);
+	pageContext.setAttribute("restTags", restTags);
+	
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,22 +41,30 @@
 <!-- header&footer css -->
 <link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
-.main_content{
-    width: 80%;
-    margin: 0 auto;
+.wrap {
+	width:100%;
 }
 
+.main_carousel {
+	
+	margin-top: 90px;
+}
+
+.main_content{
+    width: 80%;
+    margin: 40px auto;
+}
+
+
 .rank_list{
-	margin-top:30px;
-    width: 70%;
+    width: 80%;
 }
 .tag_list{
-	margin-top:30px;
-    width: 30%;
+    width: 20%;
 }
  
 .tour_rank {
-	margin-bottom: 20px;
+	margin-bottom: 40px;
 }
 
 .tour_rank > label , .restaurant_rank > label {
@@ -40,9 +73,63 @@
 	margin-top: 25px;
 }
 
+.rank_title {
+	width:260px;
+	min-width:260px;
+	height:259px;
+	background: #ef6d00;
+	color: #fff;
+    text-align: center;
+    border-radius: 15px;
+}
+
+.stitle {
+	margin-top: 45px;
+    font-size: 14px;
+    line-height: 50px;
+    margin: 30px 0 5px;
+}
+
+.title {
+    font-size: 25px;
+    line-height: 38px;
+}
+
 .rank_box {
-	margin-left:20px;
+	margin-left: 30px;
 	text-align: center;
+}
+
+.rank_box > a:hover {
+	color : #ef6d00;
+}
+
+.img_box {
+	border-radius: 15px 15px 0 0;
+	width:250px;
+	height:169px;
+}
+.img_box > img {
+	width: 100%;
+	border-radius: 15px 15px 0 0;
+}
+
+.title_box {
+    border-left: 1px solid #d9d8d8;
+    border-right: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+    border-radius: 0 0 15px 15px;
+}
+
+.title_box > span {
+    display: table-cell;
+    height: 90px;
+    vertical-align: middle;
+    text-align: center;
+    width: 248px;
+    padding: 0 10px;
+    font-size: 18px;
+    line-height: 20px;
 }
 
 
@@ -59,13 +146,19 @@
 .mainQuickWrap > li > a {
     display: block;
     font-size: 16px;
-    line-height: 30px;
+    line-height: 20px;
     height: 30px;
     padding: 3px 17px;
     border: 1px solid #d9d8d8;
     border-radius: 6px;
     color: #666;
 }
+
+.mainQuickWrap > li > a:hover {
+    color: #ef6d00;
+    border: 1px solid #ef6d00;
+}
+
 </style>
 <script type="text/javascript">
 $(function(){
@@ -126,84 +219,75 @@ $(function(){
         
             <div class="tour_rank flex">
 
-                <label><h2>관광지</h2></label>
+                <div class="rank_title" style="width:260px">
+	                    <p class="stitle">New Hot Spots</p>
+	                    <p class="title">새로운 제주를<br>알아가는 즐거움</p>
+                </div>
                 
-                <div class="rank_box">
-                    <div class="img_box">
-                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" 
-                        width="150px" height="100px">
-                    </div>
-                    <span>1</span>
-                </div>
-                <div class="rank_box">
-                    <div class="img_box">
-                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" 
-                        width="150px" height="100px">
-                    </div>
-                    <span>2</span>
-                </div>
-                <div class="rank_box">
-                    <div class="img_box">
-                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" 
-                        width="150px" height="100px">
-                    </div>
-                    <span>3</span>
-                </div>
-               
+				<c:forEach var="tourList" items="${tourList}" varStatus="i">
+	            <div class="rank_box">
+                	<a href="../user_tourist_area/touristArea_detail.jsp?contentInfo=${ tourList.id }">
+	                    <div class="img_box">
+		                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" >
+	                    </div>
+	                    <div class="title_box">
+	                    <%-- 위의img_box클래스의 img src경로에 넣을 값 ${ tourList.thumbNail } --%>
+	                    <span>${ tourList.name }</span>
+	                    </div>
+                	</a>
+	            </div>
+				</c:forEach>
+                
             </div>
             
             <div class="restaurant_rank flex">
                 
-				<label><h2>맛집</h2></label>
-				
-                <div class="rank_box">
-                    <div class="img_box">
-                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" 
-                        width="150px" height="100px">
-                    </div>
-                    <span>1</span>
+				<div class="rank_title" style="width:260px; background: #59a193">
+	                    <p class="stitle">Personalized Recommendation</p>
+	                    <p class="title">인기있는 맛집을<br>찾으시나요?</p>
                 </div>
 				
+				<c:forEach var="restList" items="${ restList }" varStatus="i">
                 <div class="rank_box">
-                    <div class="img_box">
-                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" 
-                        width="150px" height="100px">
-                    </div>
-                    <span>2</span>
+               		<a href="../user_restaurant/restaurant_detail.jsp?contentInfo=${ restList.id }">
+	                    <div class="img_box">
+		                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" >
+	                    </div>
+	                    <div class="title_box">
+		                    <%-- 위의img_box클래스의 img src경로에 넣을 값 ${ restList.thumbNail } --%>
+		                    <span>${ restList.name }</span>
+	                    </div>
+                	</a>
                 </div>
-				
-                <div class="rank_box">
-                    <div class="img_box">
-                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" 
-                        width="150px" height="100px">
-                    </div>
-                    <span>3</span>
-                </div>
+				</c:forEach>
 
             </div>
         </div>
         <div class="tag_list">
-            <ul class="mainQuickWrap">
-                <li><a href="#">#테마여행</a></li>
-                <li><a href="#">#웰니스</a></li>
-                <li><a href="#">#지도우편신청</a></li>
-                <li><a href="#">#카름스테이</a></li>
-                <li><a href="#">#달달익선</a></li>
-                <li><a href="#">#러닝홀리데이인제주</a></li>
-                <li><a href="#">#안내책자</a></li>
-                <li><a href="#">#테마지도</a></li>
-                <li><a href="#">#반려동물동반여행</a></li>
-                <li><a href="#">#안전여행스탬프in제주</a></li>
-                <li><a href="#">#포토제주</a></li>
-                <li><a href="#">#제주여행공유</a></li>
-            </ul>
-        </div>
-    </div>
-
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+        
+        	<div class="tour_tag_list">
+        	
+        		<ul class="mainQuickWrap">
+        			<c:forEach var="tourTags" items="${ tourTags }" varStatus="i">
+	        			<li><a href="../user_restaurant/restaurant.jsp?tag=${ tourTags }">#${ tourTags }</a></li>
+        			</c:forEach>
+                </ul>
+        	</div>
+        	
+        	<div class="tour_tag_list">
+        		<ul class="mainQuickWrap">
+	        		<c:forEach var="restTags" items="${ restTags }" varStatus="i">
+	        			<li><a href="../user_tourist_area/touristArea.jsp?tag=${ restTags }">#${ restTags }</a></li>
+        			</c:forEach>
+                </ul>
+        	</div>
+      
+   	 	</div>
 	
-</div>
+	</div>
+	
+	<%@ include file="../common/jsp/footer.jsp" %>
+    
+</div>   
 </body>
 </html>

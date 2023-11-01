@@ -30,7 +30,7 @@
 	border: 1px solid rgba(0,0,0,.12);
 }
 
-.login_box > h1 , p {
+.login_box > h1 , .login_box > p {
 	text-align: center;
 }
 
@@ -43,7 +43,7 @@
 
 .input_box:focus {
 	outline : none;
-	border: solid #0DCAF0;
+	border: solid #ef6d00;
     border-width: 0 0 2px;
 }
 
@@ -70,6 +70,16 @@
 	width:100%;
 	height:50px;
 	margin-top: 30px;
+}
+
+.btn-info {
+    background-color: #ef6d00;
+    border-color: #ef6d00;
+}
+
+.btn-info:hover {
+    background-color: #FF9237;
+    border-color: #FF9237;
 }
 
 .find_signup {
@@ -164,9 +174,7 @@ function checkNull(){
 
     </div>
 
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+	<%@ include file="../common/jsp/footer.jsp" %>
 	
 </div>
       
