@@ -19,12 +19,12 @@
 	StringBuilder qnaListHtml = new StringBuilder();
 	for( QnAVO vo : qnaList ){
 		qnaListHtml
-		.append("<tr data-v-db46a16a=''>")
+		.append("<tr data-v-db46a16a='' class='qnaList' >")
 		.append("<td data-v-db46a16a=''>")
 		.append("<p data-v-db46a16a=''>")
 		.append("<u class='ok' data-v-db46a16a=''>");
 		if( vo.getAnswerType().equals("Y")){
-			qnaListHtml.append("[답변]");
+			qnaListHtml.append("[답변완료]");
 		} else {
 			qnaListHtml.append("[대기중]");
 		};
@@ -37,7 +37,7 @@
 		} else {
 			qnaListHtml.append(0);
 		};
-		qnaListHtml.append("</td>")
+		qnaListHtml.append("</td>").append("<input type='hidden' id='questionId' value='").append(vo.getQnaId()).append(" ' />")
 		.append("<td data-v-db46a16a=''>").append( vo.getRegistrationDate()).append("</td>").append("</tr>")
 		;
 	}//end for

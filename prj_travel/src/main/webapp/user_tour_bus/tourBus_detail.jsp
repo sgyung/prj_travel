@@ -1,521 +1,235 @@
+<%@page import="java.util.List"%>
+<%@page import="user.vo.TourBusVO"%>
+<%@page import="user.dao.TourBusDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info="" %>  
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="f" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<link rel="icon" href="http://192.168.10.160/jsp_prj/common/main/favicon.png">
+<!-- <link rel="icon" href="http://192.168.10.160/jsp_prj/common/main/favicon.png"> -->
 <!-- bootstrap CDN -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <!-- bootstrap JS  -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://192.168.10.133/prj_travel/common/CSS/tour_bus_detail.css">
+
 <style type="text/css">
 
-
-.warp{
-	position: relative;
+.container li{
+list-style-image: url("../common/images/icon_img/check.png");
+        font-size : 20px;
 }
-
-.header {
-    height: 90px;
-    width: 100%;
-    background-color: rgb(0,0,0,0.4);
-    z-index : 2;
-}
-
-.header_contents{
-    width: 80%;
-    margin: 0 auto;
-    padding-top: 30px;
-    justify-content: space-between;
-}
-
-.flex { 
-    display : flex; 
- }
-
- .nav_top > ul{
-    list-style: none;
- }
-
- .nav_top > ul > li{
-    display: inline-block;
-    margin-left: 30px;
- }
-.login {
-    margin-left: 30px;
-}
-
-.main_content{
-    background-color: red;
-    width: 80%;
-    margin: 0 auto;
-}
-
-.arrow_sign{
-	width:25px;
-	height:25px;
-	background: url(../common/spr_comm.png) no-repeat;
-	background-position: -112px -35px;
-	margin: 0 10px;
-}
-
-
-button {
-    margin-top: 10px;
-    width: 250px;
-    height: 50px;
-    overflow: hidden;
-    border-radius: 12px;
-    border: 0;
-    background: #fdb421;
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    color: #2c2727;
-    font-weight: 600;
-}
-
-/* reservation */
-div.jisik-pop.on[data-v-db46a16a] {
-    display: block;
-}
-
-div.jisik-pop[data-v-db46a16a] {
-    display: none;
-    position: fixed;
-    z-index: 604;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    overflow-y: auto;
-    background: rgba(0,0,0,.1);
-}
-
-div.jisik-pop div.outline[data-v-a315ebf2] {
-    position: absolute;
-    width: 1000px;
-    left: 50%;
-    margin-left: -500px;
-    top: 100px;
-    background: #fff;
-    padding: 30px 50px 50px;
-    -webkit-box-shadow: 0 0 15px rgba(0,0,0,.05098);
-    box-shadow: 0 0 15px rgba(0,0,0,.05098);
-}
-
-div.jisik-pop div.outline h3[data-v-a315ebf2] {
-    text-align: center;
-    font-size: 20px;
-    color: #ef6d00;
-    font-weight: 600;
-    margin: 0 0 45px;
-}
-
-div.jisik-pop div.outline h3 small[data-v-a315ebf2] {
-    display: block;
-    font-size: 14px;
-    color: #999;
-    font-weight: 400;
-}
-
-div.jisik-pop div.outline div.box[data-v-a315ebf2] {
-    margin: 40px 0 0;
-}
-
-div.jisik-pop div.outline button.submit[data-v-a315ebf2] {
-    display: block;
-    background: #ef6d00;
-    border: 1px solid #ce5e00;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 600;
-    height: 45px;
-    margin: 0 auto;
-    padding: 0 60px;
-}
-
-div.jisik-pop div.outline button.close[data-v-a315ebf2] {
-    position: absolute;
-    right: 30px;
-    top: 30px;
-    width: 26px;
-    height: 26px;
-    border: none;
-    background: url(../common/x_sign.png) no-repeat 50%/100% auto;
-    font-size: 0;
-}
-
-.lt-item-wrap {
-    width: 100%;
-    height: 255px;
-    overflow: hidden;
-    border-radius: 12px;
-    background: #f3f2f2;
-}
-
-.lt-item-wrap .mtit {
-    margin-top: 30px;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    text-align: center;
-    font-size: 22px;
-    color: #191919;
-    font-weight: 600;
-}
-
-.lt-item-wrap .person-cnt-wrap {
-    width: 50%;
-    height: auto;
-    overflow: hidden;
-    float: left;
-    margin-top: 30px;
-}
-
-.lt-item-wrap .person-cnt-wrap .stit {
-    line-height: 1.2em;
-    width: 100%;
-    height: 60px;
-    overflow: hidden;
-    text-align: center;
-    font-size: 20px;
-    color: #191919;
-    font-weight: 600;
-}
-
-.cnt-wrap {
-    width: 220px;
-    height: 46px;
-    overflow: hidden;
-    background: #8a8a8a;
-    border-radius: 8px;
-    margin: 0 auto;
-    border: 1px solid #8a8a8a;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-.cnt-wrap button {
-    width: 46px;
-    height: 46px;
-    overflow: hidden;
-    border: 0;
-    background: #8a8a8a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.cnt-wrap .inp {
-    width: 100%;
-    height: 46px;
-    border: 0;
-    background: #fff;
-    flex: 1;
-    overflow: hidden;
-    text-align: center;
-    font-size: 18px;
-    color: #2c2727;
-}
-
-.cnt-wrap button i {
-    font-size: 16px;
-    color: #fff;
-    font-weight: bold;
-}
-
-.help-msg {
-    margin-top: 40px;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    text-align: center;
-    line-height: 2em;
-    font-size: 16px;
-    color: #999;
-}
-
-.resev-rela-wrap {
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 40px 0; 
     
-}
-
-.resev-calendar-wrap {
-    width: 50%;
-    height: auto;
-    overflow: hidden;
-    margin: 0 10px;
-    border-radius: 12px;
-    background: #f3f2f2;
-}
-
-.resev-calendar-wrap .rtit {
-    width: 100%;
-    height: 50px;
-    overflow: hidden;
+.arrow {
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: center;
-    font-size: 22px;
-    color: #191919;
-    font-weight: 600;
-}
-
-.resev-calendar-wrap .calendar-tbl-wrap {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #fff;
-    border-radius: 12px;
-    position: relative;
-}
-
-.resev-calendar-wrap .calendar-func-wrap {
-    width: 100%;
-    height: 44px;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.resev-calendar-wrap .calendar-func-wrap button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    width: 44px;
-    height: 44px;
-    border: 0;
-    background: transparent;
-}
-
-.resev-calendar-wrap .calendar-func-wrap button i {
+    background: #efefef;
+    width: 40px;
+    height: 40px;
     font-size: 20px;
-    color: #d1d1d1;
-    font-weight: bold;
-    transition: all .5s;
-}
-
-.resev-calendar-wrap .calendar-func-wrap button i {
-    font-size: 20px;
-    color: #d1d1d1;
-    font-weight: bold;
-    transition: all .5s;
-}
-
-.pop-resev-wrap .pop-resev-cont-wrap .resev-calendar-wrap .calendar-func-wrap .value {
-    font-size: 14px;
-    color: #191919;
-    font-weight: 600;
-}
-
-.resev-calendar-wrap .calendar-tbl-wrap table {
-    width: calc( 100% - 20px );
-    margin: 0 auto;
-    table-layout: fixed;
-    border: 0;
-    border-collapse: collapse;
-}
-
-table > tr {
-    vertical-align: middle;
-}
-
-tr {
-    display: table-row;
-    vertical-align: inherit;
-    border-color: inherit;
-}
-
-th {
-    display: table-cell;
-    vertical-align: inherit;
-    font-weight: bold;
-    text-align: -internal-center;
-}
-
-.resev-cnt-wrap {
-    width: 50%;
-    height: auto;
-    overflow: hidden;
+    border-radius: 50%;
     margin: 0 10px;
-    border-radius: 12px;
-    background: #f3f2f2;
 }
 
-.resev-cnt-wrap .rtit {
-    width: 100%;
+td {
     height: 50px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 22px;
-    color: #191919;
-    font-weight: 600;
 }
 
-.resev-cnt-wrap .resev-view-wrap {
-    width: 100%;
-    height: 100%;
-    padding: 10px 20px 0 20px;
-    overflow: hidden;
-    background: #fff;
-    border-radius: 12px;
+.Calendar { 
+    text-align: center;
+    margin: 0 auto; 
 }
 
-.resev-cnt-wrap .resev-view-wrap .select-item-wrap {
-    width: 100%;
+.Calendar>thead>tr:first-child>td { font-weight: bold; }
+
+.Calendar>thead>tr:last-child>td {
+    background-color: gray;
+    color: white;
+}        
+
+.pastDay{ background-color: lightgray; }
+
+.today{        
+	border-radius : 15px;    
+    background-color: #FFCA64;            
+    cursor: pointer;
 }
 
-.pop-resev-wrap .pop-resev-cont-wrap .resev-cnt-wrap .resev-view-wrap .select-item-wrap>a {
-    width: calc( 100% - 20px );
+.futureDay{            
+    background-color: #FFFFFF;
+    cursor: pointer;
 }
 
-.select-item-wrap>a {
-    display: block;
-    line-height: 35px;
-    width: calc( 253px - 16px );
-    height: 35px;
-    border: 2px solid #8a8a8a;
-    padding-left: 16px;
-    font-size: 14px;
-    color: #111;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    word-wrap: normal;
-    border-radius: 6px;
-    position: relative;
-}
-
-.select-item-wrap>a span {
-    font-size: 14px;
-    color: #2c2727;
-}
-
-.select-item-wrap>a i {
-    color: #2c2727;
-    font-size: 22px;
-    position: absolute;
-    right: 10px;
-    top: 5px;
-}
-
-.select-item-wrap>.select-result-wrap {
-    max-height: 200px;
-    display: none;
-    width: calc( 100% - 4px );
-    border-radius: 6px;
-    padding: 0;
-    border: 2px solid #ac1f24;
-    background: #fff;
-    position: absolute;
-    left: 0;
-    top: 37px;
-    overflow: hidden;
-    overflow-y: auto;
-}
-
-.select-item-wrap>.select-result-wrap ul {
-    width: 100%;
-    height: auto;
-    overflow: Hidden;
-}
-
-.select-item-wrap>.select-result-wrap ul li a {
-    width: calc( 100% - 32px );
-    padding: 0 16px;
-    height: 35px;
-    overflow: Hidden;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    font-size: 14px;
-    color: #2c2727;
-}
-
-.resev-cnt-wrap dl {
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-}
-
-.resev-cnt-wrap dl dt {
-    margin-top: 25px;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    border-top: 1px solid #f3f2f2;
-    padding-top: 25px;
-    font-size: 14px;
-    color: #2c2727;
-}
-
-.resev-cnt-wrap dl dd {
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-}
-
-.resev-cnt-wrap dl dd ul {
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-}
-
-.resev-cnt-wrap dl dd ul li {
-    margin-top: 8px;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 16px;
-    color: #2c2727;
-}
-
-.resev-cnt-wrap dl dd ul li .key {
-    font-size: 16px;
-    color: #2c2727;
-}
-
-.resev-cnt-wrap dl dd ul li .value {
-    font-size: 16px;
-    color: #2c2727;
+.futureDay.choiceDay, .today.choiceDay{  
+	border-radius : 15px;          
+    background-color: #ef6d00;            
+    color: #fff;
+    cursor: pointer;
 }
 
 </style>
+<%
+	String contId = request.getParameter("tourbus_contId");
+
+	if( contId == null ){
+		response.sendRedirect("tourBus_main.jsp");
+		return;
+	}//end if
+	
+	TourBusDAO tDAO = TourBusDAO.getInstance();
+	TourBusVO tVO =  tDAO.selectTourBus(contId);
+	List<String> routeList = tDAO.selectTourRoute(contId);
+	List<String> timeList = tDAO.selectTourTime(contId);
+	
+	int routeCnt = routeList.size();
+	pageContext.setAttribute("tVO", tVO);
+	pageContext.setAttribute("contId", contId );
+	pageContext.setAttribute("routeList", routeList);
+	pageContext.setAttribute("timeList", timeList);
+	pageContext.setAttribute("routeCnt", routeCnt);
+	
+%>
 <script type="text/javascript">
 $(function(){
-
+	$("#reservationBtn").click(function(){
+		$("#reservationPop").show();
+	})//click
+	
+	$("#reserCloseBtn").click(function(){
+		$("#reservationPop").hide();
+	})//click
+	
+	//성인 plus,minus버튼
+	$("#adultPlusBtn").click(function(){
+		var currentCnt = parseInt($("#id_adult_cnt").val());
+		var nextCnt = currentCnt + 1;
+		if( currentCnt >= 30 ){
+			nextCnt = 30;
+		}
+		$("#id_adult_cnt").val(nextCnt);
+	})//end click
+	$("#adultMinusBtn").click(function(){
+		var currentCnt = parseInt($("#id_adult_cnt").val());
+		var nextCnt = currentCnt - 1;
+		if( currentCnt == 0 ){
+			nextCnt = 0;
+		}
+		$("#id_adult_cnt").val(nextCnt);
+	})//end click
+	
+	//소아 및 청소년 plus,minus버튼
+	$("#childPlusBtn").click(function(){
+		var currentCnt = parseInt($("#id_kid_cnt").val());
+		var nextCnt = currentCnt + 1;
+		if( currentCnt >= 30 ){
+			nextCnt = 30;
+		}
+		$("#id_kid_cnt").val(nextCnt);
+	})//end click
+	$("#childMinusBtn").click(function(){
+		var currentCnt = parseInt($("#id_kid_cnt").val());
+		var nextCnt = currentCnt - 1;
+		if( currentCnt == 0 ){
+			nextCnt = 0;
+		}
+		$("#id_kid_cnt").val(nextCnt);
+	})//end click
+	
+	$(document).on( "click", ".dropdown-item", function(){
+		var select = $(this).text();
+		$("#selectTime").text(select);
+		$("#id_reserved_time").text(select);
+	})//on
+	
+	$(document).on("click", function(event){
+		var target = $(event.target);
+		
+		if( target.is("td") && !target.hasClass("pastDay")){
+			var year = $("#calYear").text();
+			var month = $("#calMonth").text();
+			var day = target.text();
+			var reservedDate = year + "-" + month + "-" + day
+			$("#id_reserved_revdate").text(reservedDate)
+		}
+	})//on
+	
+	$("#lastReservationBtn").click(function(){
+		var contId = $("#contId").val();
+		var selectDate = $("#id_reserved_revdate").text();
+		var selectTime = $("#id_reserved_time").text();
+		var selectAdultFare =$("#id_adult_cnt").val();
+		var selectChildFare = $("#id_kid_cnt").val();
+		var userId = $("#userId").val();
+		var userName = $("#userName").val();
+		
+		if( selectDate == "" ){ 
+			alert("날짜를 선택해 주세요.");
+			return;
+		}
+		if( selectTime =="" ){ 
+			alert("버스 시간을 선택해 주세요.");
+			return;
+		}
+		if( (selectAdultFare==0 && selectChildFare==0) ){ 
+			alert("탑승인원을 선택해 주세요.");
+			return;
+		}
+		var flag = confirm("예약 하시겠습까?");
+		if( !flag ){
+			return;
+		}//end if
+		
+		var jsonObj = {
+				"contId" : contId,
+				"date" : selectDate,
+				"time" : selectTime,
+				"adult" : selectAdultFare,
+				"child" : selectChildFare,
+				"userId" : userId,
+				"userName" :  userName
+		}
+		
+		$.ajax({
+			url : "tourBus_reserve_process.jsp",
+			type : "get",
+			data : jsonObj,
+			dataType : "json",
+			error : function( xhr ){
+				alert(xhr.status);
+			},
+			success : function( jsonObj ){
+				if( jsonObj.resultFlag ){
+					alert("예약이 완료 되었습니다.");
+					
+					$("#reservationPop").hide();
+					// redirection 시키기 완료페이지로
+				}//end if
+			}
+		})//ajax
+	})//click
+	
 });//ready
+	
 </script>
+<script src="../common/JS/calendar.js" defer></script>
 </head>
 <body>
+
 <div class="wrap">
 <div class="header">
         <div class="header_contents flex">
             <div class="logo">JEJU VISIT</div>
             <div class="nav_top">
                 <ul>
-                    <li><a href="http://localhost:8080/prj_touristArea/touristArea.jsp">관광지</a></li>
+                    <li><a href="http://192.168.10.133/prj_touristArea/touristArea.jsp">관광지</a></li>
                     <li>맛집</li>
                     <li>게시판</li>
                     <li>투어예약</li>
@@ -534,11 +248,14 @@ $(function(){
     
     
     <div class="container my-5 py-3">
-  		<h1 class="my-3">제주시티투어버스</h1>
+    	<input type="hidden" id="contId" value="${contId }" />
+    	<input type="hidden" id="userName" value="장용석" /><!-- session값 넣기  -->
+    	<input type="hidden" id="userId" value="jys" /><!-- session값 넣기  -->
+  		<h1 class="my-3">${ tVO.name }</h1>
   		<hr>
 	 	 <div class="" style="text-align:center">
-	 	 	<div style="border:1px solid #333;background: url(../common/test_img.png) no-repeat;; width:100%; height:400px"></div>
-	 	 	<button type="button" onclick="">예약하기</button>
+	 	 	<div style="border:1px solid #333;background: url(../common/images/tour_bus_img/test_img.png) no-repeat;; width:100%; height:400px"></div>
+	 	 	<button type="button" id="reservationBtn">예약하기</button>
 	 	 </div>
 	</div>
 	<!--  -->
@@ -546,16 +263,25 @@ $(function(){
   		<h3 class="my-3">요금안내</h3>
   		<hr>
   		<ul class="time-list">
-    		<li> 2023. 7. 14.(금) ~ 11. 11.(토)</li>
+  		<f:formatNumber value="${ tVO.adultFare }" pattern="#,##0" var="adultFare" />
+  		<f:formatNumber value="${ tVO.childFare }" pattern="#,##0" var="childFare" />
+    		<li>성인 : ${ adultFare }</li>
+    		<li>소인 및 청소년 : ${ childFare }</li>
+    		<li>6세 미만 : 무료 </li>
   		</ul>
 	</div>
    	<!--  -->
    	
-   	<div class="container my-5 py-3">
+   	<div class="container my-5 py-5">
   		<h3 class="my-3">노선안내</h3>
   		<hr>
-	 	 <div class="fs-3" style="display:flex">
-	 	 	우리집<div class="arrow_sign"></div>제주도
+	 	 <div class="fs-4" style="display:flex">
+	 	 	<c:forEach var="route" items="${ routeList }" varStatus="i">
+	 	 	${ route }<div class="arrow">&gt;</div>
+	 	 		<c:if test="${ i.count eq routeCnt  }" >
+	 	 			${ route }
+	 	 		</c:if>
+	 	 	</c:forEach>
 	 	 </div>
 	</div>
 	
@@ -564,7 +290,7 @@ $(function(){
   <hr>
   <h4 class="tag-title mt-3">문의전화</h4>
   <ul class="time-list">
-    <li><i class="xi xi-check-thin"></i> 064-741-8784~5(시티투어운영과)</li>
+    <li><i class="xi xi-check-thin"></i> ${ tVO.tel }</li>
   </ul>
 
   <h4 class="tag-title mt-5">금지사항</h4>
@@ -591,7 +317,7 @@ $(function(){
 </div>
 
 <!-- 질문하기  class = on붙이기 (jisik-pop on) -->
-<div data-v-a315ebf2="" data-v-db46a16a="" class="jisik-pop on" >
+<div data-v-a315ebf2="" data-v-db46a16a="" class="jisik-pop" id="reservationPop">
 	<div data-v-a315ebf2="" class="outline"><h3 data-v-a315ebf2="">투어버스 예약하기<small data-v-a315ebf2="">탑승인원과 탑승날짜,시간을 선택해주세요.</small></h3>
 		<div data-v-a315ebf2="" class="box">
 		
@@ -600,17 +326,17 @@ $(function(){
 					<div class="person-cnt-wrap">
 						<div class="stit">성인</div>
 						<div class="cnt-wrap">
-							<button type="button" class="btn-mius" onclick="payment.adultMinus()"><i class="el-icon-minus"></i></button>
+							<button type="button" class="btn-mius" id="adultMinusBtn" style="background: url(../common/images/icon_img/minus_btn.png) no-repeat; background-position: 13px 10px;"></button>
 							<input type="text" id="id_adult_cnt" class="inp" value="0">
-							<button type="button" class="btn-plus" onclick="payment.adultAdd()"><i class="el-icon-plus"></i></button>
+							<button type="button" class="btn-plus" id="adultPlusBtn" style="background: url(../common/images/icon_img/plus_btn.png) no-repeat; background-position: 11px 8px;"></button>
 						</div>
 					</div>
 					<div class="person-cnt-wrap">
-						<div class="stit">소인<br><span class="">(한국나이 6세이상~고등학생)</span></div>
+						<div class="stit">소인 및 청소년<br><span class="">(한국나이 6세이상~고등학생)</span></div>
 						<div class="cnt-wrap">
-							<button type="button" class="btn-mius" onclick="payment.kidMinus()"><i class="el-icon-minus"></i></button>
+							<button type="button" class="btn-mius" id="childMinusBtn" style="background: url(../common/images/icon_img/minus_btn.png) no-repeat; background-position: 13px 10px;"></button>
 							<input type="text" id="id_kid_cnt" class="inp" value="0">
-							<button type="button" class="btn-plus" onclick="payment.kidAdd()"><i class="el-icon-plus"></i></button>
+							<button type="button" class="btn-plus" id="childPlusBtn" style="background: url(../common/images/icon_img/plus_btn.png) no-repeat; background-position: 11px 8px;"></button>
 						</div>
 					</div>
 				</div>
@@ -621,14 +347,32 @@ $(function(){
 				<div class="resev-calendar-wrap">
 					<div class="rtit">2.날짜 선택</div>
 					<div class="calendar-tbl-wrap">
-						<div class="loading" id="id_reserved_date_loading"><img src="/assets/image/ico/ico-loading.png"></div><!-- 보일 경우 class on //-->
-						<div class="calendar-func-wrap">
-							<button type="button" onclick="preMonth()"><i class="el-icon-arrow-left"></i></button>
-							<div class="value" id="id_calendar_date">2023 . 10</div>
-							<button type="button" onclick="nextMonth()"><i class="el-icon-arrow-right"></i></button>
-						</div>
+						
 						<!-- 달력 //-->
-						<table id="id_calendar"><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr><tr><td><div class="rela"><div class="num">01</div></div></td><td><div class="rela"><div class="num">02</div></div></td><td><div class="rela"><div class="num">03</div></div></td><td><div class="rela"><div class="num">04</div></div></td><td><div class="rela"><div class="num">05</div></div></td><td><div class="rela"><div class="num">06</div></div></td><td><div class="rela"><div class="num">07</div></div></td></tr><tr><td><div class="rela"><div class="num">08</div></div></td><td><div class="rela"><div class="num">09</div></div></td><td><div class="rela"><div class="num">10</div></div></td><td><div class="rela"><div class="num">11</div></div></td><td><div class="rela"><div class="num">12</div></div></td><td><div class="rela"><div class="num">13</div></div></td><td><div class="rela"><div class="num">14</div></div></td></tr><tr><td><div class="rela"><div class="num">15</div></div></td><td><div class="rela"><div class="num">16</div></div></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-17&quot;,this)"><div class="num">17</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-18&quot;,this)"><div class="num">18</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-19&quot;,this)"><div class="num">19</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-20&quot;,this)"><div class="num">20</div><div class="status type01"></div></a></td><td><a href="javascript:setRevDate(&quot;N&quot;,this)" class="rela"><div class="num">21</div><div class="status type03"></div></a></td></tr><tr><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-22&quot;,this)"><div class="num">22</div><div class="status type01"></div></a></td><td><a href="javascript:setRevDate(&quot;N&quot;,this)" class="rela"><div class="num">23</div><div class="status type03"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-24&quot;,this)"><div class="num">24</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-25&quot;,this)"><div class="num">25</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-26&quot;,this)"><div class="num">26</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-27&quot;,this)"><div class="num">27</div><div class="status type01"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-28&quot;,this)"><div class="num">28</div><div class="status type01"></div></a></td></tr><tr><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-29&quot;,this)"><div class="num">29</div><div class="status type01"></div></a></td><td><a href="javascript:setRevDate(&quot;N&quot;,this)" class="rela"><div class="num">30</div><div class="status type03"></div></a></td><td><a href="javascript:void(0)" class="rela" onclick="setRevDate(&quot;2023-10-31&quot;,this)"><div class="num">31</div><div class="status type01"></div></a></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>
+						<table class="Calendar">
+					        <thead>
+					            <tr>
+					                <td onClick="prevCalendar();" style="cursor:pointer;">&#60;</td>
+					                <td colspan="5">
+					                    <span id="calYear"></span>년
+					                    <span id="calMonth"></span>월
+					                </td>
+					                <td onClick="nextCalendar();" style="cursor:pointer;">&#62;</td>
+					            </tr>
+					            <tr>
+					                <td style="border-radius:10px 0 0 0">일</td>
+					                <td>월</td>
+					                <td>화</td>
+					                <td>수</td>
+					                <td>목</td>
+					                <td>금</td>
+					                <td  style="border-radius: 0 10px 0 0">토</td>
+					            </tr>
+					        </thead>
+					        <tbody>
+					        </tbody>
+					    </table>
+					   
 						<!-- 달력 //-->
 						
 					</div>
@@ -640,7 +384,19 @@ $(function(){
 					<div class="rtit">3.시간 선택</div>
 					<div class="resev-view-wrap">
 						<div class="select-item-wrap" id="id_b_time_select_list">
-							<a href="javascript:getRevDate()"><span id="id_b_time_select_txt">시간을 선택해 주세요.</span><i class="el-icon-caret-bottom"></i></a>
+							<div class="dropdown">
+							  <a class="btn btn-primary dropdown-toggle" id="selectTime" 
+							  	role="button" data-bs-toggle="dropdown" aria-expanded="true"
+							  	style="background-color: #FFFFFF;	border-color: #ce5e00;color:#000000;	width:100%;	height:50px; font-size:20px">
+							    시간을 선택해 주세요.
+							  </a>
+
+								  <ul class="dropdown-menu" style="width:100%">
+								  	<c:forEach var="time" items="${ timeList }" >
+								    	<li><a class="dropdown-item" style="font-size:20px">${ time }</a></li>
+								    </c:forEach>
+								  </ul>
+								</div>
 							<div class="select-result-wrap">
 								<!--탑승시간//-->
 								<ul id="id_board_time"></ul>
@@ -648,10 +404,10 @@ $(function(){
 							</div>
 						</div>
 						<dl>
-							<dt>● 선택 정보</dt>
+							<dt style="font-size:large">● 선택 정보</dt>
 							<dd>
 								<ul>
-									<li><div class="key">코스 정보</div><span id="id_reserved_title_sub" class="value">도심고궁남산코스</span></li>
+									<li><div class="key">코스 정보</div><span id="id_reserved_title_sub" class="value">${ tVO.name }</span></li>
 									<li><div class="key">탑승 날짜</div><span id="id_reserved_revdate" class="value"></span></li>
 									<li><div class="key">탑승 시간</div><span id="id_reserved_time" class="value"></span></li>
 								</ul>
@@ -665,8 +421,8 @@ $(function(){
 	
 			</div>
 			<!--  -->
-			<button data-v-a315ebf2="" type="button" class="submit">예약하기</button>
-			<button data-v-a315ebf2="" type="button" class="close">창 닫기</button>
+			<button data-v-a315ebf2="" type="button" class="submit" id="lastReservationBtn">예약하기</button>
+			<button data-v-a315ebf2="" type="button" class="close" id="reserCloseBtn">창 닫기</button>
 			<!--  -->
 			<div class="help-msg">※ 취소 / 환불 안내<br>
 					탑승 2일전부터는 취소 수수료가 발생하며 무통장입금으로 결제한 경우는 고객상담 전화(02-777-6090)을 통해서만 환불이 가능합니다.<br>

@@ -56,12 +56,13 @@
 	margin:20px 0;
 }
 div.tagBox{
+	text-align:center;
     position: relative;
     margin: 10px auto;
     width: auto;
     font-size: 0;
     padding: 0 100px 0 0;
-    height: 52px;
+    height: 160px;
     overflow: hidden;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -200,9 +201,11 @@ li {
     position: absolute;
     left: 95px;
     bottom: 10px;
-    width: 88px;
+    width: 65px;
     height: 15px;
     font-size: 0;
+    background: url(../images/icon_img/bg_starP_off.png) no-repeat 0 0;
+     
 }
 
 .item_list_map.type_map .item_count_area {
@@ -226,7 +229,8 @@ a, a:active, a:hover, a:link, a:visited {
 
 .item_list_map.type_map li .item_top>a .score_area p.score_count[data-v-2fbcbd64] {
     height: 15px;
-    background: url(../bg_star_on.png) no-repeat 50%/100% auto;
+    
+    background: url(http://192.168.10.133/prj_travel/common/images/icon_img/bg_starP_on.png) no-repeat 0 0;
 }
 
 .map-sticky-wrapper{
@@ -234,6 +238,8 @@ a, a:active, a:hover, a:link, a:visited {
 	right:0;
 	width: calc(100% - 660px);
 }
+
+
 
 .map_area{
 	position: sticky;
@@ -298,12 +304,12 @@ a, a:active, a:hover, a:link, a:visited {
 
 
 .map_paging .map_paging_inner .page-wrap a.page-first[data-v-2fbcbd64] {
-    background: url(../ico_first.svg) no-repeat 50%/80%;
+    background: url(http://192.168.10.133/prj_travel/common/images/icon_img/ico_first.svg) no-repeat 50%/80%;
      color: transparent;
 }
 
 .map_paging .map_paging_inner .page-wrap a.page-prev[data-v-2fbcbd64] {
-    background: url(../ico_prev.svg) no-repeat 50%/80%;
+    background: url(http://192.168.10.133/prj_travel/common/images/icon_img/ico_prev.svg) no-repeat 50%/80%;
      color: transparent;
 }
 
@@ -314,10 +320,10 @@ a, a:active, a:hover, a:link, a:visited {
 }
 
 .map_paging .map_paging_inner .page-wrap a.page-next[data-v-2fbcbd64] {
-    background: url(../ico_next.svg) no-repeat 50%/80%;
+    background: url(http://192.168.10.133/prj_travel/common/images/icon_img/ico_next.svg) no-repeat 50%/80%;
      color: transparent;
 }
 .map_paging .map_paging_inner .page-wrap a.page-last[data-v-2fbcbd64] {
-    background: url(../ico_last.svg) no-repeat 50%/80%;
+    background: url(http://192.168.10.133/prj_travel/common/images/icon_img/ico_last.svg) no-repeat 50%/80%;
     color: transparent;
 }

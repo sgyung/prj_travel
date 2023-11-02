@@ -176,7 +176,7 @@ blockquote, body, button, caption, dd, div, dl, dt, fieldset, form, frame, h1, h
     position: relative;
     width: 103px;
     height: 17px;
-    background: url(common/bg_starL_off.png) no-repeat 0 0;
+    background: url(../images/icon_img/bg_starL_off.png) no-repeat 0 0;
 }
 
 .score_area_l .score_count_l {
@@ -185,8 +185,8 @@ blockquote, body, button, caption, dd, div, dl, dt, fieldset, form, frame, h1, h
     left: 0;
     width: 0;
     height: 100%;
-    background: url(../bg_starL_on.png) no-repeat 0 0;
-    text-indent: -9999px;
+    background: url(../images/icon_img/bg_starL_on.png) no-repeat 0 0;
+    text-indent: 999px;
 }
 
 .sub_visual_wrap .sub_info_area .tag_area {
@@ -226,6 +226,18 @@ blockquote, body, button, caption, dd, div, dl, dt, fieldset, form, frame, h1, h
     font-size: 14px;
     line-height: 18px;
     color: #ccc;
+}
+
+div.jisik-detail div.outline ul.jisik_list li div.qustion p.name[data-v-0fc691de] {
+    text-align: center;
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    padding-top: 54px;
+    width: 100px;
+    font-size: 15px;
+    color: #1b1b1b;
+    background: url(../images/icon_img/q_mark.png)  no-repeat top/42px auto;
 }
 
 .sub_visual_wrap .sub_info_area .basic_information .info_sub_cont {
@@ -348,17 +360,51 @@ button {
 }
 
 .appraisal_list li div.ico_like {
-    background: url(../ico_app_like.png) no-repeat 50% 7px;
+    background: url(../images/icon_img/ico_app_like.png) no-repeat 50% 7px;
 }
 
+.add2020_detail_tab_box h2 a.up {
+    border: 1px solid #ef6d00;
+    background: #fdf0e5;
+    font-weight: 700;
+    color: #ef6d00;
+}
+
+.add2020_detail_left h2 a.up span.arrow {
+    background: url(../images/icon_img/add2020_detail_up.png) 0 0 no-repeat;
+}
+
+
 .appraisal_list li div.ico_review {
-    background: url(../ico_app_review.png) no-repeat 50% 7px;
+    background: url(../images/icon_img/ico_app_review.png) no-repeat 50% 7px;
 }
 
 .appraisal_list li .appraisal_tit {
     font-size: 16px;
     color: #535353;
     line-height: 16px;
+}
+
+.appraisal_list li div.ico_like.on {
+    background-position-y: -40px;
+}
+
+.add2020_detail_tab_box h2 a.up {
+    border: 1px solid #ef6d00;
+    background: #fdf0e5;
+    font-weight: 700;
+    color: #ef6d00;
+}
+
+.add2020_detail_box h2 a {
+    border: 1px solid #e5e5e5;
+    background: #f6f6f6;
+    font-weight: 400;
+    color: #535353;
+}
+
+.appraisal_list li div.ico_like.on {
+    background-position-y: -40px;
 }
 
 .appraisal_list li .appraisal_cnt {
@@ -370,7 +416,7 @@ button {
 }
 
 .appraisal_list li div.ico_hits {
-    background: url(../ico_app_hits.png) no-repeat 50% 5px;
+    background: url(../images/icon_img/ico_app_hits.png) no-repeat 50% 5px;
 }
 
 .add2020_detail {
@@ -510,7 +556,7 @@ div.real[data-v-29f7b454] {
 .add2020_detail_side_info dt {
     margin: 25px 0 6px;
     padding-left: 19px;
-    background: url(../add2020_detail_bullet.png) 0 0 no-repeat;
+    background: url(../images/icon_img/add2020_detail_bullet.png) 0 0 no-repeat;
     font-size: 16px;
     color: #8c8c8c;
     font-weight: 700;
@@ -560,7 +606,7 @@ div.real[data-v-29f7b454] {
     width: 10px;
     height: 9px;
     text-indent: -9999px;
-    background: url(common/add2020_detail_down.png) 0 0 no-repeat;
+    background: url(../images/icon_img/add2020_detail_down.png) 0 0 no-repeat;
 }
 
 .detail_page .tab_cont .cont_tit {
@@ -705,7 +751,7 @@ a, a:active, a:hover, a:link, a:visited {
     position: relative;
     width: 65px;
     height: 12px;
-    background: url(common/bg_starP_off.png) no-repeat 0 0;
+    background: url(../images/icon_img/bg_starP_off.png) no-repeat 0 0;
 }
 
 .score_area_p .score_count_p {
@@ -714,7 +760,7 @@ a, a:active, a:hover, a:link, a:visited {
     left: 0;
     width: 0;
     height: 100%;
-    background: url(../bg_starP_on.png) no-repeat 0 0;
+    background: url(../images/icon_img/bg_starP_on.png) no-repeat 0 0;
     text-indent: -9999px;
 }
 
@@ -736,7 +782,7 @@ a, a:active, a:hover, a:link, a:visited {
 .review_wrap .review_area .user_content .recom_area .ico_like {
     float: left;
     padding-left: 20px;
-    background: url(/image/common/ico_like.png) no-repeat 0 50%;
+    background: url(../images/icon_img/ico_like.png) no-repeat 0 50%;
     background-size: 15px 11px;
     font-size: 14px;
     color: #ef6d00;
@@ -793,7 +839,7 @@ a, a:active, a:hover, a:link, a:visited {
 .review_wrap .review_list .review_item .reg_ripple .reg_ripple_item {
     padding: 20px 0 1px 130px;
     border-top: 1px solid #e5e5e5;
-    background: url(common/ico_reply_mark.png) no-repeat 87px 23px;
+    background: url(../images/icon_img/ico_reply_mark.png) no-repeat 87px 23px;
 }
 
 .review_wrap .review_list .review_item .reg_ripple .reg_ripple_area {
@@ -837,7 +883,7 @@ a, a:active, a:hover, a:link, a:visited {
 
 .spr_com {
     display: inline-block;
-    background: url(common/spr_comm.png) no-repeat;
+    background: url(../images/icon_img/spr_comm.png) no-repeat;
     text-indent: -999px;
     overflow: hidden;
     vertical-align: middle;
@@ -1115,7 +1161,7 @@ div.jisik-detail div.outline ul.jisik_list li div.answer[data-v-0fc691de] {
     position: relative;
     padding: 30px 160px 160px 130px;
     border-bottom: 1px solid #ebebeb;
-    background-color: #F9F9F9;
+    background : url(../images/icon_img/a_mark.png) no-repeat #f9f9f9 left 70px top 20px/32px auto;
 }
 
 div.jisik-detail div.outline ul.jisik_list li div.answer p.name[data-v-0fc691de] {
@@ -1149,7 +1195,7 @@ div.jisik-detail div.outline button.close[data-v-0fc691de] {
     width: 26px;
     height: 26px;
     border: none;
-    background: url(common/x_sign.png);
+    background: url(../images/icon_img/x_sign.png);
     font-size: 0;
 }
 
@@ -1176,6 +1222,7 @@ div.jisik-detail div.outline button.close[data-v-0fc691de] {
 
 .pop_wrap .pop_container.pop_review {
     margin-left: -350px;
+    margin-top: 100px;
     padding: 40px;
     border: 1px solid #ef6d00;
     width: 700px;
@@ -1338,7 +1385,7 @@ tbody {
 }
 
 .pop_wrap .pop_container.pop_review .score_area .btn_score.on {
-    background: url(../bg_star_on.png) no-repeat 0 0;
+    background: url(../images/icon_img/bg_star_on.png) no-repeat 0 0;
 }
 
 .pop_wrap .pop_container.pop_review .score_area .btn_score {
@@ -1347,7 +1394,7 @@ tbody {
     width: 15px;
     height: 15px;
     text-indent: -9999px;
-    background: url(../bg_star_off.png) no-repeat 0 0;
+    background: url(../images/icon_img/bg_star_off.png) no-repeat 0 0;
 }
 
 div.jisik-pop.on[data-v-a315ebf2] {
@@ -1447,7 +1494,7 @@ div.jisik-pop div.outline div.box>div.text input[data-v-a315ebf2] {
     margin: 0 0 20px;
     font-size: 16px;
     color: #535353;
-    background: url(../question_mark.png) no-repeat left  ;
+    background: url(../images/icon_img/question_mark.png) no-repeat left  ;
    }
    
    div.jisik-pop div.outline div.box>div.text textarea[data-v-a315ebf2] {
@@ -1491,6 +1538,6 @@ div.jisik-pop div.outline button.close[data-v-a315ebf2] {
     width: 26px;
     height: 26px;
     border: none;
-    background: url(../x_sign.png) no-repeat 50%/100% auto;
+    background: url(../images/icon_img/x_sign.png) no-repeat 50%/100% auto;
     font-size: 0;
 }

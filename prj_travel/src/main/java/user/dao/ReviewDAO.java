@@ -26,7 +26,7 @@ public class ReviewDAO {
 		return rDAO;
 	}//getInstance
 	
-	public List<ReviewVO>selectPageReview(int start, int end) throws SQLException {
+	public List<ReviewVO>selectPageReview(int start, int end, String areaId) throws SQLException {
 		List<ReviewVO> reviewList = new ArrayList<ReviewVO>();
 		DbConnection db = DbConnection.getInstance();
 		
@@ -43,12 +43,13 @@ public class ReviewDAO {
 			.append("	from (select row_number() over( order by tourist_review_date desc ) num,	")
 			.append("	TOURIST_REVIEW_ID, TOURIST_AREA_ID, USER_ID, TOURIST_REVIEW_CONTENT,	")
 			.append("	TOURIST_STAR_SCORE, TOURIST_REVIEW_DATE	")
-			.append("	from tourist_review) totalReview	")
+			.append("	from tourist_review where tourist_area_id= ? ) totalReview	")
 			.append("	where num between ? and ?	")
 			;
 			pstmt = con.prepareStatement(selectReview.toString());
-			pstmt.setInt(1, start);
-			pstmt.setInt(2, end);
+			pstmt.setString(1,  areaId);
+			pstmt.setInt(2, start);
+			pstmt.setInt(3, end);
 			
 			rs = pstmt.executeQuery();
 			
@@ -70,7 +71,7 @@ public class ReviewDAO {
 		return reviewList;
 	}//selectPageReview
 	
-	public int selectTotalReview() throws SQLException {
+	public int selectTotalReview(String contid) throws SQLException {
 		int totalCnt = 0;
 		DbConnection db = DbConnection.getInstance();
 		
@@ -81,7 +82,8 @@ public class ReviewDAO {
 		try {
 			con = db.getConn("jdbc/dbcp");
 			
-			pstmt = con.prepareStatement("	select count(*) cnt from tourist_review	");
+			pstmt = con.prepareStatement("	select count(*) cnt from tourist_review where tourist_area_id= ? 	");
+			pstmt.setString(1, contid);
 			
 			rs = pstmt.executeQuery();
 			
@@ -102,15 +104,26 @@ public class ReviewDAO {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		
+		String areaId = rVO.getAreaId().split("_")[0];
+		
 		try {
 			con = db.getConn("jdbc/dbcp");
 			
 			StringBuilder insertQuestion = new StringBuilder();
-			insertQuestion
-			.append("	insert into tourist_review(TOURIST_REVIEW_ID, USER_ID,TOURIST_REVIEW_CONTENT,	")
-			.append("	TOURIST_STAR_SCORE, TOURIST_REVIEW_DATE, TOURIST_AREA_ID)	")
-			.append("	values( 'TA_RE_'||ta_review_seq.nextval, ?, ?, ?, sysdate, ?)	")
-			;
+			if( areaId.equals("TA")) {
+				insertQuestion
+				.append("	insert into tourist_review(TOURIST_REVIEW_ID, USER_ID,TOURIST_REVIEW_CONTENT,	")
+				.append("	TOURIST_STAR_SCORE, TOURIST_REVIEW_DATE, TOURIST_AREA_ID)	")
+				.append("	values( 'TA_RE_'||ta_review_seq.nextval, ?, ?, ?, sysdate, ?)	");
+			}//end if
+			if( areaId.equals("RES")) {
+				insertQuestion
+				.append("	insert into restaurant_review(REVIEW_ID, USER_ID, RESTAURANT_REVIEW_CONTENT,	")
+				.append("	RESTAURANT_STAR_SCORE, RESTAURANT_REVIEW_DATE, RESTAURANT_ID   )	")
+				.append("	values( 'RES_RE_'||ta_review_seq.nextval, ?, ?, ?, sysdate, ?	 )	");
+			}//end if
+			
 			pstmt = con.prepareStatement(insertQuestion.toString());
 			pstmt.setString(1, rVO.getUserId());
 			pstmt.setString(2, rVO.getContent());

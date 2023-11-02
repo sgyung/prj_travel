@@ -1,3 +1,4 @@
+<%@page import="java.lang.reflect.Array"%>
 <%@page import="pageUtil.Paging"%>
 <%@page import="user.vo.TouristAreaVO"%>
 <%@page import="user.dao.TouristAreaDAO"%>
@@ -39,6 +40,9 @@
 	}else {
 		pageList = dao.selectTagContent("#"+selectTag, pageRange[0], pageRange[1]);
 	}
+	
+
+	
 	int ContentCnt = pageList.size();
 	int totalContent = 0;
 	
@@ -48,7 +52,7 @@
 		totalContent = dao.selectTotalTagTouristArea("#" + selectTag);
 	}
 	
-	int pagePerNum = 2; // 한 화면에 보여줄 페이지번호 수
+	int pagePerNum = 5; // 한 화면에 보여줄 페이지번호 수
 	int totalPage = paging.getTotalPage(totalContent, pageScale);
 	int[] pagePerRange = paging.getTotalPageCnt(selectPage, totalPage, pagePerNum);
 	
@@ -84,8 +88,22 @@
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9d996728af7880d0f5ca73221c2412ab"></script>
 <!-- kakao지도 api -->
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../common/CSS/ta_view.css">
+<link rel="stylesheet" type="text/css" href="http://192.168.10.133/prj_travel/common/CSS/ta_view.css">
+<!-- header&footer css -->
+<link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
+
+
+
+.container {
+    margin-top: 90px;
+}
+
+h2 {
+    font-size: 2rem;
+    padding: 20px 0 0 0;
+}
+
 
 
 </style>
@@ -111,6 +129,7 @@ $(function(){
 		var mapData = $(this).val().split(",");
 		var data =
 		{
+			img : mapData.pop(),
 			contentId : mapData.pop(),
 			title : mapData.pop(),
 			latlng: new kakao.maps.LatLng(mapData[0],mapData[1])
@@ -129,7 +148,7 @@ $(function(){
 		 var content = '<div id="cont1" style="position: absolute; top: -315px; left: -110px; z-index: 0; margin: 0px; padding: 0px; border: 1px solid rgb(201, 201, 201); display: block; cursor: default; box-sizing: content-box !important; background:#EFEFEF; ">' + 
 		    '				<div style="margin: 0px; padding: 0px; border: 0px solid transparent; display: inline-block; box-sizing: content-box !important; width: 221px; height: 270px; align-items:center">'+
 		    '					<div class="map_cont2" >'+	
-		    '						<img src="../common/' + positions[i].title + '.png' +'" alt="' + positions[i].title +'" style="width:221px; height:200px">'+
+		    '						<img src="'+ positions[i].img +'" style="width:221px; height:200px">'+
 		    '					 	<p style="text-align:center; margin: 5px 0">' + positions[i].title + '</p>'+
 		    '				 		<div style="text-align:center;">'+
 		    '							<a href="touristArea_detail.jsp?contentInfo=' + positions[i].contentId+'"' + 'style="margin-bottom:10px;background-color:rgb(255,255,255);">자세히보기</a>'+
@@ -165,7 +184,7 @@ $(function(){
 	
 	}//end for
 	
-	//a태그 클릭시 클릭한 광지에 해당하는 지도상의 좌표로 이동
+	//a태그 클릭시 클릭한 관광지에 해당하는 지도상의 좌표로 이동
 	$(".ta").click(function(){
 		var idxValue = $(this).attr("id");
 		var idx = parseInt(idxValue);
@@ -201,8 +220,8 @@ $(function(){
      //해시태그 클릭시 해당하는 맛집 리스트 출력
      $("input[name='tag']").change(function(){
     	 var selectedValue = $("input[name='tag']:checked").val();
-    	 console.log(selectedValue);
-    	 window.location.href = "restaurant.jsp?tag="+ selectedValue;
+    	 
+    	 window.location.href = "touristArea.jsp?tag="+ selectedValue;
      })
      
 });//ready
@@ -210,28 +229,8 @@ $(function(){
 </script>
 </head>
 <body>
-<div class="wrap">
-	<div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li><a href="touristArea.jsp">관광지</a></li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>
+	<%@ include file="../common/jsp/header.jsp" %>
+
 	<div class="container">
 		<div id="content">
 			<div class="page_title" >
@@ -247,16 +246,6 @@ $(function(){
 					<label for="hashTag_${ tag }">#${ tag }</label>
 					</c:forEach>
 				</div>
-				
-				<!-- tagBox2
-				<div class="tagBox box02">
-					<input id="hashTag_test"  type="radio" name="tag" value="test">	
-					<label for="hashTag_test">#test</label>
-					
-					<input id="hashTag_test1" type="radio" name="tag" value="test1">
-					<label for="hashTag_test1">#test1</label>
-				</div>
-				-->
 			</div>
 			
 			
@@ -266,7 +255,7 @@ $(function(){
 				</div>
 				<div class="map_outline">
 					<div class="map_box" data-v-2fbcbd64>
-						<ul class="item_list_map type_map clear" style="height: calc(260px * ${cnt} );">
+						<ul class="item_list_map type_map clear" style="height:  ${ 300 * cnt gt 2000? 2000 : 300*cnt }px;">
 							
 							<c:forEach var="touristArea" items="${ areaList }" varStatus="i" >
 						
@@ -274,14 +263,14 @@ $(function(){
 								<dl data-v-2fbcbd64="" class="item_section_new">
 									<dt data-v-2fbcbd64="" class="item_top">
 										<a data-v-2fbcbd64="" href="javascript:void(0)"  class="ta" id=" ${ i.index}">
-											<img data-v-2fbcbd64="" src="http://192.168.10.133/prj_touristArea/common/${ touristArea.image }" alt="금능해수욕장 대표이미지" class="">
+											<img data-v-2fbcbd64="" src="${ touristArea.image }" alt="${ touristArea.name } 사진" class="">
 											<p data-v-2fbcbd64="" class="s_tit">${ touristArea.name }</p>
 											<p data-v-2fbcbd64="" class="item_tag next">${ touristArea.tags }</p>						
 											<div data-v-2fbcbd64="" class="score_area">
-											<p data-v-2fbcbd64="" class="score_count" style="width: 100%;">별점(5점만점에 5점)</p>
+											<p data-v-2fbcbd64="" class="score_count" style="width: ${ touristArea.starScore * 20}%;">별점(5점만점에 5점)</p>
+											${ touristArea.starScore}
 											</div>
-											<input  class="longLat" type="hidden"  value="${ touristArea.longitude },${ touristArea.latitude},${ touristArea.name },${ touristArea.id}"/>
-											
+											<input  class="longLat" type="hidden"  value="${ touristArea.latitude}, ${ touristArea.longitude },${ touristArea.name },${ touristArea.id}, ${ touristArea.image }"/>
 										</a>
 									</dt>
 									<dd data-v-2fbcbd64="" class="item_count_area clear">
@@ -349,7 +338,7 @@ $(function(){
 										</c:url>
 										<a href="${nextPage}" class="spr_com page-next" data-v-2fbcbd64="">다음 페이지</a>
 										<c:url var="lastPage" value="touristArea.jsp">
-											<c:param name="page" value="${ endNum }"/>
+											<c:param name="page" value="${ totalPage }"/>
 											<c:if test="${ not empty selectTag }" >
 												<c:param name="tag" value="${selectTag }"/>
 											</c:if>
@@ -361,24 +350,17 @@ $(function(){
 							
 						</ul>
 					</div>
-					<div class="map-sticky-wrapper" style="height: calc(250px * ${ cnt })" >
+					<div class="map-sticky-wrapper" style="height: ${ 250 * cnt > 2000 ? 2000 : 250*cnt }px" >
 						<div class="map_area">
 							<div id="map"></div>				
 						</div>						
 						
 					</div>
-					
-					
 				</div>
 			</div>
-			
-			
-			
 		</div>
-	</div>
-	
-
-</div>
-
+					<footer  style="position:relative; top: ${ 260 * cnt lt 750? 750 : 200*cnt }px">
+						<%@ include file="../common/jsp/footer.jsp" %>
+					</footer>
 </body>
 </html>

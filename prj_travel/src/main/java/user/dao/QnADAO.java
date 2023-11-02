@@ -80,6 +80,49 @@ public class QnADAO {
 		return qnaList;
 	}//selectAllQnA
 	
+	public QnAVO selectQnAContent( String QnAId ) throws SQLException {
+		QnAVO qaVO = null;
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			con = db.getConn("jdbc/dbcp");
+			
+			
+			pstmt = con.prepareStatement("select * from qna where inquiry_id=? ");
+			pstmt.setString(1, QnAId);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				qaVO = new QnAVO();
+				qaVO.setUserId(rs.getString("user_id"));
+				qaVO.setQnaId(rs.getString("inquiry_id"));
+				if( rs.getString("qna_type").equals("관광지") ) {
+					qaVO.setAreaId(rs.getString("tourist_area_id"));
+				} else {
+					qaVO.setAreaId(rs.getString("restaurant_id"));
+				}
+				qaVO.setTitle(rs.getString("qna_title"));
+				qaVO.setCategory(rs.getString("qna_type"));
+				qaVO.setContent(rs.getString("qna_content"));
+				qaVO.setRegistrationDate(rs.getDate("qna_date"));
+				qaVO.setAnswer(rs.getString("answer"));
+				qaVO.setAnswerType(rs.getString("answer_state"));
+				qaVO.setAnswerDate(rs.getDate("answer_date"));
+			}//end if
+			
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//end finally
+		
+		return qaVO;
+	}//selectQnAContent
+	
 	public void insertQnA( QuestionVO qVO ) throws SQLException {
 		DbConnection db = DbConnection.getInstance();
 		
@@ -92,7 +135,7 @@ public class QnADAO {
 			StringBuilder insertQuestion = new StringBuilder();
 			insertQuestion
 			.append("	insert into qna( INQUIRY_ID, USER_ID, TOURIST_AREA_ID, QNA_TITLE, QNA_TYPE, QNA_CONTENT, QNA_DATE, ANSWER_STATE )	")
-			.append("  	values( qna_seq.nextval, ?,  ?,  ?, ?, ?, to_char(sysdate, 'yyyy-MM-dd'), 'N')	 ")
+			.append("  	values( qna_seq.nextval, ?,  ?,  ?, ?, ?, sysdate, 'N')	 ")
 			;
 			pstmt = con.prepareStatement(insertQuestion.toString());
 			pstmt.setString(1, qVO.getUserId());

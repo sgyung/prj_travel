@@ -12,7 +12,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 	String contId = request.getParameter("contentInfo");
-	
+	String userId = (String) session.getAttribute("sesId");
+
 	if( contId == null || contId.isEmpty() ){
 		response.sendRedirect("touristArea.jsp");
 		return;
@@ -22,10 +23,35 @@
 		pageContext.setAttribute("contId", contId);
 	}//end if
 	
+	
 	//광광지 상세정보
 	TouristAreaDAO tDAO = TouristAreaDAO.getInstance();
 	TouristAreaVO taVO = tDAO.selectTouristArea(contId);
 	String info = tDAO.selectTouristAreaInfo(contId);
+	
+	//위도, 경도
+	Double TA_latitude = taVO.getLatitude();
+	Double TA_longitude = taVO.getLongitude();
+	pageContext.setAttribute("TA_latitude", TA_latitude);
+	pageContext.setAttribute("TA_longitude", TA_longitude);
+	
+	//별점
+	int starScore = tDAO.selectStarScore(contId);
+	pageContext.setAttribute("starScore", starScore);
+	//좋아요
+	int like = 0;
+	String likeState = "N";
+	if( userId == null ){
+		like = tDAO.selectLike(contId);
+	} else {
+		String[] likeValue = tDAO.selectUserLike(userId, contId);
+		like = Integer.parseInt(likeValue[0]);
+		likeState = likeValue[1];
+		
+	}//end else
+	
+	pageContext.setAttribute("like", like);	
+	pageContext.setAttribute("likeState", likeState);	
 	
 	String[] tagArr = null;
 	String[] reTagArr = null;
@@ -39,22 +65,30 @@
 	
 	int pageScale = 5;
 	Paging paging = Paging.getInstance();
+	
 	//리뷰
 	String reviewPage = request.getParameter("reviewPage");
 	int reviewCurrentPage = 1;
 	if( reviewPage != null){
 		reviewCurrentPage = Integer.parseInt(reviewPage);
 	}
-		ReviewDAO rDAO = ReviewDAO.getInstance();
-		int totalReviewCnt = rDAO.selectTotalReview();
-		int[] reviewRange = paging.getPageRowRange(reviewCurrentPage, pageScale);
-		int[] totalReviewPageCnt = paging.getTotalPageCnt(reviewCurrentPage, totalReviewCnt, pageScale);
-		List<ReviewVO> reviewList = rDAO.selectPageReview(reviewRange[0], reviewRange[1]);
-		
-		//review
-		pageContext.setAttribute("totalReviewPageCnt", totalReviewPageCnt[1] );
-		pageContext.setAttribute("reviewList", reviewList );
-		pageContext.setAttribute("totalReviewCnt", totalReviewCnt );
+	ReviewDAO rDAO = ReviewDAO.getInstance();
+	int totalReviewCnt = rDAO.selectTotalReview(contId);
+	
+	int rPagePerNum = 10;// 한 화면에 보여줄 페이지 번호 수
+	int totalReviewPage = paging.getTotalPage(totalReviewCnt, pageScale);
+	//화면에 보여질 페이지 시작번호[0], 끝번호[1] 
+	int[] totalReviewPageCnt = paging.getTotalPageCnt(reviewCurrentPage, totalReviewPage, rPagePerNum);
+	pageContext.setAttribute("rStartNum", totalReviewPageCnt[0]);
+	pageContext.setAttribute("rEndNum", totalReviewPageCnt[1]);
+	
+	int[] reviewRange = paging.getPageRowRange(reviewCurrentPage, pageScale);
+	List<ReviewVO> reviewList = rDAO.selectPageReview(reviewRange[0], reviewRange[1], contId);
+	
+	//review
+	pageContext.setAttribute("totalReviewPage", totalReviewPage );
+	pageContext.setAttribute("reviewList", reviewList );
+	pageContext.setAttribute("totalReviewCnt", totalReviewCnt );
 	
 	
 	//문의게시판
@@ -68,7 +102,7 @@
 	int totalQnACnt = qDAO.selectTotalQnA();
 	
 	//페이지 번호
-	int pagePerNum = 3; //한 화면에 보여줄 페이지번호 수
+	int pagePerNum = 5; //한 화면에 보여줄 페이지번호 수
 	int totalQnAPage = paging.getTotalPage(totalQnACnt, pageScale);
 	//화면에 보여질 페이지 시작번호[0], 끝번호[1] 
 	int[] pagePerRange = paging.getTotalPageCnt(qnaCurrentPage, totalQnAPage, pagePerNum);
@@ -82,10 +116,8 @@
 	//qna
 	pageContext.setAttribute("qnaList", qnaList );
 	pageContext.setAttribute("qnaTotalPage", totalQnAPage );
+	pageContext.setAttribute("pagePerNum", pagePerNum );
 	pageContext.setAttribute("qnaTotalCnt", totalQnACnt );
-	
-	
-
 	
 	pageContext.setAttribute("taVO", taVO);
 	pageContext.setAttribute("tags", reTagArr);
@@ -107,25 +139,285 @@
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <!--  -->
-<link rel="stylesheet" type="text/css" href="../common/CSS/ta_detail.css">
+<link rel="stylesheet" type="text/css" href="http://192.168.10.133/prj_travel/common/CSS/ta_detail.css">
+<!-- header&footer css -->
+<link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
 
 </style>
+<script language="javascript">
+//소스출처 : http://www.kma.go.kr/weather/forecast/digital_forecast.jsp  내부에 있음
+//기상청에서 이걸 왜 공식적으로 공개하지 않을까?
+//
+//(사용 예)
+//var rs = dfs_xy_conv("toLL","60","127");
+//console.log(rs.lat, rs.lng);
+//
+//<!--
+//
+// LCC DFS 좌표변환을 위한 기초 자료
+//
+var RE = 6371.00877; // 지구 반경(km)
+var GRID = 5.0; // 격자 간격(km)
+var SLAT1 = 30.0; // 투영 위도1(degree)
+var SLAT2 = 60.0; // 투영 위도2(degree)
+var OLON = 126.0; // 기준점 경도(degree)
+var OLAT = 38.0; // 기준점 위도(degree)
+var XO = 43; // 기준점 X좌표(GRID)
+var YO = 136; // 기1준점 Y좌표(GRID)
+//
+// LCC DFS 좌표변환 ( code : "toXY"(위경도->좌표, v1:위도, v2:경도), "toLL"(좌표->위경도,v1:x, v2:y) )
+//
+
+
+function dfs_xy_conv(code, v1, v2) {
+    var DEGRAD = Math.PI / 180.0;
+    var RADDEG = 180.0 / Math.PI;
+
+    var re = RE / GRID;
+    var slat1 = SLAT1 * DEGRAD;
+    var slat2 = SLAT2 * DEGRAD;
+    var olon = OLON * DEGRAD;
+    var olat = OLAT * DEGRAD;
+
+    var sn = Math.tan(Math.PI * 0.25 + slat2 * 0.5) / Math.tan(Math.PI * 0.25 + slat1 * 0.5);
+    sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn);
+    var sf = Math.tan(Math.PI * 0.25 + slat1 * 0.5);
+    sf = Math.pow(sf, sn) * Math.cos(slat1) / sn;
+    var ro = Math.tan(Math.PI * 0.25 + olat * 0.5);
+    ro = re * sf / Math.pow(ro, sn);
+    var rs = {};
+    if (code == "toXY") {
+        rs['lat'] = v1;
+        rs['lng'] = v2;
+        var ra = Math.tan(Math.PI * 0.25 + (v1) * DEGRAD * 0.5);
+        ra = re * sf / Math.pow(ra, sn);
+        var theta = v2 * DEGRAD - olon;
+        if (theta > Math.PI) theta -= 2.0 * Math.PI;
+        if (theta < -Math.PI) theta += 2.0 * Math.PI;
+        theta *= sn;
+        rs['x'] = Math.floor(ra * Math.sin(theta) + XO + 0.5);
+        rs['y'] = Math.floor(ro - ra * Math.cos(theta) + YO + 0.5);
+    }
+    else {
+        rs['x'] = v1;
+        rs['y'] = v2;
+        var xn = v1 - XO;
+        var yn = ro - v2 + YO;
+        ra = Math.sqrt(xn * xn + yn * yn);
+        if (sn < 0.0) - ra;
+        var alat = Math.pow((re * sf / ra), (1.0 / sn));
+        alat = 2.0 * Math.atan(alat) - Math.PI * 0.5;
+
+        if (Math.abs(xn) <= 0.0) {
+            theta = 0.0;
+        }
+        else {
+            if (Math.abs(yn) <= 0.0) {
+                theta = Math.PI * 0.5;
+                if (xn < 0.0) - theta;
+            }
+            else theta = Math.atan2(xn, yn);
+        }
+        var alon = theta / sn + olon;
+        rs['lat'] = alat * RADDEG;
+        rs['lng'] = alon * RADDEG;
+    }
+    return rs;
+}
+//-->
+function formatDateToYYYYMMDD() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더하고 2자리로 포맷
+    const day = String(now.getDate()).padStart(2, '0'); // 일자를 2자리로 포맷
+
+    const formattedDate = `${year}${month}${day}`;
+    return formattedDate;
+}
+
+function formatTimeToHHMM() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0'); // 시간을 2자리로 포맷
+    const minutes = '00'; // 분을 '00'으로 고정
+
+    const formattedTime = `${hours}${minutes}`;
+    return formattedTime;
+}
+</script>
 <script type="text/javascript">
 $(function(){
+	//날씨정보
+	var logitude = $("#TA_longitude").val();
+	var latitude = $("#TA_latitude").val();
+	
+	var date = new Date();
+	var year = date.getFullYear().toString();
+	var month = (date.getMonth()+1).toString();
+	var day = date.getDate().toString().padStart(2, "0"); // 현재 날짜
+	var time = date.getHours().toString().padStart(2, "0") + "00"; //현재 시간
+	
+	var baseDate = year+month+day;
+	
+	var weather = "";
+	var weatherImg = "";
+	
+	var x = dfs_xy_conv("toXY",latitude, logitude).x;
+	var y = dfs_xy_conv("toXY",latitude, logitude).y;
+	
+	var url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
+		+ "?ServiceKey=BJ4MAwskx9P2PjNPlo9ulPIcvWbxV%2BFDDeeCcThcKLC7JuwuoCY%2FxLO52Uf3Au8khQOQcNI3tSXjYkadxluH5Q%3D%3D"
+		+ "&pageNo=1"
+		+ "&numOfRows=12"
+		+ "&dataType=JSON"
+		+ "&base_date=" + baseDate
+		+ "&base_time=" + time
+		+ "&nx=" + x
+		+ "&ny=" + y
+		
+	$.ajax({
+		url : url,
+		error : function( xhr ){
+			alert( xhr.status );
+		},
+		success : function( jsonData ){
+		//하늘상태(SKY)코드 : 맑음(1), 구름많음(3), 흐림(4)
+		//강수형태(PTY)코드 : 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
+			var SKY = jsonData.response.body.items.item[5].fcstValue;
+			var PTY = jsonData.response.body.items.item[6].fcstValue;
+			console.log("SKY : " + SKY );
+			console.log("PTY : " + PTY );
+			if( PTY == 0 ){
+				if( SKY == 1 ){
+					weather = "맑음"
+					weatherImg = "sun"
+				} else {
+					weather = "구름많음"
+					weatherImg = "cloud"
+				}//end else
+			} else {
+				if( PTY == 1 || PTY == 4){
+					weather = "비"
+					weatherImg = "rain"
+				} else{
+					weather = "눈"
+					weatherImg = "snow"
+				}//end else
+			}//end else
+				
+			$("#weather_img").attr("src", "http://192.168.10.133/prj_travel/common/images/icon_img/weather_g_" + weatherImg + ".png")
+			$("#weather_img").attr("alt", weather);
+			$("#weather_p").text(weather);
+		}//success
+		
+		
+	})//ajax
+	
+	var qnaPage = 1;
+	var reviewPage = 1;
+	
+	//질문하기 버튼 클릭
 	$("#qnaBtn").click(function(){
+		$("#qTitle").val("");
+		$("#qContent").val("");
 		$("#qnaPop").show();
 	})//click
-	
+	//질문하기 닫기(x) 버튼 클릭
 	$("#closeBtn").click(function(){
 		$("#qnaPop").hide();
 	})//click
+	//질문 상세 보기 닫기(x)
+	$("#qnaDetailClose").click(function(){
+		$("#qnaDetail").hide();
+	})
+	//질문 리스트 클릭
+	$(document).on("click", ".qnaList", function(){
+		var qnaId = $(this).find("input[type=hidden]").val();
+		var output = "";
+		$.ajax({
+			url : "../user_detail_QnA/qna_detail_process.jsp",
+			type : "GET",
+			data : "qnaId=" + qnaId,
+			dataType : "JSON",
+			error : function(xhr){
+				alert(xhr.status);
+			},
+			success : function( jsonObj ){
+				output += "<li data-v-0fc691de='''>"
+				output += "<div data-v-0fc691de='' class='qustion'>";
+				output += "<p data-v-0fc691de='' class='name' style='display : inline-block'>";
+				output += "<strong data-v-0fc691de='' style='display : block'>"+ jsonObj.userId + "</strong>" 
+				output += "<span data-v-0fc691de=''><strong data-v-0fc691de=''>올린시간 : </strong>" + jsonObj.registrationDate + "</span></p>";
+				output += "<p data-v-0fc691de='' class='category'><strong data-v-0fc691de=''>카테고리 : </strong>[" + jsonObj.category + "]</p>";
+				output += "<p data-v-0fc691de='' class='title'>"+ jsonObj.title +"</p>";
+				output += "<div data-v-0fc691de='' class='jisik_text'>";
+				output += "<div data-v-0fc691de=''>"+ jsonObj.content +"</div>";
+				output += "<ul data-v-0fc691de='' class='thumb_img'></ul></div>";
+				output += "<p data-v-0fc691de='' class='count'><strong data-v-0fc691de=''>답변수 : </strong><span data-v-0fc691de=''>"
+				if( jsonObj.answerType == "N"){
+					output += 0
+					output+="</span></p><div data-v-0fc691de='' class='buttons'><!----></div></div>";
+				} else {
+					output += 1 
+					output+="</span></p><div data-v-0fc691de='' class='buttons'><!----></div></div>";
+					output += "<div data-v-0fc691de='' class='answer'><p data-v-0fc691de='' class='name'><strong data-v-0fc691de=''>작성자 : </strong>관리자";
+					output += "<span data-v-0fc691de=''><strong data-v-0fc691de=''>올린시간 : </strong>"+ jsonObj.answerDate +"</span></p>"
+					output +="<div data-v-0fc691de='' class='jisik_text'>";
+					output +="<div data-v-0fc691de=''>";
+					output +="<div data-v-0fc691de='' class='comment_contents'>";
+					output += jsonObj.answer +"</div>"
+					output +="<ul data-v-0fc691de='' class='thumb_img'></ul></div>"
+					output +="<div data-v-0fc691de='' class='tags'></div></div></div>"
+				}//end else
+				output +="</li>";
+				
+				$("#qnaDetailView").html(output);
+				$("#qnaDetail").show();
+			}//success
+		})//ajax
+	})//on
 	
-	$("#submitBtn").click(function(){
-		$("#qnaFrm").submit();
+	//질문작성완료
+	$("#qnaSubmitBtn").click(function(){
+		var userId = $("#userId").val(); //(임시) 로그인 후 session확인 하고 유효성검사
+		var areaId = $("#areaId").val();
+		var areaType = $("#areaType").val();
+		var qContent = $("#qContent").val();
+		var qTitle = $("#qTitle").val();
+		
+		if (userId == null){
+			alert("로그인 후 질문해주세요.");
+		} else {
+			var jsonObj = {
+					"userId" : userId,
+					"areaId" : areaId,
+					"areaType" : areaType,
+					"content" : qContent,
+					"title" : qTitle
+			}
+			
+			$.ajax({
+				url : "../user_detail_QnA/qna_insert_process.jsp",
+				type : "GET",
+				data : jsonObj,
+				dataType : "JSON",
+				error : function( xhr ){
+					alert(xhr.status);
+				},
+				success : function( jsonObj ){
+					if( jsonObj.resultFlag ){
+						alert("문의가 등록 되었습니다.");
+						$("#qnaPop").hide();
+						$(".active").click();
+					}//end if
+				}//success
+			})//ajax
+			
+		}//else 
 	})//click
 	
 	$("#regsitReview").click(function(){
+		$("#reviewContent").val("");
 		$("#registReviewPop").show();
 	})//click
 	
@@ -137,7 +429,7 @@ $(function(){
 				$(this).removeClass("on");
 			}
 		})
-		$("#reviewContent").val("");
+
 		$("#registReviewPop").hide();
 	})//click
 	
@@ -157,76 +449,447 @@ $(function(){
 	
 	//리뷰등록
 	$('#btn_regist').click(function(){
-		var selectStar =  0;
+		
+		var selectStar =  1;
 		$(".btn_score").each(function(i){
 			if( $(this).prop("class").includes("on") ){
-				selectStar = i;
+				selectStar = i+1;
 			};
 		})//each
 		
-		$("#star_score").val(selectStar);
-		$("#reviewFrm").submit();
+		var areaId = $("#areaId").val();
+		var userId = $("#userId").val();
+		var areaType = $("#areaType").val();
+		var rContent = $("#reviewContent").val();
+		var jsonObj = {
+				"areaId" : areaId,
+				"userId" : userId,
+				"areaType" : areaType,
+				"content" : rContent,
+				"starScore" : selectStar
+		}
+		
+		$.ajax({
+			url : "../user_detail_review/review_insert_process.jsp",
+			type : "get",
+			data : jsonObj,
+			dataType : "json",
+			error : function( xhr ){
+				
+			},//error
+			success : function( jsonObj ){
+				if( jsonObj.resultFlag ){
+					alert("리뷰가 등록 되었습니다");
+					
+					$("#registReviewPop").hide();
+					$(".current").click();
+				}//end if
+			}//success
+		})//ajax
+		
+	
+	})//click
+
+	
+	//리뷰 게시글
+	$(document).on("click", ".review_page_btn", function(){
+		var contId = $("#areaId").val();
+		var selectPage = $(this).text();
+		reviewPage = parseInt(selectPage);
+		$(".review_page_btn").each(function(){
+			if( $(this).hasClass("current") ){
+				$(this).removeClass("current");				
+			}//end if
+		})//click
+		$(this).addClass("current");
+		var jsonObj = {
+				contId : contId,
+				selectPage : reviewPage,
+				pageScale : 5
+				};
+		
+		$.ajax({
+			url : "../user_detail_review/review_page_process.jsp",
+			type : "get",
+			data : jsonObj,
+			dataType : "json",
+			error : function( xhr ){
+				alert(xhr.status);
+			},
+			success : function( jsonArr ){
+				var liNode = "";
+				$.each( jsonArr , function( i, jsonObj){
+					var starScore = jsonObj.starScore * 20;
+					liNode += "<li id='contentsReviewItem" + i + "' class='review_item'>"
+					liNode += "<div class='review_area clear'>";
+					liNode += "<div class='user_profile'>"
+					liNode += "<div class='photo_area'>"
+					liNode += "<img src='http://192.168.10.133/prj_travel/common/images/icon_img/img_non_profile.png' alt='프로필이미지' class='user_profile_img'>"
+					liNode += "</div>"
+					liNode += "<p class='user_name'>" + jsonObj.userId + "</p>"
+					liNode += "<p class='reg_date'>" +  jsonObj.date + "</p>"		
+					liNode += "<div class='score_area_p'>"	
+					liNode += "<p class='score_count_p' style='width:"+ starScore + "%;'>" + jsonObj.starScore + "</p>"
+					liNode += "	</div>"	;
+					liNode += "	</div>"	;
+					liNode += "<div class='user_content'>";
+					liNode += "<div class='review clear'><p class='review_txt'>" + jsonObj.content + "</p>";
+					liNode += "<p class='review_origin_text' style='display:none;'></p>"
+					liNode += "</div>"	;	
+					liNode += "</div>"	;
+					liNode += "</div>"	;
+					liNode += "</li>"	;
+				})//each
+				$("#review_list").html(liNode);
+			}//success
+		})//ajax
+		
+		
+	})//on
+	
+	
+	//질문 게시글 
+	$(document).on("click", ".qna_page_btn", function(){
+		var selectPage = $(this).text();
+		qnaPage = parseInt(selectPage);
+		$(".qna_page_btn").each(function(){
+			if( $(this).hasClass("active") ){
+				$(this).removeClass("active");				
+			}//end if
+		})//click
+		$(this).addClass("active");
+		
+		var jsonObj = {
+				selectPage : qnaPage,
+				pageScale : 5
+				};
+		
+		$.ajax({
+			url : "../user_detail_QnA/qna_page_process.jsp",
+			type : "get",
+			data : jsonObj,
+			dataType : "HTML",
+			error : function( xhr ){
+				alert(xhr.status);
+			},
+			success : function( resData ){
+				$("#qnaTbody").empty();
+				$("#qnaTbody").append(resData);
+			}
+		})//ajax
+	})//on
+	
+	//QNA페이지 다음 버튼
+	$(document).on("click", "#qnaNextBtn", function(){
+		var pagePerNum = $("#pagePerNum").val();
+		var totalPage = $("#qnaTotalPage").val();
+		var jsonData = {
+				"currentPage" : qnaPage,
+				"totalPage" : totalPage,
+				"pagePerNum" : pagePerNum,
+				"actionType" : "next"
+				};
+		$.ajax({
+			url : "page_process.jsp",
+			data : jsonData,
+			type : "get",
+			dataType : "JSON",
+			error : function( xhr ){
+				alert( xhr.status );
+			},
+			success : function( jsonObj ) {
+				var startPage = jsonObj.startPage;
+				var endPage = jsonObj.endPage;
+				var nextPage = qnaPage + 1;  
+				var nextFlag = jsonObj.nextFlag;
+				var output = "";
+				if( nextFlag ){
+					$(".qna_page_btn").each(function(){
+						if( $(this).text() == nextPage ){
+							$(this).click();
+						}//end if
+					})
+				} else {
+					if( startPage > pagePerNum ){
+						output += "<button type='button' id='qnaPrevBtn' >&lt;</button>"
+					}
+					for( let i = startPage; i<=endPage; i++){
+						if( i == startPage ){
+							output += "<button type='button' class='qna_page_btn active'>";
+							
+						} else {
+							output += "<button type='button' class='qna_page_btn'>";
+						}//end else
+						output += i + "</button>";
+					}//end for
+					if( (endPage + pagePerNum) < totalPage ){
+						output += "<button type='button' id='qnaNextBtn' >&gt;</button>";
+					}
+					
+					
+					$("#qna_paging").empty();
+					$("#qna_paging").append(output);
+					
+					$(".active").click();
+				}//end else
+			}//success
+		})//ajax
+	})//on
+	
+	
+	//QNA페이지 이전 버튼
+	$(document).on("click", "#qnaPrevBtn", function(){
+		var pagePerNum = $("#pagePerNum").val();
+		var totalPage = $("#qnaTotalPage").val();
+		var jsonData = {
+				"currentPage" : qnaPage,
+				"totalPage" : totalPage,
+				"pagePerNum" : pagePerNum,
+				"actionType" : "prev"
+				};
+		$.ajax({
+			url : "page_process.jsp",
+			data : jsonData,
+			type : "get",
+			dataType : "JSON",
+			error : function( xhr ){
+				alert( xhr.status );
+			},
+			success : function( jsonObj ) {
+				var startPage = jsonObj.startPage;
+				var endPage = jsonObj.endPage;
+				var prevPage = qnaPage - 1;  
+				var prevFlag = jsonObj.nextFlag;
+				var output = "";
+				if( prevFlag ){
+					$(".qna_page_btn").each(function(){
+						if( $(this).text() == prevPage ){
+							$(this).click();
+						}//end if
+					})
+				} else {
+					if( startPage > pagePerNum ){
+						output += "<button type='button' id='qnaPrevBtn' >&lt;</button>"
+					}
+					for( let i = startPage; i<=endPage; i++){
+						if( i == endPage ){
+							output += "<button type='button' class='qna_page_btn active'>";
+							
+						} else {
+							output += "<button type='button' class='qna_page_btn'>";
+						}//end else
+						output += i + "</button>";
+					}//end for
+					if( (endPage) < totalPage ){
+						output += "<button type='button' id='qnaNextBtn' >&gt;</button>";
+					}
+					
+					$("#qna_paging").empty();
+					$("#qna_paging").append(output);
+					
+					$(".active").click();
+				}//end else
+			}//success
+		})//ajax
+	})//on
+	
+	//리뷰 페이지 다음 버튼
+	$(document).on("click", "#reviewNextBtn", function(){
+		var pagePerNum = $("#pagePerNum").val();
+		var totalPage = $("#reviewTotalPage").val();
+		var jsonData = {
+				"currentPage" : reviewPage,
+				"totalPage" : totalPage,
+				"pagePerNum" : pagePerNum,
+				"actionType" : "next"
+				};
+		$.ajax({
+			url : "page_process.jsp",
+			data : jsonData,
+			type : "get",
+			dataType : "JSON",
+			error : function( xhr ){
+				alert( xhr.status );
+			},
+			success : function( jsonObj ) {
+				var startPage = jsonObj.startPage;
+				var endPage = jsonObj.endPage;
+				var nextPage = reviewPage + 1;  
+				var nextFlag = jsonObj.nextFlag;
+				var output = "";
+				if( nextFlag ){
+					$(".review_page_btn").each(function(){
+						if( $(this).text() == nextPage ){
+							$(this).click();
+						}//end if
+					})
+				} else {
+					for( let i = startPage; i<=endPage; i++){
+						if( i == startPage ){
+							output += "<a href='javascript:void(0)' class='spr_com page-prev' id='reviewPrevBtn'>이전 페이지</a>"							
+							output += "<a href='javascript:void(0)' title='현재 페이지' class='current review_page_btn'>"+ i +"</a>";
+							
+						} else {
+							output += "<a href='javascript:void(0)' class='review_page_btn'>"+ i +"</a>";
+						}//end else
+						output += "<a href='javascript:void(0)' class='spr_com page-next' id='reviewNextBtn'>다음 페이지</a>"
+					
+					$("#paging").empty();
+					$("#paging").append(output);
+					
+					$(".current").click();
+					}//end for
+				}//end else
+			}//success
+		})//ajax
+	})//on
+	
+	//리뷰 페이지 이전 버튼
+	$(document).on("click", "#reviewPrevBtn", function(){
+		var pagePerNum = $("#pagePerNum").val();
+		var totalPage = $("#reviewTotalPage").val();
+		var page = reviewPage;
+	
+		var jsonData = {
+				"currentPage" : reviewPage,
+				"totalPage" : totalPage,
+				"pagePerNum" : pagePerNum,
+				"actionType" : "prev"
+				};
+		$.ajax({
+			url : "page_process.jsp",
+			data : jsonData,
+			type : "get",
+			dataType : "JSON",
+			error : function( xhr ){
+				alert( xhr.status );
+			},
+			success : function( jsonObj ) {
+				var startPage = jsonObj.startPage;
+				var endPage = jsonObj.endPage;
+				
+				var prevPage = reviewPage - 1;
+				
+				var prevFlag = jsonObj.nextFlag;
+				var output = "";
+				if( prevFlag ){
+					$(".review_page_btn").each(function(){
+						if( $(this).text() == prevPage ){
+							$(this).click();
+						}//end if
+					})
+				} else {
+					for( let i = startPage; i<=endPage; i++){
+						if( i == startPage ){
+							output += "<a href='javascript:void(0)' class='spr_com page-prev' id='reviewPrevBtn'>이전 페이지</a>"							
+							output += "<a href='javascript:void(0)' title='현재 페이지' class='current review_page_btn'>"+ i +"</a>";
+							
+						} else {
+							output += "<a href='javascript:void(0)' class='review_page_btn'>"+ i +"</a>";
+						}//end else
+						output += "<a href='javascript:void(0)' class='spr_com page-next' id='reviewNextBtn'>다음 페이지</a>"
+					
+					$("#paging").empty();
+					$("#paging").append(output);
+					
+					$(".current").click();
+					}//end for
+				}//end else
+			}//success
+		})//ajax
+	})//on
+	
+	//좋아요 버튼 클릭
+	$("#like_btn").click(function(){
+		var userId = $("#userId").val();
+		var contId = $("#areaId").val();
+		var areaType = $("#areaType").val();
+		
+		if( userId == null || userId == "" ){
+			alert("로그인 후 좋아요를 눌러주세요.");
+			return;
+		}//end if
+		
+		var json = {
+				"userId" : userId,
+				"contId" : contId,
+				"areaType" : areaType
+		}//jsonObj
+				
+		$.ajax({
+			url : "like_process.jsp",
+			data : json,
+			type : "get",
+			dataType : "json",
+			error : function( xhr ){
+				alert(xhr.status);
+			},
+			success : function( jsonObj ){
+				if( $(".ico_like").hasClass("on") ){
+					$(".ico_like").removeClass("on");
+				} else {
+					$(".ico_like").addClass("on");
+				}//end else
+				$("#like_cnt").text(jsonObj.likeCnt);
+				$("#like_state").val(jsonObj.likeState);
+				
+			}//success
+		})//ajax
 	})//click
 	
-	$(".qna_page_btn").each(function(i){
-		$(this).click(function(){
-			var jsonObj = {
-					selectPage : $(this).text(),
-					pageScale : 5
-					};
-			
-			$.ajax({
-				url : "qna_page_process.jsp",
-				type : "get",
-				data : jsonObj,
-				dataType : "HTML",
-				error : function( xhr ){
-					alert(xhr.status);
-				},
-				success : function( resData ){
-					$("#qnaTbody").empty();
-					$("#qnaTbody").append(resData);
-				}
-				
-				
-			})//ajax
-			
-		})//clic
-	})//each
+	//질문 게시판 show/hide
+	$("#qnaFadeBtn").click(function(){
+		if($("#qnaFadeBtn").hasClass("up")){
+			$("#stab6").hide();
+			$("#qnaFadeBtn").removeClass("up");
+		}else {
+			$("#stab6").show();
+			$("#qnaFadeBtn").addClass("up");
+		}//else
+	})//click
+	//리뷰 게시판 show/hide
+	$("#reviewFadeBtn").click(function(){
+		if($("#reviewFadeBtn").hasClass("up")){
+			$("#stab3").hide();
+			$("#reviewFadeBtn").removeClass("up");
+		}else {
+			$("#stab3").show();
+			$("#reviewFadeBtn").addClass("up");
+		}//else
+	})//click
+	//디테일 내용 show/hide
+	$("#detailFadeBtn").click(function(){
+		if($("#detailFadeBtn").hasClass("up")){
+			$("#stab0").hide();
+			$("#detailFadeBtn").removeClass("up");
+		}else {
+			$("#stab0").show();
+			$("#detailFadeBtn").addClass("up");
+		}//else
+	})//click
+	
+	
+	
 	
 });//ready
 </script>
 </head>
 <body>
+<%@ include file="../common/jsp/header.jsp" %>
 <div id="wrap" class="wrap">
-<div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li><a href="http://localhost:8080/prj_touristArea/touristArea.jsp">관광지</a></li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>
+		<input type="hidden"  id="areaId" name="areaId" value="${ contId }" />
+    	<input type="hidden"  id="userId" name="userId" value="${ sesId }" />
+		<input type="hidden" id="areaType" name="areaType" value="관광지">
+		<input type="hidden" id="TA_latitude" name="TA_latitude" value="${ TA_latitude }">
+		<input type="hidden" id="TA_longitude" name="TA_longitude" value="${ TA_longitude }">
+
    
    	<div id="detailContentsView">
    		<div id="container" data-v-09a75c9f="">
    			<div id="content" data-v-09a75c9f="">
 				<div class="cont detail_page detail_style" data-v-09a75c9f="">
-					<h2 class="hide" data-v-09a75c9f="">본문</h2>
-					<div class="sub_visual_wrap" style="background: url(../common/${ taVO.image}) 50% 50% / cover no-repeat;" data-v-09a75c9f=""><div class="inner_wrap" data-v-09a75c9f=""><div data-v-09a75c9f=""></div>
+					<h2 class="hide" data-v-09a75c9f=""></h2>
+					<div class="sub_visual_wrap" style="background: url(${ taVO.image }) 50% 50% / cover no-repeat;" data-v-09a75c9f=""><div class="inner_wrap" data-v-09a75c9f=""><div data-v-09a75c9f=""></div>
 					<div class="sub_info_area" data-v-09a75c9f="">
 					<div class="sub_info_title" data-v-09a75c9f="">
 					<h3 data-v-09a75c9f="" class=""><c:out value="${ taVO.name }" /></h3>
@@ -234,7 +897,7 @@ $(function(){
 					<!---->
 				</div>
 				<div class="score_area_l" data-v-09a75c9f="">
-					<p class="score_count_l" style="width:100%;" data-v-09a75c9f="">별점(5점만점에 5점)</p>
+					<p class="score_count_l" style="width:${ starScore * 20}%;" data-v-09a75c9f=""></p>
 				</div>
 				<div class="tag_area" data-v-09a75c9f="">
 					<p class="best_tag" data-v-09a75c9f="">
@@ -255,8 +918,8 @@ $(function(){
 						<p class="info_sub_cont" data-v-09a75c9f="">${ taVO.tel }</p>
 					</div>
 					<div class="weather" data-v-09a75c9f="">
-					<img data-v-09a75c9f="" src="/image/weather/weather_g_sun.png" alt="맑음" class="ico_weather">
-					<p data-v-09a75c9f="">맑음</p>
+					<img data-v-09a75c9f="" id="weather_img" src="" alt="" class="ico_weather" style="margin-top:20px">
+					<p data-v-09a75c9f="" id="weather_p"></p>
 				</div>
 				</div>
 			</div>
@@ -276,18 +939,25 @@ $(function(){
 	</div>
 	
 	</div>
+		<input type="hidden" name="like_state"  id="like_state"  value="${ likeState }" >
 		<ul class="appraisal_list clear" data-v-09a75c9f="">
-			<li data-v-09a75c9f=""><button type="button" data-v-09a75c9f=""><div class="ico_like" data-v-09a75c9f=""></div><p class="appraisal_tit" data-v-09a75c9f="">좋아요<span class="status" data-v-09a75c9f="">선택 안됨</span></p><p class="appraisal_cnt" data-v-09a75c9f=""><c:out value="${ taVO.like }"/></p></button></li>
-			<li data-v-09a75c9f=""><div class="ico_review" data-v-09a75c9f=""></div><p class="appraisal_tit" data-v-09a75c9f="">리뷰</p><p class="appraisal_cnt" data-v-09a75c9f=""><c:out value="${ taVO.reviewCnt }" /></p></li>
+			<li data-v-09a75c9f="">
+				<button type="button" data-v-09a75c9f="" id="like_btn">
+					<div class="ico_like ${ likeState eq 'Y'? 'on' : ''  }" data-v-09a75c9f=""></div>
+					<p class="appraisal_tit" data-v-09a75c9f="">좋아요<span class="status" data-v-09a75c9f=""></span></p>
+					<p class="appraisal_cnt" data-v-09a75c9f="" id="like_cnt"><c:out value="${ like }" /></p>
+				</button>
+			</li>
+			<li data-v-09a75c9f=""><div class="ico_review" data-v-09a75c9f=""></div><p class="appraisal_tit" data-v-09a75c9f="">리뷰</p><p class="appraisal_cnt" data-v-09a75c9f=""><c:out value="${ totalReviewCnt }" /></p></li>
 			<li data-v-09a75c9f=""><div class="ico_hits" data-v-09a75c9f=""></div><p class="appraisal_tit" data-v-09a75c9f="">조회</p><p class="appraisal_cnt" data-v-09a75c9f=""><c:out value="${ taVO.viewNum }" /></p></li>
 		</ul>
 		<div class="add2020_detail" data-v-09a75c9f="">
 			<div class="add2020_detail_left" data-v-09a75c9f="">
 				<div id="tab0" class="add2020_detail_box" data-v-09a75c9f="">
 					<h2 data-v-09a75c9f="">
-						<a href="#" class="up" data-v-09a75c9f="">상세정보<span class="arrow" data-v-09a75c9f="">확장됨</span></a>
+						<a id="detailFadeBtn" class="up" data-v-09a75c9f="">상세정보<span class="arrow" data-v-09a75c9f="">확장됨</span></a>
 					</h2>
-					<div class="add2020_detail_box_in" data-v-09a75c9f="">
+					<div id="stab0" class="add2020_detail_box_in" data-v-09a75c9f="">
 						<div data-helper-component-key="core-system-grid" __vue_component_directive="ice?visit-jeju;contents;kr-CONT_000000000500457;@5"
 						 __vue_component_directive_fallback="ice?visit-jeju;contents;kr-CONT_000000000500457;@5" __directive_pos="0"
 						  data-accept-components="contentsDecoration/htmlBlock.vue,contentsDecoration/contentsTitle.vue,contentsDecoration/subContentsTitle.vue,contentsDecoration/GridImageViewer.vue,contentsDecoration/relativeComponent.vue,contentsDecoration/contentsParagraph.vue,contentsDecoration/Quotation.vue,contentsDecoration/devideLine.vue,contentsDecoration/YouTube.vue,contentsDecoration/Caption.vue,contentsDecoration/html2.vue"
@@ -310,7 +980,7 @@ $(function(){
 							<!--질문게시판  -->
 							<li data-v-09a75c9f="">
 								<div id="tab6" class="add2020_detail_tab_box" data-v-09a75c9f="">
-									<h2 data-v-09a75c9f=""><a href="#" data-v-09a75c9f="">질문<span class="arrow" data-v-09a75c9f="">축소됨</span></a></h2>
+									<h2 data-v-09a75c9f=""><a  data-v-09a75c9f="" id="qnaFadeBtn" class="up">질문<span class="arrow" data-v-09a75c9f=""></span></a></h2>
 									<div id="stab6" transition="fadeIn" class="add2020_detail_con tab_cont kr" style data-v-db46a16a="" data-v-09a75c9f=""><p class="jisik_tit" data-v-db46a16a="">
         								문의게시판 <span data-v-db46a16a=""><c:out value="(${ qnaTotalCnt })" /></span>
         								<button type="button" data-v-db46a16a="" id="qnaBtn">문의하기</button></p>
@@ -324,12 +994,28 @@ $(function(){
        											</tr>
    											</thead>
    											<tbody data-v-db46a16a="" id="qnaTbody">
-   												
-												</tbody>
-											</table>
-        						<div class="know_paging_wrap" data-v-db46a16a="">
+   												<c:forEach var="qna" items="${ qnaList }">
+   												<tr data-v-db46a16a=""  class="qnaList">
+   													<td data-v-db46a16a="">
+   														<p data-v-db46a16a="">
+   															<u class="ok" data-v-db46a16a=""><c:out value="${ qna.answerType eq 'Y'? '[답변완료]' : '[대기중]' }"></c:out></u><c:out value="${ qna.title }"></c:out>
+														</p>
+													</td>
+													<td data-v-db46a16a=""><c:out value="${ qna.category }"></c:out></td>
+													<td data-v-db46a16a=""><c:out value="${ qna.answerType eq 'Y'? 1 : 0 }"></c:out></td>
+													<td data-v-db46a16a=""><c:out value="${ qna.registrationDate }"></c:out></td>
+													<input type="hidden" id="questionId" value="${ qna.qnaId }" />
+												</tr>
+												</c:forEach>
+											</tbody>
+										</table>
+        						<input type="hidden" value="1" id="currentQnAPage" />
+        						<input type="hidden" value="${ qnaTotalPage }" id="qnaTotalPage" />
+        						<input type="hidden" value="${ pagePerNum }" id="pagePerNum" />
+        						<div class="know_paging_wrap" data-v-db46a16a=""  id="qna_paging">
         						<!---->
         						<c:forEach begin="${startNum }" end="${endNum }" var="num">
+        							
 	        						<c:choose>
 										<c:when test="${ num eq 1 }">
 											<button type="button" class="active qna_page_btn">${num}</button>
@@ -340,7 +1026,7 @@ $(function(){
 									</c:choose>
 									<c:choose>
 										<c:when test="${ num eq endNum and endNum lt qnaTotalPage }">
-											<button type="button" onclick="nextPage(${ num })">&gt;</button>
+											<button type="button" id="qnaNextBtn" >&gt;</button>
 										</c:when>
 									</c:choose>
 								</c:forEach>
@@ -353,40 +1039,34 @@ $(function(){
         									<div data-v-a315ebf2="" class="box">
         										<div data-v-a315ebf2="" class="text">
         											<h5 data-v-a315ebf2="">질문입력</h5>
-      											<form action="qna_process.jsp" id="qnaFrm" name="qnaFrm" method="post" accept-charset="UTF-8">
-        											<input id="title" name="title" data-v-a315ebf2="" type="text" placeholder="제목을 입력하세요">
-        											<textarea id="content" name="content" data-v-a315ebf2="" placeholder="내용을 입력하세요"></textarea>
-        											<input type="hidden" id="userId" name="userId" value="1234"><!-- sessionId -->
-        											<input type="hidden" id="areaId" name="areaId" value="${ contId }">
-        											<input type="hidden" id="type" name="type" value="관광지">
-												</form>
+        											<input id="qTitle" name="qTitle" data-v-a315ebf2="" type="text" placeholder="제목을 입력하세요">
+        											<textarea id="qContent" name="qContent" data-v-a315ebf2="" placeholder="내용을 입력하세요"></textarea>
        											</div>
-											<button data-v-a315ebf2="" type="button" class="submit" id="submitBtn">작성완료</button>
+											<button data-v-a315ebf2="" type="button" class="submit" id="qnaSubmitBtn">작성완료</button>
 											<button data-v-a315ebf2="" type="button" class="close" id="closeBtn">창 닫기</button>
 										</div>
+									</div>
 									</div>
         							
         							
         							<!-- 질문 답변 -->
-        							<div data-v-0fc691de="" data-v-db46a16a="" class="jisik-detail on" style="display:none;">
-        							<div data-v-0fc691de="" class="outline"><ul data-v-0fc691de="" class="jisik_list"><li data-v-0fc691de=""><div data-v-0fc691de="" class="qustion"><p data-v-0fc691de="" class="name"><strong data-v-0fc691de="">작성자 : </strong>정강현
-                        <span data-v-0fc691de=""><strong data-v-0fc691de="">올린시간 : </strong> 2023.07.22</span></p><p data-v-0fc691de="" class="category"><strong data-v-0fc691de="">카테고리 : </strong> [관광지]</p><p data-v-0fc691de="" class="tag"><a data-v-0fc691de="" href="">#우도</a><a data-v-0fc691de="" href="">#우도여객선</a><a data-v-0fc691de="" href="">#우도배편</a></p><p data-v-0fc691de="" class="title">우도 들어가는 배편 타는 위치와 시간표는 어떻게 되나요?? </p><div data-v-0fc691de="" class="jisik_text"><div data-v-0fc691de="">우도에 들어가는 배편은 어디에서 타나요??
-<br>그리고 배편이 운항하는 시간표는 어떻게 되나요?!</div><ul data-v-0fc691de="" class="thumb_img"></ul></div><p data-v-0fc691de="" class="count"><strong data-v-0fc691de="">답변수 : </strong><span data-v-0fc691de="">1</span></p><button data-v-0fc691de="" type="button" class="answer">답변하기</button><div data-v-0fc691de="" class="buttons"><!----><!----></div></div><div data-v-0fc691de="" class="answer"><p data-v-0fc691de="" class="name"><strong data-v-0fc691de="">작성자 : </strong>@비공개
-                        <span data-v-0fc691de=""><strong data-v-0fc691de="">올린시간 : </strong> 2023.07.23</span></p><p data-v-0fc691de="" class="title">우도배편</p><div data-v-0fc691de="" class="jisik_text"><div data-v-0fc691de=""><div data-v-0fc691de="" class="comment_contents">성산포항 가셔서 타시면 됩니다.
-<br>계절에 따라 8시나 9시부터 저녁 6시정도까지 하는 것 같아요
-<br>30분마다 한번씩 왔다갔다 하니 여유 있게 타실 수 있을 것 같습니다.</div><ul data-v-0fc691de="" class="thumb_img"></ul></div><div data-v-0fc691de="" class="tags"></div></div>
-
-</div>
-</li></ul><button data-v-0fc691de="" type="button" class="close">창 닫기</button></div></div>
+        							<div data-v-0fc691de="" data-v-db46a16a="" class="jisik-detail"  id="qnaDetail">
+        							<div data-v-0fc691de="" class="outline">
+        								<ul data-v-0fc691de="" class="jisik_list" id="qnaDetailView">
+        									
+											</ul>
+											<button data-v-0fc691de="" type="button" id="qnaDetailClose"  class="close">창 닫기</button>
+											</div>
+											</div>
         							
         							<!----><!---->
-        							<div data-v-9db46a28="" data-v-db46a16a=""><!----></div></div></div></li>
+        							<div data-v-9db46a28="" data-v-db46a16a=""><!----></div></div></li>
 				       		 <!--리뷰  -->
 				       		 <!-- style display : none -->
                    			 <li data-v-09a75c9f="">
                    			 	<div id="tab3" class="add2020_detail_tab_box" data-v-09a75c9f="">
-                   			 		<h2 data-v-09a75c9f=""><a href="#" data-v-09a75c9f="">리뷰<span class="arrow" data-v-09a75c9f="">축소됨</span></a></h2>
-                   			 			<div id="stab3" transition="fadeIn" class="add2020_detail_con tab_cont" style data-v-09a75c9f=""><p class="cont_tit">여행가의 리뷰<span style="font-weight: 800; color: rgb(239, 109, 0); line-height: 24px; margin-left: 0px;"><c:out value="( ${ totalReviewCnt } )" /></span></p>
+                   			 		<h2 data-v-09a75c9f=""><a data-v-09a75c9f="" id="reviewFadeBtn" class="up">리뷰<span class="arrow" data-v-09a75c9f="">축소됨</span></a></h2>
+                   			 			<div id="stab3" transition="fadeIn" class="add2020_detail_con tab_cont " style data-v-09a75c9f=""><p class="cont_tit">여행가의 리뷰<span id="reviewTotal" style="font-weight: 800; color: rgb(239, 109, 0); line-height: 24px; margin-left: 0px;"><c:out value="( ${ totalReviewCnt } )" /></span></p>
                    			 				<button type="button" id="regsitReview" class="btn_regsit">리뷰 및 평가 등록</button>
                    			 				<div class="util_wrap clear">
                    			 					<div class="util_area">
@@ -397,44 +1077,51 @@ $(function(){
            			 							</div>
            			 							</div>
            			 							<div class="review_wrap">
-           			 								<ul class="review_list">
-           			 										<c:forEach var="review" items="${ reviewList }">
-           			 									<li id="contentsReviewItem0" class="review_item">
-           			 										<div class="review_area clear">
-           			 											<div class="user_profile">
-           			 											<div class="photo_area">
-           			 												<img src="../common/img_non_profile.png" alt="프로필이미지" class="user_profile_img">
-           			 												<!---->
-       			 												</div>
-       			 												<p class="user_name"><c:out value="${ review.userId }" /></p>
-       			 												<p class="reg_date"><c:out value="${ review.date }" /></p>
-       			 												<div class="score_area_p">
-       			 													<p class="score_count_p" style="width:100%;"><c:out value="${ review.starScore }" /></p>
-   			 													</div>
-		 													</div>
-		 													<div class="user_content">
-		 														<div class="review clear"><p class="review_txt"><c:out value="${ review.content }" /></p>
-		 															<p class="review_origin_text" style="display:none;"></p>
-		 															
-																		</div>
-		 														</div>
-		 														</div>
-															</li>
-		 														</c:forEach>
+           			 								<ul class="review_list" id="review_list">
+       			 										<c:forEach var="review" items="${ reviewList }">
+	           			 									<li id="contentsReviewItem0" class="review_item">
+	           			 										<div class="review_area clear">
+	           			 											<div class="user_profile">
+	           			 											<div class="photo_area">
+	           			 												<img src="http://192.168.10.133/prj_travel/common/images/icon_img/img_non_profile.png" alt="프로필이미지" class="user_profile_img">
+	           			 												<!---->
+	       			 												</div>
+	       			 												<p class="user_name"><c:out value="${ review.userId }" /></p>
+	       			 												<p class="reg_date"><c:out value="${ review.date }" /></p>
+	       			 												<div class="score_area_p">
+	       			 													<p class="score_count_p" style="width:${ review.starScore * 20 }%"><c:out value="${ review.starScore }" /></p>
+	   			 													</div>
+			 													</div>
+			 													<div class="user_content">
+			 														<div class="review clear"><p class="review_txt"><c:out value="${ review.content }" /></p>
+			 															<p class="review_origin_text" style="display:none;"></p>
+			 															
+																			</div>
+			 														</div>
+			 														</div>
+																</li>
+	 														</c:forEach>
 														</ul>
 													</div>
 													<div class="paging">
+														<input type="hidden" value="1" id="currentReviewPage" />
+        												<input type="hidden" value="${ totalReviewPage }" id="reviewTotalPage" />
+        												<input type="hidden" value="${ pagePerNum }" id="reviewPerNum" />
 														<div id="paging" class="page-wrap">
-														<a href="javascript:void(0)" class="spr_com page-first">첫 페이지</a>
-														<a href="javascript:void(0)" class="spr_com page-prev">이전 페이지</a>
-														<%
-															int totalReviewPage = (Integer)pageContext.getAttribute("totalReviewPageCnt");
-															for( int i = 1; i<totalReviewPage+1; i++){
-														%>
-														<a href="javascript:void(0)" title="현재 페이지" class="current"><%=i %></a>
-														<% } %>
-														<a href="javascript:void(0)" class="spr_com page-next">다음 페이지</a>
-														<a href="javascript:void(0)" class="spr_com page-last">마지막 페이지</a>
+														<c:forEach begin="${rStartNum }" end="${rEndNum }" var="num">
+															<c:choose>
+																<c:when test="${ num eq 1 }">
+																	<a href="javascript:void(0)" class="spr_com page-prev" id="reviewPrevBtn">이전 페이지</a>
+																	<a href="javascript:void(0)" title="현재 페이지" class="current review_page_btn">${num }</a>
+																</c:when>
+																<c:otherwise>
+																	<a href="javascript:void(0)"  class="review_page_btn">${num }</a>
+																</c:otherwise>
+															</c:choose>
+															<c:if test="${ rEndNum eq num }" >
+																<a href="javascript:void(0)" class="spr_com page-next" id="reviewNextBtn">다음 페이지</a>
+															</c:if>
+														</c:forEach>
 														</div>
 													</div>
 													
@@ -469,11 +1156,10 @@ $(function(){
 																			<tr data-v-2ede1d5f="">
 																				<th data-v-2ede1d5f=""><label data-v-2ede1d5f="" for="txtContent">리뷰</label></th>
 																					<td data-v-2ede1d5f="">
-																						<form action="review_process.jsp" id="reviewFrm" method="post">
-																							<textarea data-v-2ede1d5f="" rows="4" cols="50" id="reviewContent" name="content" maxlength="1000" title="리뷰 입력"></textarea>
-																							<input type="hidden"  id="areaId" name="areaId" value="${contId }" />
-																							<input type="hidden"  id="userId" name="userId" value="jys" /><!--userId 임시 ( session으로 받아오기 -->
-																						</form>
+																						<textarea data-v-2ede1d5f="" rows="4" cols="50" id="reviewContent" name="content" maxlength="1000" title="리뷰 입력"></textarea>
+																						<input type="hidden"  id="userId" name="userId" value="jys" /><!--userId 임시 ( session으로 받아오기 -->
+																						<input type="hidden"  id="areaId" name="areaId" value="${contId }" />
+																						<input type="hidden" id="areaType" name="areaType" value="관광지">
 																					</td>
 																			</tr>
 																			
@@ -534,5 +1220,6 @@ $(function(){
 				 <!---->
 		 </div>
     </div>
+    <%@ include file="../common/jsp/footer.jsp" %>
 </body>
 </html>

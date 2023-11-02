@@ -1,0 +1,268 @@
+@charset "UTF-8";
+
+.warp{
+	position: relative;
+}
+
+
+section {
+    display: block;
+}
+
+::selection {
+    background: #833f9e;
+    color: #FFF;
+    text-shadow: none;
+}
+
+body {
+    display: block;
+    margin: 8px;
+}
+
+html, body, p, input, select, form, label, mark, ul, ul li, ol, ol li, dl, dl dt, dl dd, img, a, table, h1, h2, h3, h4, h5 {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    height: 90px;
+    width: 100%;
+    background-color: rgb(0,0,0,0.4);
+    position: absolute; 
+    z-index : 2;
+}
+
+.header_contents{
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 30px;
+    justify-content: space-between;
+}
+
+.flex { 
+    display : flex; 
+ }
+
+ .nav_top > ul{
+    list-style: none;
+ }
+
+ .nav_top > ul > li{
+    display: inline-block;
+    margin-left: 30px;
+ }
+.login {
+    margin-left: 30px;
+}
+
+.main_content{
+    background-color: red;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.resev-page-wrap {
+    width: calc( 100% - 40px );
+    max-width: 1200px;
+    height: auto;
+    overflow: hidden;
+    margin: 0px auto 0 auto;
+}
+
+.resev-page-wrap .swiper-container {
+    width: calc( 100% - 200px );
+    padding: 0 100px 90px 100px;
+    margin-top: 60px;
+    position: relative;
+}
+
+.swiper-container {
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    overflow: hidden;
+    list-style: none;
+    padding: 0;
+    z-index: 1;
+}
+
+.swiper-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    transition-property: transform;
+    box-sizing: content-box;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide {
+    width: 100%;
+    height: 350px;
+    overflow: visible;
+    border-radius: 12px;
+    position: relative;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .slide-item {
+    width: 100%;
+    height: 180px;
+    left: 0;
+    top: 80px;
+    overflow: hidden;
+    position: absolute;
+    background-size: cover !important;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    position: absolute;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont .top-item {
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+    background: #2c2727;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont .top-item span {
+    display: flex;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont .top-item strong {
+    display: flex;
+    margin-top: 5px;
+    font-size: 20px;
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont .bottom-item {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 94px;
+    overflow: hidden;
+    background: #2c2727;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont .bottom-item span {
+    font-size: 12px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.resev-page-wrap .swiper-container .swiper-slide .cont .bottom-item button {
+    margin-top: 8px;
+    width: 190px;
+    height: 44px;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 0;
+    background: #fdb421;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color: #2c2727;
+    font-weight: 600;
+}
+
+button {
+    appearance: auto;
+    text-rendering: auto;
+    color: buttontext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: center;
+    align-items: flex-start;
+    cursor: default;
+    box-sizing: border-box;
+    background-color: buttonface;
+    writing-mode: horizontal-tb !important;
+    margin: 0em;
+    padding-block: 1px;
+    padding-inline: 6px;
+    border-width: 2px;
+    border-style: outset;
+    border-color: buttonborder;
+    border-image: initial;
+}
+
+.container {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+}
+
+.container {
+    position: relative;
+}
+
+div {
+    display: block;
+}
+
+.sub-header-wrap {
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    background-size: cover !important;
+    background-position: center center !important;
+    box-shadow: 0px 5px 20px 0 rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sub-header-wrap .mtit {
+    font-size: 48px;
+    color: #fff;
+    font-weight: 600;
+}
+
+
+
+.resev-page-wrap .help-list-wrap {
+    width: 100%;
+    max-width: 1200px;
+    height: auto;
+    overflow: hidden;
+    margin: 50px auto 0 auto;
+}
+
+.resev-page-wrap .help-list-wrap li {
+    width: calc( 100% - 20px );
+    position: relative;
+    padding-left: 20px;
+    height: auto;
+    overflow: hidden;
+    font-size: 16px;
+    color: #890029;
+}
+
