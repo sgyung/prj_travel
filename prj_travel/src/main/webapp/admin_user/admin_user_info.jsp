@@ -5,6 +5,9 @@
     pageEncoding="UTF-8"%>
 <%@ page info = "" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+<c:if test="${ empty admin }">
+<c:redirect url="../admin/admin_login.jsp"/>
+</c:if>    
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -29,8 +32,18 @@ td {
 	$(function() {
 		$("#btn").click(function() {
 			location.href = "admin_user.jsp"
-		})
+		});
+		
 	})//ready
+	
+	 function userDelete(id) {
+		    if (confirm("회원 탈퇴 하시겠습니까?")) {
+		    	$("#deleteId").val(id);
+				$("#frm").submit();
+		     } else {
+		    	return;
+		     }
+		 }
 </script>
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
@@ -104,11 +117,15 @@ td {
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
@@ -167,7 +184,7 @@ td {
 	UserManageDAO umDAO = UserManageDAO.getInstance();
 	try{
 		UserManageVO  umVO = umDAO.selectUserInfo(request.getParameter("id"));
-		
+		System.out.println(umVO);
 		pageContext.setAttribute("user", umVO);
 	}catch(SQLException se){
 		se.printStackTrace();
@@ -221,8 +238,11 @@ td {
         <input type="text" class="form-control" id="join" style="width: 80%" value="${ user.joinType eq 'N'? '탈퇴' : '가입' }" readonly="readonly">
     </div>
     <div class="col-sm-2">
-        <input type="button" value="탈퇴" class="form-control" id="joinbtn" style=" margin-left: 20px">
+        <input type="button" value="탈퇴" class="form-control" id="joinbtn" onclick="userDelete('${ user.id }')"  style=" margin-left: 20px">
     </div>
+    <form action="admin_user_delete_proccess.jsp" method="post" id="frm">
+    	<input type="hidden" id="deleteId" name="id">
+    </form>
     </div>
   </div>
   </div>

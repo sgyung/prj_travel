@@ -11,7 +11,54 @@
 <link rel="stylesheet" type="text/css"
 	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
-
+#tagAdd-btn {
+            text-decoration: none;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #8bc34a; /* Green */
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 22px;
+            margin-bottom : 150px;
+            float: left;
+        }
+#conAdd-btn {
+            text-decoration: none;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #8bc34a; /* Green */
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 20px;
+            margin-bottom : 150px;
+            float: left;
+        }
+ 
+.remove-btn{
+			text-decoration: none;
+            border: 0;
+            width: 30px;
+            height: 30px;
+            background: #F44336;
+            color:#fff
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFF;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;	
+		}   
+		     
 .title {
   text-align: center;
 }
@@ -32,7 +79,7 @@
 .contents .upload-box .drag-file {
   position: relative;
   width: 100%;
-  height: 360px;
+  height: 380px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -96,54 +143,69 @@
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
-<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script>
-    //본 예제에서는 도로명 주소 표기 방식에 대한 법령에 따라, 내려오는 데이터를 조합하여 올바른 주소를 구성하는 방법을 설명합니다.
-    function searchZipcode() {
-        new daum.Postcode({
-            oncomplete: function(data) {
-                // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-
-                // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
-                // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
-                var roadAddr = data.roadAddress; // 도로명 주소 변수
-                var extraRoadAddr = ''; // 참고 항목 변수
-
-                // 법정동명이 있을 경우 추가한다. (법정리는 제외)
-                // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-                if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
-                    extraRoadAddr += data.bname;
-                }
-                // 건물명이 있고, 공동주택일 경우 추가한다.
-                if(data.buildingName !== '' && data.apartment === 'Y'){
-                   extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
-                }
-                // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-                if(extraRoadAddr !== ''){
-                    extraRoadAddr = ' (' + extraRoadAddr + ')';
-                }
-
-                // 우편번호와 주소 정보를 해당 필드에 넣는다.
-                document.getElementById("addr").value = roadAddr;
-            }
-        }).open();
-    }
-</script>
 <script type="text/javascript">
 	$(function() {
-		$("#btnZipcode").click(function(){
-			searchZipcode();
-		});
 		
 		$('#summernote').summernote({
 			 height: 350,                 // 에디터 높이
 			  minHeight: 100,             // 최소 높이
 			  maxHeight: 350,             // 최대 높이
-			  focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
 			  lang: "ko-KR"					// 한글 설정
 		 });
 	})//ready
 	
+	 let tagFieldCounter = 0;
+     const tagMaxFields = 3;
+     
+
+     function tagRemoveField(wrapper) {
+         $(wrapper).remove();
+         tagFieldCounter--;
+     }
+   
+     function tagAdd() {
+         if (tagFieldCounter < tagMaxFields) {
+        	 tagFieldCounter++;
+             let wrapper = $('<div class="input-wrapper" style="margin-left:180px; margin-top:20px;"></div>');
+
+             let newInput = $('<input type="text" style = "margin-right:60px; width: 56%" placeholder="태그를 입력해주세요." class="tag" name="tagName' + tagFieldCounter + '">');
+             let removeButton = $('<button class="remove-btn" onclick="tagRemoveField(this.parentNode)">&times</button>');
+
+             wrapper.append(newInput);
+             wrapper.append(removeButton);
+
+             $('#tagInput').append(wrapper);
+         } else {
+             alert('최대 3개까지만 추가 가능합니다.');
+         }
+     }
+     
+     let conFieldCounter = 0;
+     const conMaxFields = 3;
+     
+     function conAdd() {
+         if (conFieldCounter < conMaxFields) {
+        	 conFieldCounter++;
+             let wrapper = $('<div class="input-wrapper" style="margin-left:250px;"></div>');
+
+             let newInput = $('<input type="text" style = "margin-right:60px; width: 60%; margin-bottom: 30px" placeholder="편의시설을 입력해주세요." class="con" name="convevienceName' + conFieldCounter + '">');
+             let removeButton = $('<button class="remove-btn" onclick="conRemoveField(this.parentNode)">&times</button>');
+
+             wrapper.append(newInput);
+             wrapper.append(removeButton);
+
+             $('#convenienceInput').append(wrapper);
+         } else {
+             alert('최대 3개까지만 추가 가능합니다.');
+         }
+     }
+     
+     function conRemoveField(wrapper) {
+         $(wrapper).remove();
+         conFieldCounter--;
+     }
+     
+
 
 </script>
 
@@ -214,21 +276,25 @@
 							</a></li>
 						</ul></li>
 
-					<li class="nav-item menu"><a href="admin_tourarea_list" class="nav-link active"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
 							class="bi bi-map"></i> <i class="right fas fa-angle-left"></i>
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="admin_tourarea_add" class="nav-link active">
+							<li class="nav-item"><a href="admin_tourarea_list.jsp" class="nav-link active">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
 						</ul></li>
-
+						
 					<li class="nav-item menu"><a href="#" class="nav-link"> <i
 							class="bi bi-tencent-qq"></i> <i class="right fas fa-angle-left"></i>
 							<p>맛집 관리</p>
@@ -287,6 +353,7 @@
                 <h3 class="card-title">관광지 추가/수정</h3>
               </div>
               <!-- /.card-header -->
+              <form action="admin_tourarea_add_proccess.jsp" method="post" id="infoFrm">
               <div class="card-body">
                 <table class="table" style="border-left: 0px; border-right: 0px; border-top: 3px solid #535353; 
 	border-bottom: 1px solid #535353; border-spacing: 0px;">
@@ -303,22 +370,22 @@
       <label class="file-label" for="chooseFile">이미지 등록</label>
       <input class="file" id="chooseFile" type="file" onchange="dropFile.handleFiles(this.files)" accept="image/png, image/jpeg, image/gif">
     </div>
-  	<div class="contents col-md-11" style="margin-top: 10px; display: inline-block;">
+  	<div class="contents" style="margin-top: 10px; display: inline-block; width: 80%" id="tagInput">
   	<h3><strong><label>기본정보</label></strong></h3>
-  	<hr style="width:62%;">
+  	<hr style="width:90%;">
   	<label style="margin-left: 30px">이름</label>
-  	<input type="text" class="inputBox" id="name" name="name" style="width: 40%;display: inline-block; margin-left: 70px" placeholder="이름을 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="name" name="name" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이름을 입력해주세요."><br/>
   	<label style="margin-left: 30px; margin-top: 30px">주소</label>
-  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 40%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="주소를 입력해주세요.">
-  	<input type="button" value="주소검색" class="btn btn-info" id="btnZipcode" style="display: inline-block; margin-left: 20px; height: 35px"/><br/>
+  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="주소를 입력해주세요.">
+  	<input type="button" class="btn btn-success" value="확인" id="addrBtn" style="margin-left: 30px"><br/>
   	<label style="margin-left: 30px; margin-top: 30px">위도</label>
-  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 15%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="위도를 입력해주세요.">
+  	<input type="text" class="inputBox" id="latitude" name="latitude" style="width: 22%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="위도를 입력해주세요.">
   	<label style="margin-left: 72px; margin-top: 30px">경도</label>
-  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 15%;display: inline-block; margin-left: 30px; margin-top: 30px" placeholder="경도를 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="longitude" name="longitude" style="width: 22%;display: inline-block; margin-left: 30px; margin-top: 30px" placeholder="경도를 입력해주세요."><br/>
   	<label style="margin-left: 30px;">연락처</label>
-  	<input type="text" class="inputBox" id="tel" name="tel" style="width: 40%;display: inline-block; margin-left: 55px; margin-top: 30px" placeholder="연락처를 입력해주세요."><br/>
-  	<label style="margin-left: 30px;">#tag</label>
-  	<input type="text" class="inputBox" id="tel" name="tel" style="width: 40%;display: inline-block; margin-left: 72px; margin-top: 30px" placeholder="Tag를 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="tel" name="tel" style="width: 60%;display: inline-block; margin-left: 55px; margin-top: 30px" placeholder="연락처를 입력해주세요."><br/>
+  	<label style="margin-left: 30px; margin-right: 20px; margin-top:22px; float: left;">#tag</label>
+  	<a href="#void" id="tagAdd-btn" onclick="tagAdd()">+</a>
   	</div>
   </div>
 			</td>
@@ -328,18 +395,24 @@
             </tr>
             <tr>
             <td style="border-bottom: 0px;">
+            <div class="contents" style="margin-top: 20px">
             <div class="contents col-md-5" style="margin-top: 10px; display: inline-block;">
   	<label style="margin-left: 30px">이용시간</label>
-  	<input type="text" class="inputBox" id="name" name="name" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이용시간을 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="serviceHour" name="serviceHour" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이용시간을 입력해주세요."><br/>
   	<label style="margin-left: 30px; margin-top: 30px">요금정보</label>
-  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="내용을 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="priceInfo" name="priceInfo" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="내용을 입력해주세요."><br/>
   	<label style="margin-left: 30px; margin-top: 30px">경사도(난이도)</label>
-  	<select class="form-select" aria-label="Default select example" style="display: inline-block; width: 40%; margin-left: 27px; margin-bottom: 150px">
+  	<select id= "slope" class="form-select" aria-label="Default select example" style="display: inline-block; width: 40%; margin-left: 27px; margin-bottom: 150px">
   		<option selected>난이도를 선택해주세요.</option>
   		<option value="상">상</option>
  		<option value="중">중</option>
   		<option value="하">하</option>
 	</select> 
+  		</div>
+  		<div class="contents" style="margin-top: 10px; display: inline-block; width: 60%;" id="convenienceInput">
+  		<label style="margin-left: 30px; float: left">편의시설</label>
+  		<a href="#void" id="conAdd-btn" onclick="conAdd()" >+</a>
+  		</div>
   		</div>
             </td>
             </tr>
@@ -348,7 +421,7 @@
             </tr>
             <tr>
             <td>
-            <textarea id="summernote" ></textarea>
+            <textarea id="summernote" name="detailInfo"></textarea>
             </td>
             </tr>
             </tbody>
@@ -360,6 +433,7 @@
             </div>
             </div>
             </div>
+              </form>
             </div>
             </div>
             </div>

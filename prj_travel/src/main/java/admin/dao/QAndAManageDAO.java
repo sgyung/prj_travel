@@ -58,6 +58,8 @@ public class QAndAManageDAO {
 				qbVO.setRegistrationDate(rs.getDate("qna_date"));
 				qbVO.setAnswerType(rs.getString("answer_state"));
 				
+				System.out.println(qbVO);
+				
 				restaurantQnAList.add(qbVO);
 			}
 			

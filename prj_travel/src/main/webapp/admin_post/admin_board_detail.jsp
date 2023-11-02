@@ -1,3 +1,5 @@
+<%@page import="pageUtil.PageVO"%>
+<%@page import="pageUtil.CommentPageDAO"%>
 <%@page import="admin.vo.CommentVO"%>
 <%@page import="java.util.List"%>
 <%@page import="java.sql.SQLException"%>
@@ -7,6 +9,64 @@
     pageEncoding="UTF-8"%>
 <%@ page info = "" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+<c:if test="${ empty admin }">
+<c:redirect url="../admin/admin_login.jsp"/>
+</c:if>   
+<%
+CommentPageDAO cpDAO = CommentPageDAO.getInstance();
+PageVO pVO = new PageVO();
+
+String postId = request.getParameter("postId");
+//System.out.println("postId = " + postId);
+// 1. 총 레코드의 수 => 검색키워드에 해당하는 총 레코드의 수
+int totalCount = cpDAO.commentTotalCount(postId);
+
+// 2. 한 화면에 보여줄 게시물의 수
+int pageScale = 5;
+
+// 3. 총 페이지 수
+int totalPage = 0;
+
+totalPage = (int)Math.ceil(totalCount/(double)pageScale);
+
+
+// 현재 페이지의 시작번호 구하기
+String  tempPage = request.getParameter("currentPage");
+//System.out.println("currentPage = " + tempPage);
+int currentPage = 1;
+if(tempPage != null){
+	currentPage = Integer.parseInt(tempPage);
+}
+
+int startNum = currentPage * pageScale - pageScale + 1;
+int endNum = startNum + pageScale -1;
+
+// 화면에 보여줄 페이지 인덱스 수
+int pageNumber=5;
+
+// 시작페이지 번호
+int startPage=((currentPage-1)/pageNumber)*pageNumber+1;
+
+// 끝페이지 번호
+int endPage=(((startPage-1)+pageNumber)/pageNumber)*pageNumber;
+
+// 구해진 끝페이지 번호가 총 페이지보다 적다면 총 페이지 수가 끝 페이지번호가 된다
+if( totalPage <= endPage){
+	endPage=totalPage;
+ }//end if
+
+int movePage=0;
+
+// Dynamic Query에 의해서 구해진 시작번호와 끝번호를 VO에 넣는다.
+pVO.setStartNum(startNum);
+pVO.setEndNum(endNum);
+
+pageContext.setAttribute("startNum", startNum);
+pageContext.setAttribute("endNum", endNum);
+pageContext.setAttribute("movePage", movePage);
+pageContext.setAttribute("postId", postId);
+
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -74,6 +134,75 @@
 		    	return;
 		     }
 		 }
+	 function commentList(num){
+			 $("#postId").val(${ param.postId });
+			 
+			$.ajax({
+				url: "admin_board_comment.jsp",
+				type: "get",
+				data: { currentPage: num, postId : $("#postId").val() },
+				dataType: "json",
+				error: function(xhr) {
+					console.log(xhr.status);
+				},
+				success: function(json) {
+					
+					$("#commentOutput").empty();
+					var output = "";
+					$.each(json.jsonArr, function(i, data) {
+						output += "<div class='row'>";
+						output += "<div class='col-md-1' style='text-align: center; margin-right: 20px'>";
+			             output +=  "<i class='bi bi-person-circle' id='icon2'></i>";
+			              output += "<h6><label style='margin: 0'>" + data.userId + "</label></h6>";
+			              output += "<h6><label style='margin: 0'>" + data.commentDate + "</label></h6>";
+			              output += "</div>";
+			              output += "<div class='col-md-9' style='float: left; white-space: normal; margin-left: 20px; margin-top: 5px'>";
+			              output += data.content;
+			              output += "</div>"
+			          output += "<input type='button' value='삭제' class='btn btn-outline-info' onclick=\"commentDelete('" + data.commentId + "')\" style='width: 80px; height: 50px; float: left; margin-top: 20px; margin-left: 30px;'>";
+			              output += "</div>";
+						});
+						 $("#commentOutput").html(output); 
+					
+					 $("#commentPageOutput").empty();
+					 var pageOutput ="";
+					 if(json.currentPage > json.pageNumber){
+						 json.movePage = json.startPage-1;
+						 
+						 pageOutput += "<li class='page-item'><a class='page-link' href='#void' onclick='commentList(\"" + json.movePage + "\")'>&laquo;</a></li>";
+	    
+					 }else{
+						 pageOutput += "<li class='page-item'><a class='page-link' href='#void'>&laquo;</a></li>"; 
+					 }
+					 
+					 json.movePage = json.startPage;
+					 while(json.movePage <= json.endPage){
+						 if(json.movePage == json.currentPage){
+							 pageOutput += "<li class='page-item active'><a class='page-link' href='#void' onclick='commentList(\"" + json.movePage + "\")'>" + json.movePage + "</a></li>";
+			                  
+						 }else{
+							 pageOutput += "<li class='page-item'><a class='page-link' href='#void' onclick='commentList(\"" + json.movePage + "\")'>" + json.movePage + "</a></li>";
+			                  
+						 }
+						 json.movePage++;
+						 
+					 }
+					 
+					 if(json.totalPage > json.endPage ){
+						 json.movePage = json.endPage+1;
+						 pageOutput += "<li class='page-item'><a class='page-link' href='#void' onclick='commentList(\"" + json.movePage + "\")'>&raquo;</a></li>";
+						 
+					 }else{
+						 pageOutput += "<li class='page-item'><a class='page-link' href='#void'>&raquo;</a></li>";
+					 }
+					 
+					 $("#commentPageOutput").html(pageOutput);
+					 
+				}
+			});//ajax
+			
+		}//commentList
+	 
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
@@ -134,11 +263,11 @@
 									<p>공지사항 관리</p>
 							</a></li>
 							<li class="nav-item"><a href="admin_question_list.jsp"
-								class="nav-link active"> <i class="far fa-circle nav-icon"></i>
+								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>문의사항 관리</p>
 							</a></li>
 							<li class="nav-item"><a href="admin_board_list.jsp"
-								class="nav-link"> <i class="far fa-circle nav-icon"></i>
+								class="nav-link active"> <i class="far fa-circle nav-icon"></i>
 									<p>자유게시판 관리</p>
 							</a></li>
 						</ul></li>
@@ -148,11 +277,15 @@
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
@@ -218,12 +351,11 @@
 <%
 	PostManageDAO pmDAO = PostManageDAO.getInstance();
 	
-	String postId = request.getParameter("postId");
 	try{
 		
-		PostVO pVO = pmDAO.selectPost(postId);
+		PostVO postVO = pmDAO.selectPost(postId);
 		
-		pageContext.setAttribute("pVO", pVO);
+		pageContext.setAttribute("postVO", postVO);
 		
 	}catch(SQLException se){
 		se.printStackTrace();
@@ -244,17 +376,17 @@
 			<div class="row">
               <div class="col-md-1" style="text-align: center">
               <i class="bi bi-person-circle" id="icon"></i>
-              <h5><label style="margin: 0">${ pVO.userId }</label></h5>
-              <h6><label style="margin: 0">${ pVO.postDate }</label></h6>
+              <h5><label style="margin: 0">${ postVO.userId }</label></h5>
+              <h6><label style="margin: 0">${ postVO.postDate }</label></h6>
               </div>
               <div class="col-md-6" style="margin-top: 20px; margin-left:50px; display: inline-block; float: left">
-              <h3><label>${ pVO.postTitle }</label></h3>
-              <h3><label>[${ pVO.postCategory }]</label></h3>
+              <h3><label>${ postVO.postTitle }</label></h3>
+              <h3><label>[${ postVO.postCategory }]</label></h3>
               </div>
               </div>
               <div class="row">
-              <div class="col-md-11" style="float: left; white-space: normal;">
-              ${ pVO.postContent }
+              <div class="col-md-11" style="float: left; white-space: normal; vertical-align: middle;">
+              ${ postVO.postContent }
               </div>
               </div>
              </div>
@@ -266,7 +398,7 @@
 <%
 try{
 	
-	List<CommentVO> list = pmDAO.selectComment(postId);
+	List<CommentVO> list = cpDAO.selectComment(pVO, postId);
 	
 	pageContext.setAttribute("commentList", list);
 	
@@ -282,17 +414,17 @@ try{
  				<input type="hidden" id="postId" name="postId"/>           
               </form>
             <c:forEach var="commentList" items="${ commentList }" varStatus="i">
-            <div style="margin-left: 100px">
+            <div style="margin-left: 100px; margin-top: 20px" id="commentOutput">
               <div class="row">
               <div class="col-md-1" style="text-align: center; margin-right: 20px">
               <i class="bi bi-person-circle" id="icon2"></i>
               <h6><label style="margin: 0">${ commentList.userId }</label></h6>
               <h6><label style="margin: 0">${ commentList.registrationDate }</label></h6>
               </div>
-              <div class="col-md-9" style="float: left; white-space: normal; margin-left: 20px">
+              <div class="col-md-9" style="float: left; white-space: normal; margin-left: 20px; margin-top: 5px">
               ${ commentList.content }
               </div>
-	            <input type="button" value="삭제" class="btn btn-outline-info" onclick="commentDelete('${ commentList.commentId }')" style="width: 80px; height:50px; float: left; margin-left: 30px" >
+	            <input type="button" value="삭제" class="btn btn-outline-info" onclick="commentDelete('${ commentList.commentId }')" style="width: 80px; height:50px; float: left;margin-top:20px; margin-left: 30px" >
               </div>
             </div>
             </c:forEach>
@@ -301,6 +433,54 @@ try{
             </tr>
             </tbody>
             </table>
+            <div>
+               <ul class="pagination justify-content-center" id="commentPageOutput" style="margin-top: 30px" >
+                <%
+                if( currentPage > pageNumber ){
+                	movePage=startPage-1;
+				%>                    
+                  <li class="page-item"><a class="page-link" href="#void" onclick="commentList('<%= movePage %>')">&laquo;</a></li>
+                <%
+                    }else{
+                %>
+                  <li class="page-item"><a class="page-link" href="#" >&laquo;</a></li>
+                <%
+                    }
+                %>
+
+                  <%
+                  movePage=startPage;
+                  while( movePage <= endPage ){
+                	  if( movePage == currentPage ){//현재페이지와 이동할 페이지가 같다면 링크없이 인덱스리스트 제공
+                  %>
+                	         
+                  <li class="page-item active"><a class="page-link" href="#" onclick="commentList('<%= movePage %>')"><%= movePage %></a></li>
+                  <%
+                	  }else{
+                  %>
+                  <li class="page-item"><a class="page-link" href="#void" onclick="commentList('<%= movePage %>')">
+                  <%= movePage %></a></li>
+                 
+                 <%
+                 } 
+                 movePage++;
+                  }
+                 %>
+                  
+                 <%
+                if( totalPage > endPage ){
+                	movePage = endPage +1;
+				%>                    
+                   <li class="page-item"><a class="page-link" href="#void" onclick="commentList('<%= movePage %>')">&raquo;</a></li>
+                <%
+                    }else{
+                %>
+                  <li class="page-item"><a class="page-link" href="#" >&raquo;</a></li>
+                <%
+                    }
+                %>
+                </ul>
+                </div>
             <div class="row" style="margin-top: 20px">
             <div class="col-md-1">
             <input type="button" value="목록" class="btn btn-outline-warning" id="list" style="width: 150px;" >
@@ -315,6 +495,8 @@ try{
             </div>
             </div>
             </section>
+            
+            
 
               
 		</div>

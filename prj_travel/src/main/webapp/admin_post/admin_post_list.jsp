@@ -1,5 +1,5 @@
+<%@page import="pageUtil.NoticePageDAO"%>
 <%@page import="pageUtil.PageVO"%>
-<%@page import="pageUtil.PageDAO"%>
 <%@page import="java.sql.SQLException"%>
 <%@page import="admin.vo.NoticeVO"%>
 <%@page import="java.util.List"%>
@@ -7,7 +7,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info = "" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<c:if test="${ empty admin }">
+<c:redirect url="../admin/admin_login.jsp"/>
+</c:if>   
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -138,11 +141,15 @@ td {
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
@@ -183,7 +190,7 @@ td {
 			<!-- /.sidebar-menu -->
 		</aside>
 <%
-PageDAO pDAO = PageDAO.getInstance();
+NoticePageDAO npDAO = NoticePageDAO.getInstance();
 PageVO pVO = new PageVO();
 
 String field=request.getParameter("field");
@@ -196,7 +203,7 @@ pVO.setKeyword(request.getParameter("keyword"));
 
 
 // 1. 총 레코드의 수 => 검색키워드에 해당하는 총 레코드의 수
-int totalCount = pDAO.noticeTotalCount(pVO);
+int totalCount = npDAO.noticeTotalCount(pVO);
 
 // 2. 한 화면에 보여줄 게시물의 수
 int pageScale = 10;
@@ -217,6 +224,22 @@ if(tempPage != null){
 
 int startNum = currentPage * pageScale - pageScale + 1;
 int endNum = startNum + pageScale -1;
+
+// 화면에 보여줄 페이지 인덱스 수
+int pageNumber=5;
+
+// 시작페이지 번호
+int startPage=((currentPage-1)/pageNumber)*pageNumber+1;
+
+// 끝페이지 번호
+int endPage=(((startPage-1)+pageNumber)/pageNumber)*pageNumber;
+
+// 구해진 끝페이지 번호가 총 페이지보다 적다면 총 페이지 수가 끝 페이지번호가 된다
+if( totalPage <= endPage){
+    endPage=totalPage;
+ }//end if
+
+int movePage=0;
 
 // Dynamic Query에 의해서 구해진 시작번호와 끝번호를 VO에 넣는다.
 pVO.setStartNum(startNum);
@@ -246,10 +269,8 @@ pageContext.setAttribute("startNum", startNum);
 	try{
 		List<NoticeVO> postList = null;
 
-		if(field != null){
-			postList = pDAO.selectNotice(pVO);
-		}else if(field == null){
-		postList = nmDAO.selectAllnotice();
+		if(currentPage != 0){
+			postList = npDAO.selectNotice(pVO);
 		}
 		pageContext.setAttribute("postList", postList);
 	}catch(SQLException se){
@@ -282,7 +303,7 @@ pageContext.setAttribute("startNum", startNum);
                   <tbody>
 				    <c:forEach var="post" items="${ postList }" varStatus="i" >
 				    <tr>
-                      <td><c:out value="${i.count}"/></td>
+                      <td><c:out value="${i.index + startNum}"/></td>
                       <td><a href="#void" onclick="postDetail('${ post.id }')"><c:out value="${post.title}"/></a></td>
                       <td><c:out value="관리자"/></td>
                       <td><c:out value="${post.registrationDate}"/></td>
@@ -297,19 +318,56 @@ pageContext.setAttribute("startNum", startNum);
               <!-- /.card-body -->
               <div class="card-footer clearfix">
                 <ul class="pagination justify-content-center" >
+                <%
+                if( currentPage > pageNumber ){
+                	movePage=startPage-1;
+				%>                    
+                  <li class="page-item"><a class="page-link" href="admin_post_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&laquo;</a></li>
+                <%
+                    }else{
+                %>
                   <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <%for(int i = 1; i < totalPage+1; i++){ %>
-                  <li class="page-item"><a class="page-link" href = "admin_post_list.jsp?currentPage=<%= i %>&keyword=${ param.keyword }&field=${ param.field }"><%= i %></a></li>
-                  <%} %>
-                 <!--  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+                <%
+                    }
+                %>
+
+                  <%
+                  movePage=startPage;
+                  while( movePage <= endPage ){
+                	  if( movePage == currentPage ){//현재페이지와 이동할 페이지가 같다면 링크없이 인덱스리스트 제공
+                  %>
+                	         
+                  <li class="page-item active"><a class="page-link" href="#"><%= movePage %></a></li>
+                  <%
+                	  }else{
+                  %>
+                  <li class="page-item"><a class="page-link" href = "admin_post_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">
+                  <%= movePage %></a></li>
+                 
+                 <%
+                 } 
+                 movePage++;
+                  }
+                 %>
+                  
+                 <%
+                if( totalPage > endPage ){
+				%>                    
+                  <li class="page-item"><a class="page-link" href="admin_post_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&raquo;</a></li>
+                <%
+                    }else{
+                %>
                   <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                <%
+                    }
+                %>  
+                  
                 </ul>
                 <div style="text-align: center" >
                 <form name = "frmSearch" id="frmSearch" action="admin_post_list.jsp" method="get">
                 <select name="field" class="inputBox" style="height: 30px;">
-					<option value="1"${ param.field eq '1'?"selected = 'selected'":"" }>아이디</option>
-					<option value="2"${ param.field eq '2'?"selected = 'selected'":"" }>제목</option>
+					<option value="1"${ param.field eq '1'?"selected = 'selected'":"" }>제목</option>
+					<option value="2"${ param.field eq '2'?"selected = 'selected'":"" }>내용</option>
 				</select>
                 <input type="text" name="keyword" id="keyword" class="inputBox" value ="${ param.keyword ne 'null'? parma.keyword:'' }" style="width: 200px; height: 30px;" placeholder="내용을 입력해주세요."/>
                 <div style="display: inline-block;" >

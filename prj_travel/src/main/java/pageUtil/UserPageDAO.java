@@ -7,22 +7,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import admin.vo.NoticeVO;
+import admin.vo.UserManageVO;
 import kr.co.dao.DbConnection;
 
-
-public class PageDAO {
-	private static PageDAO pDAO;
+public class UserPageDAO {
+	private static UserPageDAO upDAO;
 	
-	private PageDAO() {
+	private UserPageDAO() {
 		
 	}
 	
-	public static PageDAO getInstance() {
-		if(pDAO == null) {
-			pDAO = new PageDAO();
+	public static UserPageDAO getInstance() {
+		if(upDAO == null) {
+			upDAO = new UserPageDAO();
 		}
-		return pDAO;
+		return upDAO;
 	}
 	
 	/**
@@ -31,7 +30,7 @@ public class PageDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public int noticeTotalCount(PageVO pVO) throws SQLException {
+	public int userTotalCount(PageVO pVO) throws SQLException {
 		int totalCount = 0;
 		
 		DbConnection db = DbConnection.getInstance();
@@ -44,12 +43,12 @@ public class PageDAO {
 			con = db.getConn("jdbc/dbcp");
 			
 			StringBuilder selectCnt = new StringBuilder();
-			selectCnt.append("select count(*) cnt from notice	");
+			selectCnt.append("select count(*) cnt from t_user	");
 			
 			if(pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
-				String field="notice_id";
-				if("2".equals(pVO.getField())) {
-					field = "notice_title";
+				String field="";
+				if("1".equals(pVO.getField())) {
+					field = "user_name";
 				}//end if
 				
 				selectCnt.append("where ").append(field ).append(" like '%' || ? || '%'");
@@ -80,8 +79,8 @@ public class PageDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<NoticeVO> selectNotice(PageVO pVO) throws SQLException{
-		List<NoticeVO> list = new ArrayList<NoticeVO>();
+	public List<UserManageVO> selectUser(PageVO pVO) throws SQLException{
+		List<UserManageVO> list = new ArrayList<UserManageVO>();
 		
 		DbConnection db = DbConnection.getInstance();
 		Connection con = null;
@@ -97,22 +96,29 @@ public class PageDAO {
 		// 4. 쿼리문 생성객체 얻기 => 검색 키워드와 검색 field에 따라 Dynamic Query로 변경
 			StringBuilder selectNotice = new StringBuilder();
 			selectNotice
-	        .append("SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num ")
-	        .append("FROM (SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num, ")
-	        .append("ROW_NUMBER() OVER (ORDER BY notice_upload_date DESC) rnum ")
-	        .append("FROM notice ");
+	        .append("	with rankedusers as ( 	")
+	        .append("	select a.user_id, a.user_name, a.user_registration_date, a.user_registration_state, ")
+	        .append("	count(distinct b.post_id) as post_count, count(distinct c.comment_id) as comment_count, 					")
+	        .append("	row_number() over (order by a.user_registration_date desc) as rnum 					")
+	        .append("	from t_user a 																		")
+	        .append("	left join post b on a.user_id = b.user_id											 ")
+	        .append("	left join post_comment c on a.user_id = c.user_id 									");
 
 			if (pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
-				String field = "notice_id";
-
-				if ("2".equals(pVO.getField())) {
-					field = "notice_title";
+				String field = "";
+				
+				if ("1".equals(pVO.getField())) {
+					field = "user_name";
 				}
+				
 
-				selectNotice.append("WHERE ").append(field).append(" LIKE '%' || ? || '%' ");
-				System.out.println(field);
+				selectNotice.append("	where a.").append(field).append(" like '%' || ? || '%' ");
 			}
-			selectNotice.append(") WHERE rnum BETWEEN ? AND ?");
+			selectNotice
+			.append("	group by a.user_id, a.user_name, a.user_registration_date, a.user_registration_state		")
+			.append("	) select user_id, user_name, user_registration_date, user_registration_state, post_count, comment_count, rnum		")
+			.append("	from rankedusers					")
+			.append("	where rnum between ? and ?		");
 			
 			pstmt = con.prepareStatement(selectNotice.toString());
 			
@@ -125,19 +131,20 @@ public class PageDAO {
 			pstmt.setInt(bindCnt++, pVO.getStartNum());
 			pstmt.setInt(bindCnt++, pVO.getEndNum());
 		// 6. 쿼리문 수행 후 결과 얻기
-			NoticeVO nVO = null;
+			UserManageVO umVO = null;
 			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
-				nVO = new NoticeVO();
-				nVO.setId(rs.getString("notice_id"));
-				nVO.setTitle(rs.getString("notice_title"));
-				nVO.setContent(rs.getString("notice_content"));
-				nVO.setRegistrationDate(rs.getDate("notice_upload_date"));
-				nVO.setViewNum(rs.getInt("notice_view_num"));
+				umVO = new UserManageVO();
+				umVO.setId(rs.getString("user_id"));
+				umVO.setName(rs.getString("user_name"));
+				umVO.setJoinDate(rs.getDate("user_registration_date"));
+				umVO.setPostCount(rs.getInt("post_count"));
+				umVO.setReviewCount(rs.getInt("comment_count"));
+				umVO.setJoinType(rs.getString("user_registration_state"));
 				
-				list.add(nVO);
+				list.add(umVO);
 			}
 			
 		} finally {

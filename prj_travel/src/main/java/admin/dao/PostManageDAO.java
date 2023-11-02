@@ -42,7 +42,7 @@ public class PostManageDAO {
 			selectRestaurantPost
 			.append("	select a.post_id, a.user_id, a.post_title, a.post_content, a.post_upload_date, a.post_view_num, a.delete_state, b.cartegory_name	")
 			.append("	from post a inner join post_cartegory b on a.cartegory_id = b.cartegory_id															")
-			.append("	where b.cartegory_name = '맛집' and a.delete_state = 'n'																			");
+			.append("	where b.cartegory_name = '맛집' and a.delete_state = 'N'																			");
 			
 			pstmt = con.prepareStatement(selectRestaurantPost.toString());
 			
@@ -86,7 +86,7 @@ public class PostManageDAO {
 			selectTouristtPost
 			.append("	select a.post_id, a.user_id, a.post_title, a.post_content, a.post_upload_date, a.post_view_num, a.delete_state, b.cartegory_name	")
 			.append("	from post a inner join post_cartegory b on a.cartegory_id = b.cartegory_id															")
-			.append("	where b.cartegory_name = '관광지' and a.delete_state = 'n'																			");
+			.append("	where b.cartegory_name = '관광지' and a.delete_state = 'N'																			");
 			
 			pstmt = con.prepareStatement(selectTouristtPost.toString());
 			

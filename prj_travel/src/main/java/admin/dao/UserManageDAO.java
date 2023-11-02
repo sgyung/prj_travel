@@ -40,7 +40,7 @@ public class UserManageDAO {
 			
 			StringBuilder selectAllUser = new StringBuilder();
 			selectAllUser
-			.append("	select a.user_id, a.user_name, a.user_registration_date, count(b.user_id) as post_count, count(c.user_id) as comment_count, a.user_registration_state	")
+			.append("	select a.user_id, a.user_name, a.user_registration_date, count(distinct b.post_id) as post_count, count(distinct c.comment_id) as comment_count, a.user_registration_state	")
 			.append("	from t_user a																																			")
 			.append("	left join post b on a.user_id = b.user_id																												")
 			.append("	left join post_comment c on a.user_id = c.user_id																										")
@@ -60,7 +60,7 @@ public class UserManageDAO {
 				userManageVO.setPostCount(rs.getInt("post_count"));
 				userManageVO.setReviewCount(rs.getInt("comment_count"));
 				userManageVO.setJoinType(rs.getString("user_registration_state"));
-				
+				System.out.println(rs.getInt("comment_count"));
 				userList.add(userManageVO);
 			}
 		}finally {
@@ -256,7 +256,7 @@ public class UserManageDAO {
 			
 			StringBuilder selectUserComment = new StringBuilder();
 			selectUserComment
-			.append("	select b.comment_id,a.user_name, a.user_id, b.comment_date,b.comment_content			")
+			.append("	select b.comment_id,a.user_name,b.post_id, a.user_id, b.comment_date,b.comment_content			")
 			.append("	from t_user a left join post_comment b on a.user_id = b.user_id							")
 			.append("	where b.comment_id = ?																	");
 			
@@ -269,6 +269,7 @@ public class UserManageDAO {
 			if(rs.next()) {
 				ucVO = new UserCommentVO();
 				ucVO.setCommentId(rs.getString("comment_id"));
+				ucVO.setPostId(rs.getString("post_id"));
 				ucVO.setUserName(rs.getString("user_name"));
 				ucVO.setUserId(rs.getString("user_id"));
 				ucVO.setRegistrationDate(rs.getDate("comment_date"));
@@ -281,4 +282,39 @@ public class UserManageDAO {
 		}
 		return ucVO;
 	}
+	
+	public int deleteUser(String id) throws SQLException{
+		int cnt = 0;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			StringBuilder deleteUser = new StringBuilder();
+			deleteUser
+			.append("	update t_user								")
+			.append("	set user_registration_state = 'N'			")
+			.append("	where user_id = ?							");
+			
+			pstmt = con.prepareStatement(deleteUser.toString());
+			
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			cnt = pstmt.executeUpdate();
+			
+		}finally {
+			db.dbClose(rs, pstmt, con);
+		}
+		
+		return cnt;
+	}
+	
 }

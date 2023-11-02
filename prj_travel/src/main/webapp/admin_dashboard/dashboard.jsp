@@ -10,7 +10,11 @@
 <%@page import="admin.dao.DashboardDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>    
+<%@ page info = "" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+<c:if test="${ empty admin }">
+<c:redirect url="../admin/admin_login.jsp"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -56,22 +60,12 @@ $(function(){
 
     // restaurantRankList에서 데이터 추출
     for (var i = 0; i < touristAreaRankList.length; i++) {
+    	if(i != 5){
         var rankVO = touristAreaRankList[i];
         labels.push(rankVO.name);
         data.push(rankVO.like);
+    	}
     }
-    /*     var labelsString = "labels = ['" + labels.join("', '") + "'];";
-    var dataString = "data = [" + data.join(", ") + "];";
-    
-    var labelArr = new Function(labelsString);
-    labelArr();
-    
-    var dataArr = new Function(dataString);
-    dataArr();
-    
-    // labels와 data를 console로 출력
-    console.log(labels);
-    console.log(data); */
 
 	    var areaChartData = {
 		  	      labels  : labels,
@@ -154,8 +148,24 @@ $(function(){
 		  	      data: barChartData,
 		  	      options: barChartOptions
 		  	    });
+		  	    
+		  	$("#logout").click(function() {
+				location.href = "../admin/admin_logout.jsp";
+			});//click    
 	    
 })//ready
+
+function noticeDetail(id) {
+	$("#noticeId").val(id);
+	$("#noticeFrm").submit();
+}
+
+function questionDetail(id) {
+	$("#questionId").val(id);
+	$("#questionFrm").submit();
+}
+
+
 </script>
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
@@ -167,7 +177,7 @@ $(function(){
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index3.html" class="nav-link">Home</a>
+        <a href="dashboard.jsp" class="nav-link">Home</a>
       </li>
     </ul>
 
@@ -185,7 +195,7 @@ $(function(){
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
+    <a href="dashboard.jsp" class="brand-link">
             <span class="brand-text font-weight-light">Visit JEJU</span>
     </a>
 
@@ -239,27 +249,24 @@ $(function(){
             </ul>
           </li>
           
-          <li class="nav-item menu">
-            <a href="#" class="nav-link">
-              <i class="bi bi-map"></i>
-                <i class="right fas fa-angle-left"></i>
-             <p>관광지 관리</p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>관광지 추가</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../admin_tourarea/admin_tourarea_review.jsp" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>관광지 리뷰 관리</p>
-                </a>
-              </li>
-            </ul>
-          </li>
+         <li class="nav-item menu"><a href="#" class="nav-link"> <i
+							class="bi bi-map"></i> <i class="right fas fa-angle-left"></i>
+							<p>관광지 관리</p>
+					</a>
+						<ul class="nav nav-treeview">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 추가</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
+								class="nav-link"> <i class="far fa-circle nav-icon"></i>
+									<p>관광지 리뷰 관리</p>
+							</a></li>
+						</ul></li>
           
            <li class="nav-item menu">
             <a href="#" class="nav-link">
@@ -337,6 +344,9 @@ $(function(){
               </div>
               <!-- /.card-header -->
               <div class="card-body">
+                  <form action="../admin_post/admin_post_detail.jsp" method="get" id="noticeFrm">
+                  	<input type="hidden" id= "noticeId" name= "noticeId"/>
+                  </form>
                 <table class="table">
                   <thead>
                     <tr>
@@ -346,10 +356,7 @@ $(function(){
                     </tr>
                   </thead>
                   <tbody>
-
 <%
-
- 
 try{
 List<NoticeVO> list = dDAO.selectRecentNotice();
 for(int i = 0; i < list.size(); i++ ){
@@ -357,12 +364,10 @@ for(int i = 0; i < list.size(); i++ ){
 %>
  		  <tr>
             <td><%= i+1%></td>
-            <td><%= list.get(i).getTitle() %></td>
+            <td  onclick="noticeDetail('<%= list.get(i).getId() %>')"><%= list.get(i).getTitle() %></td>
             <td><%= list.get(i).getRegistrationDate() %></td>
           </tr>
 <%
-
-
 	}else{
 		break;
 	}
@@ -372,6 +377,7 @@ for(int i = 0; i < list.size(); i++ ){
 	se.printStackTrace();
 }
 %>             
+
                   </tbody>
                 </table>
               </div>
@@ -410,6 +416,9 @@ for(int i = 0; i < list.size(); i++ ){
               </div>
               <!-- /.card-header -->
               <div class="card-body">
+              <form action="../admin_post/admin_question_detail_proccess.jsp" method="post" id="questionFrm">
+        	 <input type="hidden" id="questionId" name="questionId"/>
+         	</form>
                 <table class="table">
                   <thead>
                     <tr>
@@ -431,7 +440,7 @@ try{
                    <tr>
                       <td><%= i+1 %></td>
                       <td><%= waitingAnswerList.get(i).getCategory() %></td>
-                      <td><%= waitingAnswerList.get(i).getTitle() %></td>
+                      <td onclick="questionDetail('<%= waitingAnswerList.get(i).getQAndAId() %>')"><%= waitingAnswerList.get(i).getTitle() %></td>
                       <td><%= waitingAnswerList.get(i).getRegistrationDate() %></td>
                     </tr>
 <%
