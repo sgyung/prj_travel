@@ -10,10 +10,32 @@
 <title>Insert title here</title>
 <link rel="stylesheet" type="text/css" href="http://localhost/html_prj/common/CSS/main_v20230906.css" />
 <style type="text/css">
-#wrap{ width:502px; height:303px; margin:0px auto; }
-#idDup{ width:502px; height:303px; background: url("../common/images/signup_img/id_background.png"); }
-#idDiv{ position: absolute; top:100px; left:80px; width:300px; }
-#idResult{ position: absolute; top:200px; left:150px; width:300px; }
+#wrap{ 
+	width:502px;
+	height:303px; 
+	margin:0px auto; 
+}
+
+#idDup{ 
+	width:502px; 
+	height:303px; 
+	background: url("../common/images/signup_img/id_background.png");
+}
+#idDiv{ 
+	position: absolute; 
+	top:100px; 
+	left:80px; 
+	width:300px; 
+}
+#idResult{ 
+	position: absolute; 
+	top:200px; 
+	left:80px; 
+	width:300px; 
+}
+#idResult > p { 
+	font-size: 12px; 
+}
 
 </style>
 <!-- jQuery CDN -->
@@ -33,11 +55,20 @@ $(function(){
 	
 	function chkNull(){
 		var id = $("#id").val();
+		var getId= RegExp(/^[a-z0-9]{4,16}$/);
 		
 		if(id.trim()==""){
-			alert("중복확인할 아이디를 입력해 주세요.");
+			$("#idResult").show();
+		    $("#idResult").html("<p>중복확인할 아이디를 입력해주세요.</p>");
 			return;
 		}
+		if(!getId.test($("#id").val())) {
+	        $("#idResult").show();
+		    $("#idResult").html("<p>아이디는 4~16자, 영문(소문자), 숫자만 가능합니다.</p>");
+	        $("#id").val("");
+	        $("#id").focus();
+	        return false;
+	      }
 		$("#frm").submit();
 		
 	}//chkNull
@@ -67,7 +98,6 @@ function useId( id ){
             maxlength="16" autofocus="autofocus" value="${ param.id }"/>
       
             <input type="button" value="중복확인" class="btn" id="btn"/>
-            <input type="text" style="display: none"/> 
          </div>
       </form>
       </div>
@@ -75,13 +105,14 @@ function useId( id ){
             <c:catch var="se">
             <%
                String id = request.getParameter("id");
+           	   System.out.println(id);	
                if( id != null && !"".equals(id)){ //null값과 empty에 대한 제어
-                  //DB에서 입력된 아이디를 검색
-                  UserDAO uDAO = UserDAO.getInstance();
-                  try{
-                  boolean flag = uDAO.selectId(id);
-                  
-                  pageContext.setAttribute("flag",flag);
+               //DB에서 입력된 아이디를 검색
+               UserDAO uDAO = UserDAO.getInstance();
+               try{
+               boolean flag = uDAO.selectId(id);
+               
+               pageContext.setAttribute("flag",flag);
             %>
             <strong><c:out value="${ param.id }" /></strong>는
             <c:choose>

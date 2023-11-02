@@ -66,6 +66,7 @@ em {
 	margin-top: 30px;
 }
 
+
 </style>
 <script type="text/javascript">
 $(function(){
@@ -75,17 +76,24 @@ $(function(){
         $("input[type='checkbox']").prop("checked", isChecked);
     });
 	
+	$('input[type=checkbox]').click(function() {
+	 var isEssentialChecked1 = $("#essential_check1").prop("checked");
+	    var isEssentialChecked2 = $("#essential_check2").prop("checked");
+	 
+	       if ( isEssentialChecked1 && isEssentialChecked2 ) {
+	           $("#nextBtn").removeAttr("disabled");
+	       }
+	       else {
+	           $("#nextBtn").attr('disabled', 'disabled');
+	       }
+	});
+	 
 	$("#nextBtn").click(function() {
-        // Check if the checkbox with id "essential_check" is checked
-        var isEssentialChecked = $("#essential_check").prop("checked");
-
-        if (!isEssentialChecked) {
-            alert("[필수] 항목을 동의해야 합니다.");
-        } else {
-            // If the essential checkbox is checked, navigate to signup_next.jsp
-            window.location.href = "signup_next.jsp";
-        }
-    });
+	 
+	      $("#frm").submit();
+	      
+	});
+	
 	
 });//ready
 </script>
@@ -98,7 +106,7 @@ $(function(){
 
         <div class="terms_wrap">
             <h1>회원가입</h1>
-            <form action="#">
+            <form action="signup_next.jsp" method="post" name="frm" id="frm">
             
             <div class="terms_area">
 	            <div class="terms_name">
@@ -112,7 +120,7 @@ $(function(){
             
             <div class="terms_area">
 	            <div class="terms_name">
-		        	<input type="checkbox" id="essential_check">
+		        	<input type="checkbox" id="essential_check1">
 		        	<em>[필수]</em>
 		            <span>네이버 이용약관</span>
 	            </div>
@@ -124,7 +132,7 @@ $(function(){
             
             <div class="terms_area">
 	            <div class="terms_name">
-		        	<input type="checkbox" id="essential_check">
+		        	<input type="checkbox" id="essential_check2">
 		        	<em>[필수]</em>
 		            <span>개인정보 수집 및 이용</span>
 	            </div>
@@ -169,16 +177,14 @@ $(function(){
 		           	<p>이벤트・혜택 정보 수신</p>
 	           	</div>
             </div>
-            <input type="button" value="다음" class="btn btn-info next_btn" id="nextBtn"> 
+            <input type="button" value="다음" class="btn btn-warning next_btn" disabled="disabled" id="nextBtn"> 
             </form>
             
         </div>
 
     </div>
 
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+	<%@ include file="../common/jsp/footer.jsp" %>
 	
 </div>
       

@@ -57,7 +57,7 @@
 
 .input_box:focus {
 	outline : none;
-	border: solid #0DCAF0;
+	border: solid #ef6d00;
     border-width: 0 0 2px;
 }
 
@@ -177,15 +177,13 @@ function checkPw() {
 				
 				<div class="textBox" id="warningBox"></div>
 				
-                <input type="button" value="확인" id="btnConfirm" class="btn btn-info long_btn">
+                <input type="button" value="확인" id="btnConfirm" class="btn btn-warning long_btn">
             </form>
         </div>
 
     </div>
 
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+	<%@ include file="../common/jsp/footer.jsp" %>
 	
 </div>
       

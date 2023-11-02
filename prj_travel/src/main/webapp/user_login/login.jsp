@@ -72,16 +72,6 @@
 	margin-top: 30px;
 }
 
-.btn-info {
-    background-color: #ef6d00;
-    border-color: #ef6d00;
-}
-
-.btn-info:hover {
-    background-color: #FF9237;
-    border-color: #FF9237;
-}
-
 .find_signup {
 	font-size : 12px;	
 	margin-top : 20px;
@@ -161,7 +151,7 @@ function checkNull(){
                 
                 <div class="textBox" id="warningBox"></div>
                 
-                <input type="button" value="로그인" class="btn btn-info login_btn" id="btnLogin">
+                <input type="button" value="로그인" class="btn btn-warning login_btn" id="btnLogin">
             </form>
 	        <div class="find_signup flex">
 	            <a href="../user_signup/signup.jsp" class="link_signup">회원가입</a>

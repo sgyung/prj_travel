@@ -61,7 +61,7 @@
 
 .input_box:focus {
 	outline : none;
-	border: solid #0DCAF0;
+	border: solid #ef6d00
     border-width: 0 0 2px;
 }
 
@@ -157,10 +157,10 @@ $(function(){
 	        
 	        <div class="login_pw flex">
             <a href="../user_login/login.jsp">
-	            <input type="button" value="로그인" class="btn btn-info login_pw_btn">
+	            <input type="button" value="로그인" class="btn btn-warning login_pw_btn">
             </a>
             <a href="../user_search_pw/search_pw.jsp">
-	            <input type="button" value="비밀번호찾기" class="btn btn-info login_pw_btn">
+	            <input type="button" value="비밀번호찾기" class="btn btn-warning login_pw_btn">
             </a>
             </div>
         
@@ -168,9 +168,7 @@ $(function(){
 
     </div>
 
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+	<%@ include file="../common/jsp/footer.jsp" %>
 	
 </div>
       

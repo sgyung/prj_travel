@@ -268,7 +268,7 @@ $(function(){
         	<div class="tour_tag_list">
         	
         		<ul class="mainQuickWrap">
-        			<c:forEach var="tourTags" items="${ tourTags }" varStatus="i">
+        			<c:forEach var="tourTags" items="${ tourTags }" varStatus="i" begin="0" end="9">
 	        			<li><a href="../user_restaurant/restaurant.jsp?tag=${ tourTags }">#${ tourTags }</a></li>
         			</c:forEach>
                 </ul>
@@ -276,7 +276,7 @@ $(function(){
         	
         	<div class="tour_tag_list">
         		<ul class="mainQuickWrap">
-	        		<c:forEach var="restTags" items="${ restTags }" varStatus="i">
+	        		<c:forEach var="restTags" items="${ restTags }" varStatus="i" begin="0" end="9">
 	        			<li><a href="../user_tourist_area/touristArea.jsp?tag=${ restTags }">#${ restTags }</a></li>
         			</c:forEach>
                 </ul>

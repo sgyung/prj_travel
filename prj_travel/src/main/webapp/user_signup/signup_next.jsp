@@ -60,7 +60,7 @@
 .signup_form_wrap {
 	width : 50%;
 	max-width : 600px;
-	height : 900px;
+	height : 950px;
 	margin: 0 auto;
 	padding : 50px;
 	border: 1px solid rgba(0,0,0,.12);
@@ -94,7 +94,7 @@
 
 .input_box:focus {
 	outline : none;
-	border: solid #0DCAF0;
+	border: solid #ef6d00;
     border-width: 0 0 2px;
 }
 
@@ -107,6 +107,20 @@
 	font-size: 12px;
 }
 
+.textBox{
+	width:100%;
+	margin-top:20px;
+	padding: 20px;
+	display: none;
+	background-color: #fafafa;
+}
+
+.textBox > p {
+	font-size: 13px;
+	color: #e65f3e;
+	margin-bottom: 0px;
+	text-align: left;
+}
 
 .request_btn {
 	width:100%;
@@ -124,34 +138,143 @@
 $(function(){
 
 	$("#btnDup").click(function(){
-	      var id=$("#id").val();
-	      window.open("id_dup.jsp?id="+id,"id_dup","width=512,height=313,top="
-	               +( window.screenY+150)+",left="+( window.screenX+200));   
+		var getId= RegExp(/^[a-z0-9]{4,16}$/);
+		if(!getId.test($("#id").val())) {
+	        $("#warningBox").show();
+		    $("#warningBox").html("<p>아이디는 4~16자, 영문(소문자), 숫자만 가능합니다.</p>");
+	        $("#id").val("");
+	        $("#id").focus();
+	        return false;
+      	}
+		
+   	 	var id=$("#id").val();
+   	 	
+   		window.open("id_dup.jsp?id="+id,"id_dup","width=512,height=313,top="
+        +( window.screenY+150)+",left="+( window.screenX+200) + ",resizable=no");   
+	});
+	
+	$("#id").keydown(function(){
+		$("#idDupFlag").val(0);
 	});
 	
 	$("#btnZipcode").click(function(){
 	      searchZipcode();
    	});
 	
+	//NullCheck시작
+	
+	// "request_btn" 버튼의 초기 상태를 비활성화로 설정
+    $("#request_btn").prop("disabled", true);
+	
+	// "input_box" 입력란에서 포커스 아웃될 때 검증
+    $(".input_box").blur(function () {
+        var allInputsFilled = true;
+
+    // 모든 "input_box" 입력란을 반복하고 비어 있는지 확인
+    $(".input_box").each(function () {
+        if ($(this).val().trim() === '') {
+            allInputsFilled = false;
+            return false; // 하나라도 비어 있으면 루프 종료
+        }
+    });
+
+        // 모든 입력란이 채워져 있으면 "request_btn" 버튼 활성화, 그렇지 않으면 비활성화
+        if (allInputsFilled) {
+            $("#request_btn").prop("disabled", false);
+        } else {
+            $("#request_btn").prop("disabled", true);
+        }
+    });
+	
+  	//NullCheck종료
+	
+	
 	$("#request_btn").click(function(){
-		//입력값에 대한 유효성 검증
+		
+    	var getId= RegExp(/^[a-z0-9]{4,16}$/);
+    	var getPw= RegExp(/^(?=.*[a-z])(?=.*[0-9]).{8,16}$/);
+    	var getName= RegExp(/^[가-힣]+$/);
+    	var getBirth= RegExp(/^(19|20)[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/);
+    	var getCel= RegExp(/^01[0179][0-9]{7,8}$/);
+
+		//중복확인 검사
 		if($("#idDupFlag").val() == 0){
-			alert($("#id").val()+"은 중복확인 되지 않은 아이디 입니다.\n중복확인을 수행해 주세요.");
+	      	$("#warningBox").show();
+		  	$("#warningBox").html("<p>" + $('#id').val() + "은 중복확인 되지 않은 아이디 입니다.\n중복확인을 수행해 주세요.</p>");
 			return;
 		}//end if
 		
-		if($("#password").val() != $("#re_password").val()){
-	        alert("비밀번호가 서로 다릅니다. 비밀번호를 확인해 주세요."); 
+		// 아이디 유효성검사
+		if(!getId.test($("#id").val())) {
+	        $("#warningBox").show();
+		    $("#warningBox").html("<p>아이디는 4~16자, 영문(소문자), 숫자만 가능합니다.</p>");
+	        $("#id").val("");
+	        $("#id").focus();
+	        return false;
+	      }
+	      
+	
+		// 비밀번호 유효성검사
+	    if(!getPw.test($("#password").val())) {
+	    	$("#warningBox").show();
+		    $("#warningBox").html("<p>비밀번호는 8~16자 영문(소문자), 숫자 를혼합해서 사용해야 됩니다.</p>");
+	        $("#password").val("");
 	        $("#password").focus();
-	        return; 
-	    }
+	        return false;
+	      }
+	         
+	 	// 아이디 비밀번호 같음 확인
+	    if($("#id").val() == $("#password").val()) {
+	    	$("#warningBox").show();
+		    $("#warningBox").html("<p>아이디와 비밀번호가 같습니다.</p>");
+	        $("#password").val("");
+	        $("#password").focus();
+	        return false;
+	      }
+		
+		// 비밀번호 확인
+	    if($("#password").val() != $("#re_password").val()){
+		      $("#warningBox").show();
+			  $("#warningBox").html("<p>비밀번호가 다릅니다. 다시 입력해주세요.</p>");
+	          $("#password").val("");
+	          $("#re_password").val("");
+	          $("#password").focus();
+	          return false;
+	      }
+	          
+		// 이름 유효성 검사
+	    if(!getName.test($("#name").val())){
+	      	$("#warningBox").show();
+		  	$("#warningBox").html("<p>이름은 한글만 입력 가능합니다.</p>");
+	        $("#name").val("");
+	        $("#name").focus();
+	        return false;
+	      }
+		
+	  	//생년월일 유효성 검사
+	    if(!getBirth.test($("#birthdate").val())){
+	      	$("#warningBox").show();
+		  	$("#warningBox").html("<p>올바른 생년월일을 입력해주세요.</p>");
+	        $("#birthdate").val("");
+	        $("#birthdate").focus();
+	        return false;
+	      }
+	  
+		//전화번호 유효성 검사
+	    if(!getCel.test($("#cel").val())){
+	      	$("#warningBox").show();
+		  	$("#warningBox").html("<p>올바른 전화번호를 입력해주세요.</p>");
+	        $("#cel").val("");
+	        $("#cel").focus();
+	        return false;
+	      }
 		
 		$("#frm").submit();
 	});//click
 	
-	$("#id").keydown(function(){
-		$("#idDupFlag").val(0);
-	});
+	
+	
+	
 	
 });//ready
 </script>
@@ -168,7 +291,7 @@ $(function(){
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg></label>
 					<input type="text" placeholder="아이디" name="id" class="input_box" id="id">
-					<input type="button" value="중복확인" class="btn btn-info btn_check" id="btnDup">
+					<input type="button" value="중복확인" class="btn btn-warning btn_check" id="btnDup">
 					<input type="hidden" id="idDupFlag" name="idDupFlag"/>
 				</div>
 				<div class="input_area flex">
@@ -184,16 +307,16 @@ $(function(){
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16"><path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg></label>
-					<input type="text" placeholder="생년월일 8자리" name="birthdate" class="input_box" id="birthdate">
+					<input type="text" placeholder="생년월일 8자리" name="birthdate" class="input_box" id="birthdate" maxlength="8">
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-phone" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></label>
-					<input type="tel" placeholder="휴대전화번호" name="tel" class="input_box" id="cel" >
+					<input type="text" placeholder="휴대전화번호" name="tel" class="input_box" id="cel" maxlength="11">
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/></svg></label>
 					<input type="text" placeholder="우편번호" name="zipcode" class="input_box" id="zipcode" readonly="readonly">
-					<input type="button" value="우편번호검색" class="btn btn-info btn_check" id="btnZipcode">
+					<input type="button" value="우편번호검색" class="btn btn-warning btn_check" id="btnZipcode">
 				</div>
 				<div class="input_area flex reverse">
 					
@@ -203,17 +326,17 @@ $(function(){
 					
 					<input type="text" placeholder="상세주소" name="addrdetail" class="input_box small_input_box" id="addr_d" >
 				</div>
+				
+				<div class="textBox" id="warningBox"></div>
 
-            	<input type="button" value="가입요청" class="btn btn-info request_btn" id="request_btn">
+            	<input type="button" value="가입요청" class="btn btn-warning request_btn" id="request_btn">
             </form>
             
         </div>
 
     </div>
 
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+	<%@ include file="../common/jsp/footer.jsp" %>
 	
 </div>
       

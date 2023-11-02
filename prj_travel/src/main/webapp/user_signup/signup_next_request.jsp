@@ -101,18 +101,16 @@ uDAO.insertUser(uVO);
         </div>
             <div class="login_main flex">
             <a href="../user_login/login.jsp">
-	            <input type="button" value="로그인" class="btn btn-info login_main_btn">
+	            <input type="button" value="로그인" class="btn btn-warning login_main_btn">
             </a>
             <a href="../user_main/main.jsp">
-	            <input type="button" value="메인" class="btn btn-info login_main_btn">
+	            <input type="button" value="메인" class="btn btn-warning login_main_btn">
             </a>
             </div>
         </div>
     </div>
 
-	<div class="footer">
-        <span style="font-size: 60px; color: white; ">FOOTER</span> 
-    </div>
+	<%@ include file="../common/jsp/footer.jsp" %>
 	
 </div>
 
