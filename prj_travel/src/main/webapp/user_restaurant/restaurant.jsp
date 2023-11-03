@@ -1,6 +1,9 @@
-<%@page import="pageUtil.Paging"%>
 <%@page import="user.vo.RestaurantVO"%>
 <%@page import="user.dao.RestaurantDAO"%>
+<%@page import="java.lang.reflect.Array"%>
+<%@page import="pageUtil.Paging"%>
+<%@page import="user.vo.TouristAreaVO"%>
+<%@page import="user.dao.TouristAreaDAO"%>
 <%@page import="java.sql.SQLException"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -11,7 +14,7 @@
 <%
 	RestaurantDAO dao = RestaurantDAO.getInstance();
 
-	List<String> tagList = dao.selectAllTags();
+	List<String> tagList = dao.selectAllTags(1, 25);
 	for( int i = 0; i<tagList.size(); i++ ){
 		tagList.set(i, tagList.get(i).substring(1));
 	}//end for
@@ -29,7 +32,7 @@
 	//paging util
 	Paging paging = Paging.getInstance();
 	
-	int pageScale = 10; // 환화면에 보여줄 컨텐츠 수
+	int pageScale = 10 ; // 환화면에 보여줄 컨텐츠 수
 	int[] pageRange = paging.getPageRowRange(selectPage, pageScale);
 	
 	
@@ -39,6 +42,9 @@
 	}else {
 		pageList = dao.selectTagContent("#"+selectTag, pageRange[0], pageRange[1]);
 	}
+	
+
+	
 	int ContentCnt = pageList.size();
 	int totalContent = 0;
 	
@@ -84,8 +90,22 @@
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9d996728af7880d0f5ca73221c2412ab"></script>
 <!-- kakao지도 api -->
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../common/CSS/ta_view.css">
+<link rel="stylesheet" type="text/css" href="http://192.168.10.133/prj_travel/common/CSS/ta_view.css">
+<!-- header&footer css -->
+<link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
+
+
+
+.container {
+    margin-top: 90px;
+}
+
+h2 {
+    font-size: 2rem;
+    padding: 20px 0 0 0;
+}
+
 
 
 </style>
@@ -111,6 +131,7 @@ $(function(){
 		var mapData = $(this).val().split(",");
 		var data =
 		{
+			img : mapData.pop(),
 			contentId : mapData.pop(),
 			title : mapData.pop(),
 			latlng: new kakao.maps.LatLng(mapData[0],mapData[1])
@@ -129,10 +150,10 @@ $(function(){
 		 var content = '<div id="cont1" style="position: absolute; top: -315px; left: -110px; z-index: 0; margin: 0px; padding: 0px; border: 1px solid rgb(201, 201, 201); display: block; cursor: default; box-sizing: content-box !important; background:#EFEFEF; ">' + 
 		    '				<div style="margin: 0px; padding: 0px; border: 0px solid transparent; display: inline-block; box-sizing: content-box !important; width: 221px; height: 270px; align-items:center">'+
 		    '					<div class="map_cont2" >'+	
-		    '						<img src="../common/' + positions[i].title + '.png' +'" alt="' + positions[i].title +'" style="width:221px; height:200px">'+
+		    '						<img src="'+ positions[i].img +'" style="width:221px; height:200px">'+
 		    '					 	<p style="text-align:center; margin: 5px 0">' + positions[i].title + '</p>'+
 		    '				 		<div style="text-align:center;">'+
-		    '							<a href="touristArea_detail.jsp?contentInfo=' + positions[i].contentId+'"' + 'style="margin-bottom:10px;background-color:rgb(255,255,255);">자세히보기</a>'+
+		    '							<a href="restaurant_detail.jsp?contentInfo=' + positions[i].contentId+'"' + 'style="margin-bottom:10px;background-color:rgb(255,255,255);">자세히보기</a>'+
 			'				 		</div>'+
 			'					</div>'+
 			'				</div>'+
@@ -165,7 +186,7 @@ $(function(){
 	
 	}//end for
 	
-	//a태그 클릭시 클릭한 광지에 해당하는 지도상의 좌표로 이동
+	//a태그 클릭시 클릭한 맛집에 해당하는 지도상의 좌표로 이동
 	$(".ta").click(function(){
 		var idxValue = $(this).attr("id");
 		var idx = parseInt(idxValue);
@@ -201,63 +222,22 @@ $(function(){
      //해시태그 클릭시 해당하는 맛집 리스트 출력
      $("input[name='tag']").change(function(){
     	 var selectedValue = $("input[name='tag']:checked").val();
-    	 console.log(selectedValue);
+    	 
     	 window.location.href = "restaurant.jsp?tag="+ selectedValue;
      })
      
+     
 });//ready
-     function nextPage(){
-		 var str= "";
-    	 var queryString = window.location.search;
 
-    	// URLSearchParams 객체를 사용하여 쿼리 문자열 파싱
-    	var searchParams = new URLSearchParams(queryString);
-
-    	// 특정 매개 변수 값을 가져오기
-    	var currentPage = searchParams.get("page");
-    	var currentTag = searchParams.get("tag");
-    	
-    	if( currentPage == null ){
-    		currentPage = 1;
-    	}//end if
-    	str += "page=" + currentPage; 
-		if( currentTag != null ){
-			str += "&tag=" + currentTag;
-		}//end if
-		
-		console.log("page : " + currentPage);
-		console.log("tag : " + currentTag);
-		//window.location.href
-     }
 </script>
 </head>
 <body>
-<div class="wrap">
-	<div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li><a href="restaurant.jsp">관광지</a></li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>
+	<%@ include file="../common/jsp/header.jsp" %>
+
 	<div class="container">
 		<div id="content">
 			<div class="page_title" >
-				<h3>맛집</h3>
+				<h2>맛집</h2>
 			</div>
 			</div>
 			<div>
@@ -269,16 +249,6 @@ $(function(){
 					<label for="hashTag_${ tag }">#${ tag }</label>
 					</c:forEach>
 				</div>
-				
-				<!-- tagBox2
-				<div class="tagBox box02">
-					<input id="hashTag_test"  type="radio" name="tag" value="test">	
-					<label for="hashTag_test">#test</label>
-					
-					<input id="hashTag_test1" type="radio" name="tag" value="test1">
-					<label for="hashTag_test1">#test1</label>
-				</div>
-				-->
 			</div>
 			
 			
@@ -288,7 +258,7 @@ $(function(){
 				</div>
 				<div class="map_outline">
 					<div class="map_box" data-v-2fbcbd64>
-						<ul class="item_list_map type_map clear" style="height: calc(260px * ${cnt} );">
+						<ul id="getHeight" class="item_list_map type_map clear" style="height:  ${ 260 * cnt gt 2000? 2000 : 260*cnt }px; overflow:hidden">
 							
 							<c:forEach var="restaurant" items="${ areaList }" varStatus="i" >
 						
@@ -296,14 +266,15 @@ $(function(){
 								<dl data-v-2fbcbd64="" class="item_section_new">
 									<dt data-v-2fbcbd64="" class="item_top">
 										<a data-v-2fbcbd64="" href="javascript:void(0)"  class="ta" id=" ${ i.index}">
-											<img data-v-2fbcbd64="" src="http://192.168.10.133/prj_touristArea/common/${ restaurant.image }" alt="금능해수욕장 대표이미지" class="">
+											<img data-v-2fbcbd64="" src="${ restaurant.image }" alt="${ restaurant.name } 사진" class="">
 											<p data-v-2fbcbd64="" class="s_tit">${ restaurant.name }</p>
-											<p data-v-2fbcbd64="" class="item_tag next">${ restaurant.tags }</p>						
+											<p data-v-2fbcbd64="" class="item_tag next">
+											${ restaurant.tags }</p>						
 											<div data-v-2fbcbd64="" class="score_area">
-											<p data-v-2fbcbd64="" class="score_count" style="width: 100%;">별점(5점만점에 5점)</p>
+											<p data-v-2fbcbd64="" class="score_count" style="width: ${ restaurant.starScore * 20}%;">별점(5점만점에 5점)</p>
+											${ restaurant.starScore}
 											</div>
-											<input  class="longLat" type="hidden"  value="${ restaurant.longitude },${ restaurant.latitude},${ restaurant.name },${ restaurant.id}"/>
-											
+											<input  class="longLat" type="hidden"  value="${ restaurant.latitude}, ${ restaurant.longitude },${ restaurant.name },${ restaurant.id}, ${ restaurant.image }"/>
 										</a>
 									</dt>
 									<dd data-v-2fbcbd64="" class="item_count_area clear">
@@ -371,7 +342,7 @@ $(function(){
 										</c:url>
 										<a href="${nextPage}" class="spr_com page-next" data-v-2fbcbd64="">다음 페이지</a>
 										<c:url var="lastPage" value="restaurant.jsp">
-											<c:param name="page" value="${ endNum }"/>
+											<c:param name="page" value="${ totalPage }"/>
 											<c:if test="${ not empty selectTag }" >
 												<c:param name="tag" value="${selectTag }"/>
 											</c:if>
@@ -383,24 +354,27 @@ $(function(){
 							
 						</ul>
 					</div>
-					<div class="map-sticky-wrapper" style="height: calc(250px * ${ cnt })" >
+					<div class="map-sticky-wrapper" style="height: ${ 260 * cnt gt 2000? 2000 : 260*cnt }px" >
 						<div class="map_area">
 							<div id="map"></div>				
 						</div>						
 						
 					</div>
-					
-					
 				</div>
 			</div>
-			
-			
-			
-		</div>
-	</div>
-	
-
-</div>
-
+		</div>	
+						<c:choose>
+						<c:when test="${ cnt lt 4}">
+							<footer  style="position:relative; top: 750px">
+							<%@ include file="../common/jsp/footer.jsp" %>
+							</footer>
+						</c:when>
+						<c:otherwise>
+							<footer  style="position:relative; top: ${ 260 * cnt gt 2000? 2000 : 260*cnt }px">
+							<%@ include file="../common/jsp/footer.jsp" %>
+							</footer>
+						</c:otherwise>
+						</c:choose>
+					
 </body>
 </html>

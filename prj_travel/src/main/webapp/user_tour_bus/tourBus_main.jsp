@@ -1,3 +1,4 @@
+<%@page import="java.sql.SQLException"%>
 <%@page import="user.vo.TourBusVO"%>
 <%@page import="java.util.List"%>
 <%@page import="user.dao.TourBusDAO"%>
@@ -23,11 +24,14 @@
 <c:catch var="se" >
 <%
 	
+	try{
 	TourBusDAO tDAO = TourBusDAO.getInstance();
 	List<TourBusVO> tourList = tDAO.selectAllTourBus();
 	
 	pageContext.setAttribute("tourList", tourList);
-
+	} catch( SQLException se ){
+		System.out.println(se);
+	}
 %>
 </c:catch >
 <c:if test="${ not empty se }">
@@ -40,29 +44,8 @@ $(function(){
 </script>
 </head>
 <body>
+<%@ include file="../common/jsp/header.jsp" %>
 <div class="wrap">
-<div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li><a href="http://localhost:8080/prj_touristArea/touristArea.jsp">관광지</a></li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>  
-    <!--  -->
     
     <div class="container" id="content">
     	<section class="sub-header-wrap" style="background:url(../common/images/tour_bus_img/tour_bus_main.png) no-repeat center top;">

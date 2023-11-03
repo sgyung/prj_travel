@@ -3,13 +3,13 @@ package user.vo;
 import java.util.Date;
 
 public class TouristAreaVO {
-	private String id, name, addr, tel, serviceHour, priceInfo, slope, detailInfo, image, thumbNail, deleteState,tags;
+	private String id, name, addr, tel, serviceHour, priceInfo, slope, detailInfo, image, thumbNail, deleteState,tags, convenience;
 	private Double longitude, latitude;
 	private int starScore, like, reviewCnt, viewNum;
 	private Date inputDate;
 	
 	public TouristAreaVO(String id, String name, String addr, String tel, String serviceHour, String priceInfo,
-			String slope, String detailInfo, String tags,Double longitude, Double latitude, String deleteState, int starScore, int like,
+			String slope, String detailInfo, String tags, String convenience,Double longitude, Double latitude, String deleteState, int starScore, int like,
 			int reviewCnt, int viewNum, String image, String thumbNail, Date inputDate) {
 		super();
 		this.id = id;
@@ -30,6 +30,7 @@ public class TouristAreaVO {
 		this.viewNum = viewNum;
 		this.image = image;
 		this.thumbNail = thumbNail;
+		this.convenience = convenience;
 		this.inputDate = inputDate;
 	}
 
@@ -188,8 +189,23 @@ public class TouristAreaVO {
 		this.tags = tags;
 	}
 
+	public String getConvenience() {
+		return convenience;
+	}
 
-	
+	public void setConvenience(String convenience) {
+		this.convenience = convenience;
+	}
+
+	@Override
+	public String toString() {
+		return "TouristAreaVO [id=" + id + ", name=" + name + ", addr=" + addr + ", tel=" + tel + ", serviceHour="
+				+ serviceHour + ", priceInfo=" + priceInfo + ", slope=" + slope + ", detailInfo=" + detailInfo
+				+ ", image=" + image + ", thumbNail=" + thumbNail + ", deleteState=" + deleteState + ", tags=" + tags
+				+ ", convenience=" + convenience + ", longitude=" + longitude + ", latitude=" + latitude
+				+ ", starScore=" + starScore + ", like=" + like + ", reviewCnt=" + reviewCnt + ", viewNum=" + viewNum
+				+ ", inputDate=" + inputDate + "]";
+	}
 	
 	
 }

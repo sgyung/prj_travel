@@ -137,4 +137,40 @@ public class ReviewDAO {
 		
 	}//insertReview
 	
+	public boolean selectIsReview( String contId, String userId, String areaType ) throws SQLException {
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		boolean resultFlag = false;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			String selectReview = "";
+			if( areaType.equals("관광지")) {
+				selectReview = "	select count(*) cnt from tourist_review where tourist_area_id = ? and user_id = ?	";
+			} else {
+				selectReview = "	select count(*) cnt from restaurant_review where restaurant_id = ? and user_id = ?	";
+			}//end else
+			
+			pstmt = con.prepareStatement(selectReview);
+			
+			pstmt.setString(1, contId);
+			pstmt.setString(2, userId);
+			rs = pstmt.executeQuery();
+			if( rs.getInt("cnt") == 1 ) {
+				resultFlag = true;
+			}//end if
+			
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//end finally
+		
+		return resultFlag;
+		
+	}//selectIsReview
+	
 }//class

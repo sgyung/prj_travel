@@ -175,5 +175,6 @@ public class QnADAO {
 		}//end finally
 		return totalQnA;
 	}//selectTotalQnA
+	
 
 }//class

@@ -3,16 +3,16 @@ package user.vo;
 import java.sql.Date;
 
 public class TourBusVO {
-	private String id, name, tel, image;
+	private String id, name, tel, image, time;
 	private int seat, adultFare, childFare;
-	private Date start, end, time;
+	private Date start, end;
 	
 	public TourBusVO() {
 		super();
 	}
 	
 	public TourBusVO(String id, String name, String tel, String image, int seat, int adultFare, int childFare,
-			Date start, Date end, Date time) {
+			Date start, Date end, String time) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -79,10 +79,10 @@ public class TourBusVO {
 	public void setEnd(Date end) {
 		this.end = end;
 	}
-	public Date getTime() {
+	public String getTime() {
 		return time;
 	}
-	public void setTime(Date time) {
+	public void setTime(String time) {
 		this.time = time;
 	}
 	

@@ -44,20 +44,22 @@ public class RestaurantDAO {
 			
 			StringBuilder selectContent = new StringBuilder();
 			selectContent
-			.append("	select  alldata.*		")
-			.append("	from (	")
-			.append("	select row_number() over( order by a.RESTAURANT_NAME ) num, a.RESTAURANT_ID, a.RESTAURANT_NAME, ")
-			.append("	RESTAURANT_ADDR, RESTAURANT_TEL, RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE,		")
-			.append(" 	RESTAURANT_LIKE, RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE,	")
-			.append(" 	RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE,	")
-			.append(" 	listagg(t.tag_name, ' ') within group(order by a.RESTAURANT_ID) tag_name	")
-			.append(" 	from RESTAURANT a, RESTAURANT_TAGS t	")
-			.append(" 	where a.RESTAURANT_ID = t.RESTAURANT_ID(+) and delete_state = 'N'	")
-			.append("	group by a.RESTAURANT_NAME, a.RESTAURANT_ID, RESTAURANT_ADDR,RESTAURANT_TEL,	")
-			.append("	RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LIKE,	")
+			.append("	select data.* , ( select count(*) from RESTAURANT_REVIEW where RESTAURANT_ID = data.RESTAURANT_ID ) review_cnt,	")
+			.append("	( select count(*) from RESTAURANT_LIKE where RESTAURANT_ID = data.RESTAURANT_ID) restaurant_like,	")
+			.append("	( select nvl(trunc(avg(RESTAURANT_STAR_SCORE)),5) from RESTAURANT_REVIEW where RESTAURANT_ID = data.RESTAURANT_ID ) star_score	")
+			.append("		from (	")
+			.append("	select row_number() over( order by a.RESTAURANT_NAME ) num, a.RESTAURANT_ID RESTAURANT_ID,a.RESTAURANT_NAME,	")
+			.append("		RESTAURANT_ADDR, RESTAURANT_TEL, RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE,	")
+			.append("		RESTAURANT_LATITUDE, RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE,	")
+			.append("			RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE,	")
+			.append("	listagg(t.tag_name, ' ') within group(order by a.RESTAURANT_ID) tag_name	")
+			.append("	from RESTAURANT a, RESTAURANT_TAGS t	")
+			.append("	where a.RESTAURANT_ID = t.RESTAURANT_ID(+) and delete_state = 'N'	")
+			.append("		group by a.RESTAURANT_NAME, a.RESTAURANT_ID, RESTAURANT_ADDR,RESTAURANT_TEL,	RESTAURANT_SERVICE_HOURS,	")
+			.append("	RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LIKE,	")
 			.append("	RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE, RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE	")
-			.append("	) alldata	")
-			.append("	where num between ? and ?		")
+			.append("			) data	")
+			.append("			where num between ? and ?	")
 			;
 			
 			pstmt = con.prepareStatement(selectContent.toString());
@@ -77,9 +79,9 @@ public class RestaurantDAO {
 				rVO.setTags(rs.getString("TAG_NAME"));
 				rVO.setLatitude(rs.getDouble("RESTAURANT_LATITUDE"));
 				rVO.setLongitude(rs.getDouble("RESTAURANT_LONGITUDE"));
-				rVO.setStarScore(3);
+				rVO.setStarScore(rs.getInt("star_score"));
 				rVO.setLike(rs.getInt("RESTAURANT_LIKE"));
-				rVO.setReviewCnt(10);
+				rVO.setReviewCnt(rs.getInt("review_cnt"));
 				rVO.setViewNum(rs.getInt("RESTAURANT_VIEW_NUM"));
 				rVO.setImage(rs.getString("RESTAURANT_IMAGE"));
 				rVO.setThumbNail(rs.getString("RESTAURANT_THUMBNAIL"));
@@ -123,7 +125,7 @@ public class RestaurantDAO {
 		return totalPage;
 	}//selectTotalRestaurant
 	
-	public List<String> selectAllTags() throws SQLException{
+	public List<String> selectAllTags(int start, int end) throws SQLException{
 		List<String> list = new ArrayList<String>();
 		
 		DbConnection db = DbConnection.getInstance();
@@ -136,7 +138,15 @@ public class RestaurantDAO {
 			
 			con = db.getConn("jdbc/dbcp");
 			
-			pstmt = con.prepareStatement("	select distinct tag_name from restaurant_tags	");
+			StringBuilder selectTag = new StringBuilder();
+			selectTag
+			.append("	select num, tag_name	")
+			.append("	from(select row_number() over( order by restaurant_id ) num,	")
+			.append("	tag_name from (select distinct * from restaurant_tags))	")
+			.append("	where num between ? and ?	");
+			pstmt = con.prepareStatement(selectTag.toString());
+			pstmt.setInt(1, start);
+			pstmt.setInt(2, end);
 			
 			rs = pstmt.executeQuery();
 			
@@ -164,23 +174,25 @@ public class RestaurantDAO {
 			keyTag.append("%").append(tag).append("%");
 			StringBuilder selectContent = new StringBuilder();
 			selectContent
-			.append("	select all_data.*		")
-			.append("	from(select rownum n, data.*	")
+			.append("	select alldata.*	")
+			.append("	from( select rownum num, data.* ,	")
+			.append("	( select count(*) from RESTAURANT_REVIEW where RESTAURANT_ID = data.RESTAURANT_ID ) review_cnt,	 ")
+			.append("	( select count(*) from RESTAURANT_LIKE where RESTAURANT_ID = data.RESTAURANT_ID) RESTAURANT_like,	 ")
+			.append("	( select nvl(trunc(avg(RESTAURANT_STAR_SCORE)),5) from RESTAURANT_REVIEW where RESTAURANT_ID = data.RESTAURANT_ID ) star_score	 ")
 			.append("	from (	 ")
-			.append("	select row_number() over( order by a.RESTAURANT_NAME ) num, a.RESTAURANT_ID RESTAURANT_ID, a.RESTAURANT_NAME,	 ")
-			.append("	RESTAURANT_ADDR, RESTAURANT_TEL, RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE,	 ")
-			.append("	RESTAURANT_LIKE, RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE,	 ")
+			.append("	select a.RESTAURANT_ID RESTAURANT_ID,a.RESTAURANT_NAME,	 ")
+			.append("	RESTAURANT_ADDR, RESTAURANT_TEL,RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE,	 ")
+			.append("	RESTAURANT_LATITUDE, RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE,	 ")
 			.append("	RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE,	 ")
 			.append("	listagg(t.tag_name, ' ') within group(order by a.RESTAURANT_ID) tag_name	 ")
 			.append("	from RESTAURANT a, RESTAURANT_TAGS t	 ")
 			.append("	where a.RESTAURANT_ID = t.RESTAURANT_ID(+) and delete_state = 'N'	 ")
-			.append("	group by a.RESTAURANT_NAME, a.RESTAURANT_ID, RESTAURANT_ADDR,RESTAURANT_TEL,	 ")
-			.append("	RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LIKE,	 ")
+			.append("	group by a.RESTAURANT_NAME, a.RESTAURANT_ID, RESTAURANT_ADDR,RESTAURANT_TEL, RESTAURANT_SERVICE_HOURS,	 ")
+			.append("	RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LIKE,	 ")
 			.append("	RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE, RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE	 ")
 			.append("	) data	 ")
-			.append("	where tag_name like ?	 ")
-			.append("	) all_data	 ")
-			.append("	where n between ? and ? ")
+			.append("	where tag_name like ? ) alldata	 ")
+			.append("	where num between ? and ?	 ")
 			;
 			
 			
@@ -201,9 +213,9 @@ public class RestaurantDAO {
 				rVO.setTags(rs.getString("TAG_NAME"));
 				rVO.setLatitude(rs.getDouble("RESTAURANT_LATITUDE"));
 				rVO.setLongitude(rs.getDouble("RESTAURANT_LONGITUDE"));
-				rVO.setStarScore(3);
+				rVO.setStarScore(rs.getInt("star_score"));
 				rVO.setLike(rs.getInt("RESTAURANT_LIKE"));
-				rVO.setReviewCnt(10);
+				rVO.setReviewCnt(rs.getInt("review_cnt"));
 				rVO.setViewNum(rs.getInt("RESTAURANT_VIEW_NUM"));
 				rVO.setImage(rs.getString("RESTAURANT_IMAGE"));
 				rVO.setThumbNail(rs.getString("RESTAURANT_THUMBNAIL"));
@@ -254,6 +266,8 @@ public class RestaurantDAO {
 		return totalPage;
 	
 	}//selectTotalTagRestaurant
+	
+	
 	
 	public String selectRestaurantInfo( String id ) throws SQLException {
 		StringBuilder info = new StringBuilder("");
@@ -306,7 +320,7 @@ public class RestaurantDAO {
 	}//selectRestaurantInfo
 	
 	public RestaurantVO selectResturant( String id ) throws SQLException {
-		RestaurantVO rVO = new RestaurantVO();
+		RestaurantVO rVO = null;
 		DbConnection db = DbConnection.getInstance();
 		
 		Connection con = null;
@@ -316,22 +330,41 @@ public class RestaurantDAO {
 		try {
 			con = db.getConn("jdbc/dbcp");
 			
+			//조회수 + 1
+			StringBuilder updateViewNum = new StringBuilder();
+			updateViewNum
+			.append("	update restaurant	")
+			.append("	set RESTAURANT_VIEW_NUM = RESTAURANT_VIEW_NUM + 1	")
+			.append("	where RESTAURANT_ID = ?		")
+			;
+			pstmt = con.prepareStatement(updateViewNum.toString());
+			pstmt.setString(1, id);
+			
+			pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			
 			StringBuilder selectResturant = new StringBuilder();
 			selectResturant
-			.append("	select  alldata.*		")
-			.append("	from (	")
-			.append("	select row_number() over( order by a.RESTAURANT_NAME ) num, a.RESTAURANT_ID, a.RESTAURANT_NAME, ")
-			.append("	RESTAURANT_ADDR, RESTAURANT_TEL, RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE,		")
-			.append(" 	RESTAURANT_LIKE, RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE,	")
-			.append(" 	RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE,	")
-			.append(" 	listagg(t.tag_name, ' ') within group(order by a.RESTAURANT_ID) tag_name	")
-			.append(" 	from RESTAURANT a, RESTAURANT_TAGS t	")
-			.append(" 	where a.RESTAURANT_ID = t.RESTAURANT_ID(+)	")
-			.append("	group by a.RESTAURANT_NAME, a.RESTAURANT_ID, RESTAURANT_ADDR,RESTAURANT_TEL,	")
+			.append("	select data.* , ( select count(*) from RESTAURANT_REVIEW where RESTAURANT_ID = data.RESTAURANT_ID ) review_cnt,	")
+			.append("	( select count(*) from RESTAURANT_LIKE where RESTAURANT_ID = data.RESTAURANT_ID) restaurant_like,	")
+			.append("	( select nvl(trunc(avg(RESTAURANT_STAR_SCORE)),5) from RESTAURANT_REVIEW where RESTAURANT_ID = data.RESTAURANT_ID ) star_score,	")
+			.append("	( select listagg(convenience_name, ', ') within group(order by data.RESTAURANT_ID) CONVENIENCE_NAME	")
+			.append("		from RESTAURANT_CONVENIENCE where RESTAURANT_ID = data.RESTAURANT_ID group by RESTAURANT_ID ) RES_CONVENIENCE	")
+			.append("		from (	")
+			.append("	select a.RESTAURANT_ID RESTAURANT_ID,a.RESTAURANT_NAME,	")
+			.append("	RESTAURANT_ADDR, RESTAURANT_TEL, RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE,	")
+			.append("	RESTAURANT_LATITUDE, RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE,	")
+			.append("	RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE,	")
+			.append("	listagg(t.tag_name, ' ') within group(order by a.RESTAURANT_ID) tag_name	")
+			.append("		from RESTAURANT a, RESTAURANT_TAGS t	")
+			.append("	where a.RESTAURANT_ID = t.RESTAURANT_ID(+) and delete_state = 'N'	")
+			.append("		group by a.RESTAURANT_NAME, a.RESTAURANT_ID, RESTAURANT_ADDR,RESTAURANT_TEL,	")
 			.append("	RESTAURANT_SERVICE_HOURS, RESTAURANT_LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LIKE,	")
 			.append("	RESTAURANT_VIEW_NUM, RESTAURANT_IMAGE, RESTAURANT_THUMBNAIL, DELETE_STATE, RESTAURANT_UPLOAD_DATE	")
-			.append("	) alldata	")
-			.append("	where RESTAURANT_ID = ?		")
+			.append("		) data	")
+			.append("		where RESTAURANT_ID = ?		")
 			;
 			pstmt = con.prepareStatement(selectResturant.toString());
 			pstmt.setString(1, id);
@@ -339,6 +372,7 @@ public class RestaurantDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
+				rVO = new RestaurantVO();
 				rVO.setId(rs.getString("RESTAURANT_ID"));
 				rVO.setName(rs.getString("RESTAURANT_NAME"));
 				rVO.setAddr(rs.getString("RESTAURANT_ADDR"));
@@ -347,22 +381,61 @@ public class RestaurantDAO {
 				rVO.setTags(rs.getString("TAG_NAME"));
 				rVO.setLatitude(rs.getDouble("RESTAURANT_LATITUDE"));
 				rVO.setLongitude(rs.getDouble("RESTAURANT_LONGITUDE"));
-				rVO.setStarScore(3);
+				rVO.setStarScore(rs.getInt("star_score"));
 				rVO.setLike(rs.getInt("RESTAURANT_LIKE"));
-				rVO.setReviewCnt(10);
+				rVO.setConvenience(rs.getString("RES_CONVENIENCE"));
+				rVO.setReviewCnt(rs.getInt("review_cnt"));
 				rVO.setViewNum(rs.getInt("RESTAURANT_VIEW_NUM"));
 				rVO.setImage(rs.getString("RESTAURANT_IMAGE"));
 				rVO.setThumbNail(rs.getString("RESTAURANT_THUMBNAIL"));
 				rVO.setDeleteState(rs.getString("DELETE_STATE"));
 				rVO.setInputDate(rs.getDate("RESTAURANT_UPLOAD_DATE"));
-			}
-			
+			}//end if
+				
 		} finally {
 			db.dbClose(rs, pstmt, con);
 		}//end finally
 		return rVO;
 	}//end selectResturant
 	
+	public String[] selectUserLike( String userId, String contId ) throws SQLException {
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String[] result = new String[2];
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			StringBuilder selectLike = new StringBuilder();
+			selectLike
+			.append("	SELECT		")
+			.append("	    (SELECT COUNT(*) FROM restaurant_like where restaurant_id = ? and like_state='Y' ) AS like_cnt,		")
+			.append("		COALESCE(		")
+			.append("			(SELECT like_state FROM restaurant_like WHERE user_id = ? and restaurant_id= ?  ),'N'		")
+			.append("		) AS user_state		")
+			.append("	FROM DUAL		")
+			;
+			pstmt = con.prepareStatement(selectLike.toString());
+			pstmt.setString(1, contId);
+			pstmt.setString(2, userId);
+			pstmt.setString(3, contId);
+			
+			rs = pstmt.executeQuery();
+			
+			if( rs.next() ) {
+				result[0] = rs.getString("like_cnt");
+				result[1] = rs.getString("user_state");
+			}//end if
+			
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//finally
+		return result;
+	}//selectUserLike
 	
 	
 }//class

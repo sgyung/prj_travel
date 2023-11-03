@@ -28,16 +28,12 @@
 	TouristAreaDAO tDAO = TouristAreaDAO.getInstance();
 	TouristAreaVO taVO = tDAO.selectTouristArea(contId);
 	String info = tDAO.selectTouristAreaInfo(contId);
-	
 	//위도, 경도
 	Double TA_latitude = taVO.getLatitude();
 	Double TA_longitude = taVO.getLongitude();
 	pageContext.setAttribute("TA_latitude", TA_latitude);
 	pageContext.setAttribute("TA_longitude", TA_longitude);
 	
-	//별점
-	int starScore = tDAO.selectStarScore(contId);
-	pageContext.setAttribute("starScore", starScore);
 	//좋아요
 	int like = 0;
 	String likeState = "N";
@@ -106,7 +102,6 @@
 	int totalQnAPage = paging.getTotalPage(totalQnACnt, pageScale);
 	//화면에 보여질 페이지 시작번호[0], 끝번호[1] 
 	int[] pagePerRange = paging.getTotalPageCnt(qnaCurrentPage, totalQnAPage, pagePerNum);
-	
 	pageContext.setAttribute("startNum", pagePerRange[0]);
 	pageContext.setAttribute("endNum", pagePerRange[1]);
 	
@@ -255,20 +250,22 @@ $(function(){
 	var year = date.getFullYear().toString();
 	var month = (date.getMonth()+1).toString();
 	var day = date.getDate().toString().padStart(2, "0"); // 현재 날짜
-	var time = date.getHours().toString().padStart(2, "0") + "00"; //현재 시간
+	var currentTime = date.getHours()  
+	var time = ((currentTime - 1)<0? 0 : currentTime-1).toString().padStart(2, "0") + "00"; //현재 시간 (ex : 08:00)
 	
 	var baseDate = year+month+day;
 	
-	var weather = "";
-	var weatherImg = "";
+	var weather = ""
+	var weatherImg = ""
 	
+	//위도,경도 -> x,y좌표
 	var x = dfs_xy_conv("toXY",latitude, logitude).x;
 	var y = dfs_xy_conv("toXY",latitude, logitude).y;
 	
 	var url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
 		+ "?ServiceKey=BJ4MAwskx9P2PjNPlo9ulPIcvWbxV%2BFDDeeCcThcKLC7JuwuoCY%2FxLO52Uf3Au8khQOQcNI3tSXjYkadxluH5Q%3D%3D"
 		+ "&pageNo=1"
-		+ "&numOfRows=12"
+		+ "&numOfRows=100"
 		+ "&dataType=JSON"
 		+ "&base_date=" + baseDate
 		+ "&base_time=" + time
@@ -281,29 +278,35 @@ $(function(){
 			alert( xhr.status );
 		},
 		success : function( jsonData ){
-		//하늘상태(SKY)코드 : 맑음(1), 구름많음(3), 흐림(4)
-		//강수형태(PTY)코드 : 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
-			var SKY = jsonData.response.body.items.item[5].fcstValue;
-			var PTY = jsonData.response.body.items.item[6].fcstValue;
-			console.log("SKY : " + SKY );
-			console.log("PTY : " + PTY );
-			if( PTY == 0 ){
-				if( SKY == 1 ){
-					weather = "맑음"
-					weatherImg = "sun"
-				} else {
-					weather = "구름많음"
-					weatherImg = "cloud"
-				}//end else
+			if( jsonData.response.header.resultMsg == "NO_DATA" ){
+				weather = "맑음"
+				weatherImg = "sun"	
 			} else {
-				if( PTY == 1 || PTY == 4){
-					weather = "비"
-					weatherImg = "rain"
-				} else{
-					weather = "눈"
-					weatherImg = "snow"
+				//하늘상태(SKY)코드 : 맑음(1), 구름많음(3), 흐림(4)
+				//강수형태(PTY)코드 : 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
+				var SKY = jsonData.response.body.items.item[5].fcstValue;
+				var PTY = jsonData.response.body.items.item[6].fcstValue;
+				
+				if( PTY == 0 ){
+					if( SKY == 1 ){
+						weather = "맑음"
+						weatherImg = "sun"
+					} else {
+						weather = "구름많음"
+						weatherImg = "cloud"
+					}//end else
+				} else {
+					if( PTY == 1 || PTY == 4){
+						weather = "비"
+						weatherImg = "rain"
+					} else{
+						weather = "눈"
+						weatherImg = "snow"
+					}//end else
 				}//end else
 			}//end else
+				
+			
 				
 			$("#weather_img").attr("src", "http://192.168.10.133/prj_travel/common/images/icon_img/weather_g_" + weatherImg + ".png")
 			$("#weather_img").attr("alt", weather);
@@ -318,6 +321,12 @@ $(function(){
 	
 	//질문하기 버튼 클릭
 	$("#qnaBtn").click(function(){
+		var userId = $("#userId").val();
+		if (userId == null || userId == "" ){
+			alert("로그인 후 질문해주세요.");
+			return;
+		} //end if
+		
 		$("#qTitle").val("");
 		$("#qContent").val("");
 		$("#qnaPop").show();
@@ -379,44 +388,62 @@ $(function(){
 	
 	//질문작성완료
 	$("#qnaSubmitBtn").click(function(){
-		var userId = $("#userId").val(); //(임시) 로그인 후 session확인 하고 유효성검사
+		var userId = $("#userId").val();
 		var areaId = $("#areaId").val();
 		var areaType = $("#areaType").val();
 		var qContent = $("#qContent").val();
 		var qTitle = $("#qTitle").val();
 		
-		if (userId == null){
-			alert("로그인 후 질문해주세요.");
-		} else {
-			var jsonObj = {
-					"userId" : userId,
-					"areaId" : areaId,
-					"areaType" : areaType,
-					"content" : qContent,
-					"title" : qTitle
-			}
+		var jsonObj = {
+				"userId" : userId,
+				"areaId" : areaId,
+				"areaType" : areaType,
+				"content" : qContent,
+				"title" : qTitle
+		}
 			
-			$.ajax({
-				url : "../user_detail_QnA/qna_insert_process.jsp",
-				type : "GET",
-				data : jsonObj,
-				dataType : "JSON",
-				error : function( xhr ){
-					alert(xhr.status);
-				},
-				success : function( jsonObj ){
-					if( jsonObj.resultFlag ){
-						alert("문의가 등록 되었습니다.");
-						$("#qnaPop").hide();
-						$(".active").click();
-					}//end if
-				}//success
-			})//ajax
-			
-		}//else 
+		$.ajax({
+			url : "../user_detail_QnA/qna_insert_process.jsp",
+			type : "GET",
+			data : jsonObj,
+			dataType : "JSON",
+			error : function( xhr ){
+				alert(xhr.status);
+			},
+			success : function( jsonObj ){
+				if( jsonObj.resultFlag ){
+					alert("문의가 등록 되었습니다.");
+					$("#qnaPop").hide();
+					$(".active").click();
+				}//end if
+			}//success
+		})//ajax
+		
 	})//click
 	
 	$("#regsitReview").click(function(){
+		var userId = $("#userId").val();
+		if( userId == null || userId == ""){
+			alert("로그인 후 리뷰를 남겨주세요.");
+			return;
+		}//end if
+		var contId = $("#contId").val();
+		var areaType = ${"areaType"}.val();
+		$.ajax({
+			url : "http://192.168.10.133/prj_travel/user_detail_review/is_review.jsp",
+			data : { "contId" : contId, "userId" : userId, "areaType" : areaType },
+			type : "GET",
+			dataType : "json",
+			error : function( xhr ){
+				alert(xhr.status);
+			},
+			success : function( jsonObj ){
+				if( jsonObj.resultFlag ){
+					alert("리뷰는 한번만 작성 가능합니다.");
+					return;
+				}//end if
+			}//success
+		})//ajax
 		$("#reviewContent").val("");
 		$("#registReviewPop").show();
 	})//click
@@ -449,7 +476,6 @@ $(function(){
 	
 	//리뷰등록
 	$('#btn_regist').click(function(){
-		
 		var selectStar =  1;
 		$(".btn_score").each(function(i){
 			if( $(this).prop("class").includes("on") ){
@@ -457,10 +483,12 @@ $(function(){
 			};
 		})//each
 		
-		var areaId = $("#areaId").val();
 		var userId = $("#userId").val();
+		var areaId = $("#areaId").val();
 		var areaType = $("#areaType").val();
 		var rContent = $("#reviewContent").val();
+		
+		
 		var jsonObj = {
 				"areaId" : areaId,
 				"userId" : userId,
@@ -897,7 +925,7 @@ $(function(){
 					<!---->
 				</div>
 				<div class="score_area_l" data-v-09a75c9f="">
-					<p class="score_count_l" style="width:${ starScore * 20}%;" data-v-09a75c9f=""></p>
+					<p class="score_count_l" style="width:${ taVO.starScore * 20}%;" data-v-09a75c9f=""></p>
 				</div>
 				<div class="tag_area" data-v-09a75c9f="">
 					<p class="best_tag" data-v-09a75c9f="">
@@ -994,6 +1022,8 @@ $(function(){
        											</tr>
    											</thead>
    											<tbody data-v-db46a16a="" id="qnaTbody">
+   												<c:choose>
+   												<c:when test="${ not empty qnaList }">
    												<c:forEach var="qna" items="${ qnaList }">
    												<tr data-v-db46a16a=""  class="qnaList">
    													<td data-v-db46a16a="">
@@ -1007,6 +1037,13 @@ $(function(){
 													<input type="hidden" id="questionId" value="${ qna.qnaId }" />
 												</tr>
 												</c:forEach>
+												</c:when>
+												<c:otherwise>
+													<tr>
+														<td colspan="4" style="text-align:center; font-size:large; ">등록된 문의가 없습니다.</td>
+													</tr>
+												</c:otherwise>
+												</c:choose>
 											</tbody>
 										</table>
         						<input type="hidden" value="1" id="currentQnAPage" />
@@ -1014,10 +1051,14 @@ $(function(){
         						<input type="hidden" value="${ pagePerNum }" id="pagePerNum" />
         						<div class="know_paging_wrap" data-v-db46a16a=""  id="qna_paging">
         						<!---->
+        						<c:choose>
+        						<c:when test="${ endNum eq 0 }">
+        							<button type="button" class="active qna_page_btn">${startNum }</button>
+        						</c:when>
+        						<c:otherwise>
         						<c:forEach begin="${startNum }" end="${endNum }" var="num">
-        							
 	        						<c:choose>
-										<c:when test="${ num eq 1 }">
+										<c:when test="${ num eq 1 || endNum eq 0 }">
 											<button type="button" class="active qna_page_btn">${num}</button>
 										</c:when>
 										<c:otherwise>
@@ -1030,6 +1071,8 @@ $(function(){
 										</c:when>
 									</c:choose>
 								</c:forEach>
+								</c:otherwise>
+								</c:choose>
         						
        							</div>
         							
@@ -1078,6 +1121,8 @@ $(function(){
            			 							</div>
            			 							<div class="review_wrap">
            			 								<ul class="review_list" id="review_list">
+           			 									<c:choose>
+           			 									<c:when test="${ not empty reviewList }">
        			 										<c:forEach var="review" items="${ reviewList }">
 	           			 									<li id="contentsReviewItem0" class="review_item">
 	           			 										<div class="review_area clear">
@@ -1101,6 +1146,11 @@ $(function(){
 			 														</div>
 																</li>
 	 														</c:forEach>
+	 														</c:when>
+	 														<c:otherwise>
+	 															<li style="font-size:large; text-align:center">등록된 리뷰가 없습니다.</li>
+	 														</c:otherwise>
+           			 									</c:choose>
 														</ul>
 													</div>
 													<div class="paging">
@@ -1108,6 +1158,11 @@ $(function(){
         												<input type="hidden" value="${ totalReviewPage }" id="reviewTotalPage" />
         												<input type="hidden" value="${ pagePerNum }" id="reviewPerNum" />
 														<div id="paging" class="page-wrap">
+														<c:choose>
+														<c:when test="${ rEndNum eq 0 }">
+															<a href="javascript:void(0)" title="현재 페이지" class="current review_page_btn">${ rStartNum }</a>	
+														</c:when>
+														<c:otherwise>
 														<c:forEach begin="${rStartNum }" end="${rEndNum }" var="num">
 															<c:choose>
 																<c:when test="${ num eq 1 }">
@@ -1122,6 +1177,8 @@ $(function(){
 																<a href="javascript:void(0)" class="spr_com page-next" id="reviewNextBtn">다음 페이지</a>
 															</c:if>
 														</c:forEach>
+														</c:otherwise>
+														</c:choose>
 														</div>
 													</div>
 													
@@ -1203,7 +1260,7 @@ $(function(){
 	               											 <c:out value="${ taVO.slope }"/> 
                											 </dd>
                											 <dt>편의시설</dt>
-               											 <dd>편의시설 가데이터 넣기</dd>
+               											 <dd>${taVO.convenience }</dd>
                											 <!---->
           											 </dl>
           											 <!----><!----><!----><!---->

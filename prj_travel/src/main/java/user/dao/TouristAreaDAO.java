@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import kr.co.dao.DbConnection;
 import user.vo.RestaurantVO;
@@ -95,21 +94,28 @@ public class TouristAreaDAO {
 			
 			StringBuilder selectContent = new StringBuilder();
 			selectContent
-			.append("	select  alldata.*	")
-			.append("	from (	")
-			.append("	select row_number() over( order by a.tourist_area_name ) num, a.tourist_area_id, a.tourist_area_name, TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE, listagg(t.tag_name, ' ') within group(order by a.tourist_area_id) tag_name, nvl(trunc(avg(r.TOURIST_STAR_SCORE)),5) star_score, count(r.TOURIST_REVIEW_ID) review_cnt  ")
-			.append("	from tourist_area a, tourist_tags t, tourist_review r	")
-			.append(" 	where (a.tourist_area_id = t.tourist_area_id(+)) and ( a.tourist_area_id = r.tourist_area_id(+) )	 ")
-			.append("	group by a.tourist_area_name, a.tourist_area_id, TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE	 ")
-			.append("		) alldata	")
+			.append("	select data.* ,	")
+			.append("	( select count(*) from tourist_review where tourist_area_id = data.tourist_area_id ) review_cnt,	")
+			.append("	( select count(*) from tourist_like where tourist_area_id = data.tourist_area_id) tourist_area_like,	")
+			.append("	( select nvl(trunc(avg(TOURIST_STAR_SCORE)),5) from tourist_review where tourist_area_id = data.tourist_area_id ) star_score	 ")
+			.append(" 		from (	 ")
+			.append("	select row_number() over( order by a.TOURIST_AREA_NAME ) num, a.TOURIST_AREA_ID TOURIST_AREA_ID,a.TOURIST_AREA_NAME,	 ")
+			.append("	TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE,	")
+			.append("	TOURIST_AREA_LATITUDE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE,		")
+			.append("	TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE,		")
+			.append("	listagg(t.tag_name, ' ') within group(order by a.TOURIST_AREA_ID) tag_name		")
+			.append("		from TOURIST_AREA a, TOURIST_TAGS t		")
+			.append("	where a.TOURIST_AREA_ID = t.TOURIST_AREA_ID(+) and delete_state = 'N'		")
+			.append("		group by a.TOURIST_AREA_NAME, a.TOURIST_AREA_ID, TOURIST_AREA_ADDR,TOURIST_AREA_TEL,		")
+			.append("	TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE,		")
+			.append("	TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE		")
+			.append("	) data		")
 			.append("	where num between ? and ?		")
 			;
 			
 			pstmt = con.prepareStatement(selectContent.toString());
-			
 			pstmt.setInt(1, start);
 			pstmt.setInt(2, end);
-			
 			
 			rs = pstmt.executeQuery();
 			
@@ -172,7 +178,7 @@ public class TouristAreaDAO {
 		return totalPage;
 	}//selectTotalTouristArea
 	
-	public List<String> selectAllTags() throws SQLException{
+	public List<String> selectAllTags(int start, int end) throws SQLException{
 		List<String> list = new ArrayList<String>();
 		
 		DbConnection db = DbConnection.getInstance();
@@ -190,9 +196,11 @@ public class TouristAreaDAO {
 			.append("	select num, tag_name	")
 			.append("	from(select row_number() over( order by tourist_area_id ) num,	")
 			.append("	tag_name from (select distinct * from tourist_tags))	")
-			.append("	where num between 1 and 25	")
+			.append("	where num between ? and ?	")
 			;
 			pstmt = con.prepareStatement(selectTag.toString());
+			pstmt.setInt(1, start);
+			pstmt.setInt(2, end);
 			
 			rs = pstmt.executeQuery();
 			
@@ -220,30 +228,27 @@ public class TouristAreaDAO {
 			searchTag.append("%").append(tag).append("%");
 			StringBuilder selectContent = new StringBuilder();
 			selectContent
-			.append("	select  alldata.*		")
-			.append("	from(select rownum n, data.*		")
-			.append("	from (	")
-			.append("	select row_number() over( order by a.tourist_area_name ) num, a.tourist_area_id,	")
-			.append("	nvl(trunc(avg(r.TOURIST_STAR_SCORE)),5) star_score, count(r.TOURIST_REVIEW_ID) review_cnt,	")
-			.append("	a.tourist_area_name, TOURIST_AREA_ADDR, TOURIST_AREA_TEL,	")
-			.append("	TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE,	")
-			.append("	TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE,	")
-			.append("	TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL,	")
-			.append("	DELETE_STATE, TOURIST_AREA_UPLOAD_DATE,	")
-			.append("	listagg(t.tag_name, ' ') within group(order by a.tourist_area_id) tag_name	")
-			.append("	from tourist_area a, tourist_tags t, tourist_review r	")
-			.append("	where ( a.tourist_area_id = t.tourist_area_id(+) ) and ( a.tourist_area_id = r.tourist_area_id(+) )	")
-			.append("	group by a.tourist_area_name, a.tourist_area_id, TOURIST_AREA_ADDR,	")
-			.append("	TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO,	")
-			.append("	TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE,	")
-			.append("	TOURIST_AREA_LIKE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE,	")
-			.append("	TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE	")
-			.append("	) data	")
-			.append("	where tag_name like ? 	")
-			.append("	) alldata	")
-			.append("	where n between ? and ?	")
-			
+			.append("	select alldata.*	")
+			.append("	from(select rownum num, data.* ,	")
+			.append("	( select count(*) from tourist_review where tourist_area_id = data.tourist_area_id ) review_cnt,	")
+			.append("	( select count(*) from tourist_like where tourist_area_id = data.tourist_area_id) tourist_area_like,	")
+			.append("	( select nvl(trunc(avg(TOURIST_STAR_SCORE)),5) from tourist_review where tourist_area_id = data.tourist_area_id ) star_score	 ")
+			.append(" 		from (	 ")
+			.append("	select a.TOURIST_AREA_ID TOURIST_AREA_ID,a.TOURIST_AREA_NAME,	 ")
+			.append("	TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE,	")
+			.append("	TOURIST_AREA_LATITUDE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE,		")
+			.append("	TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE,		")
+			.append("	listagg(t.tag_name, ' ') within group(order by a.TOURIST_AREA_ID) tag_name		")
+			.append("		from TOURIST_AREA a, TOURIST_TAGS t		")
+			.append("	where a.TOURIST_AREA_ID = t.TOURIST_AREA_ID(+) and delete_state = 'N'		")
+			.append("		group by a.TOURIST_AREA_NAME, a.TOURIST_AREA_ID, TOURIST_AREA_ADDR,TOURIST_AREA_TEL,		")
+			.append("	TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE,		")
+			.append("	TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE		")
+			.append("	order by tourist_area_name ) data		")
+			.append("	where tag_name like ? ) alldata 		")
+			.append("	where num between ? and ? 		")
 			;
+			
 			pstmt = con.prepareStatement(selectContent.toString());
 			pstmt.setString(1, searchTag.toString());
 			pstmt.setInt(2, start);
@@ -264,7 +269,6 @@ public class TouristAreaDAO {
 				taVO.setTags(rs.getString("tag_name"));
 				taVO.setLatitude(rs.getDouble("tourist_area_latitude"));
 				taVO.setLongitude(rs.getDouble("tourist_area_longitude"));
-				taVO.setStarScore(rs.getInt("star_score"));
 				taVO.setLike(rs.getInt("tourist_area_like"));
 				taVO.setReviewCnt(rs.getInt("review_cnt"));
 				taVO.setViewNum(rs.getInt("tourist_area_view_num"));
@@ -272,8 +276,10 @@ public class TouristAreaDAO {
 				taVO.setThumbNail(rs.getString("tourist_area_thumbnail"));
 				taVO.setDeleteState(rs.getString("delete_state"));
 				taVO.setInputDate(rs.getDate("tourist_area_upload_date"));
+				taVO.setStarScore(rs.getInt("star_score"));
 				
 				selectList.add(taVO);
+				
 			}//end while
 			
 		}finally {
@@ -370,7 +376,6 @@ public class TouristAreaDAO {
 	public TouristAreaVO selectTouristArea( String id ) throws SQLException {
 		TouristAreaVO taVO = new TouristAreaVO();
 		DbConnection db = DbConnection.getInstance();
-		int updateCnt = 0;
 		
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -379,8 +384,8 @@ public class TouristAreaDAO {
 		
 		try {
 			con = db.getConn("jdbc/dbcp");
-			con.setAutoCommit(false);
 			
+			//조회수 + 1
 			StringBuilder updateViewNum = new StringBuilder();
 			updateViewNum
 			.append("	update tourist_area	")
@@ -390,53 +395,58 @@ public class TouristAreaDAO {
 			pstmt = con.prepareStatement(updateViewNum.toString());
 			pstmt.setString(1, id);
 			
-			updateCnt = pstmt.executeUpdate();
+			pstmt.executeUpdate();
 			
 			pstmt.close();
 			
-			if( updateCnt == 1) {
-				StringBuilder selectTouristArea = new StringBuilder();
-				selectTouristArea
-				.append("	select  alldata.*	")
-				.append("	from (	")
-				.append("	select row_number() over( order by a.tourist_area_name ) num, a.tourist_area_id, a.tourist_area_name, TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE, listagg(t.tag_name, ' ') within group(order by a.tourist_area_id) tag_name ")
-				.append("	from tourist_area a, tourist_tags t	")
-				.append(" 	where a.tourist_area_id = t.tourist_area_id(+) ")
-				.append("	group by a.tourist_area_name, a.tourist_area_id, TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE	 ")
-				.append("		) alldata	")
-				.append("	where tourist_area_id = ?		")
-				;
-				pstmt = con.prepareStatement(selectTouristArea.toString());
-				pstmt.setString(1, id);
-				
-				rs = pstmt.executeQuery();
-				
-				if(rs.next()) {
-					taVO = new TouristAreaVO();
-					taVO.setId(rs.getString("tourist_area_id"));
-					taVO.setName(rs.getString("tourist_area_name"));
-					taVO.setAddr(rs.getString("tourist_area_addr"));
-					taVO.setTel(rs.getString("tourist_area_tel"));
-					taVO.setServiceHour(rs.getString("tourist_area_service_hours"));
-					taVO.setPriceInfo(rs.getString("tourist_area_price_Info"));
-					taVO.setSlope(rs.getString("tourist_area_slope"));
-					taVO.setTags(rs.getString("tag_name"));
-					taVO.setLatitude(rs.getDouble("tourist_area_latitude"));
-					taVO.setLongitude(rs.getDouble("tourist_area_longitude"));
-					taVO.setStarScore(3);
-					taVO.setLike(rs.getInt("tourist_area_like"));
-					taVO.setReviewCnt(10);
-					taVO.setViewNum(rs.getInt("tourist_area_view_num"));
-					taVO.setImage(rs.getString("tourist_area_image"));
-					taVO.setThumbNail(rs.getString("tourist_area_thumbnail"));
-					taVO.setDeleteState(rs.getString("delete_state"));
-					taVO.setInputDate(rs.getDate("tourist_area_upload_date"));
-					
-				}//end if
-				con.commit();
-			} else {
-				con.rollback();
-			}//end else
+			StringBuilder selectTouristArea = new StringBuilder();
+			selectTouristArea
+			.append("	select data.* ,	")
+			.append("	( select count(*) from tourist_review where tourist_area_id = data.tourist_area_id ) review_cnt,	")
+			.append("	( select count(*) from tourist_like where tourist_area_id = data.tourist_area_id) tourist_area_like,	")
+			.append("	( select nvl(trunc(avg(TOURIST_STAR_SCORE)),5) from tourist_review where tourist_area_id = data.tourist_area_id ) star_score,	 ")
+			.append("	( select listagg(convenience_name, ',') within group(order by data.TOURIST_AREA_ID) convenience_name from TOURIST_CONVENIENCE where tourist_area_id = data.tourist_area_id group by tourist_area_id ) tourist_convenience	 ")
+			.append(" 		from (	 ")
+			.append("	select row_number() over( order by a.TOURIST_AREA_NAME ) num, a.TOURIST_AREA_ID TOURIST_AREA_ID,a.TOURIST_AREA_NAME,	 ")
+			.append("	TOURIST_AREA_ADDR, TOURIST_AREA_TEL, TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE,	")
+			.append("	TOURIST_AREA_LATITUDE, TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE,		")
+			.append("	TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE,		")
+			.append("	listagg(t.tag_name, ' ') within group(order by a.TOURIST_AREA_ID) tag_name		")
+			.append("		from TOURIST_AREA a, TOURIST_TAGS t		")
+			.append("	where a.TOURIST_AREA_ID = t.TOURIST_AREA_ID(+) and delete_state = 'N'		")
+			.append("		group by a.TOURIST_AREA_NAME, a.TOURIST_AREA_ID, TOURIST_AREA_ADDR,TOURIST_AREA_TEL,		")
+			.append("	TOURIST_AREA_SERVICE_HOURS, TOURIST_AREA_PRICE_INFO, TOURIST_AREA_SLOPE, TOURIST_AREA_LONGITUDE, TOURIST_AREA_LATITUDE, TOURIST_AREA_LIKE,		")
+			.append("	TOURIST_AREA_VIEW_NUM, TOURIST_AREA_IMAGE, TOURIST_AREA_THUMBNAIL, DELETE_STATE, TOURIST_AREA_UPLOAD_DATE		")
+			.append("	) data		")
+			.append("	where tourist_area_id = ?		")
+			;
+			pstmt = con.prepareStatement(selectTouristArea.toString());
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				taVO = new TouristAreaVO();
+				taVO.setId(rs.getString("tourist_area_id"));
+				taVO.setName(rs.getString("tourist_area_name"));
+				taVO.setAddr(rs.getString("tourist_area_addr"));
+				taVO.setTel(rs.getString("tourist_area_tel"));
+				taVO.setServiceHour(rs.getString("tourist_area_service_hours"));
+				taVO.setPriceInfo(rs.getString("tourist_area_price_Info"));
+				taVO.setSlope(rs.getString("tourist_area_slope"));
+				taVO.setTags(rs.getString("tag_name"));
+				taVO.setConvenience(rs.getString("tourist_convenience"));
+				taVO.setLatitude(rs.getDouble("tourist_area_latitude"));
+				taVO.setLongitude(rs.getDouble("tourist_area_longitude"));
+				taVO.setStarScore(rs.getInt("star_score"));
+				taVO.setLike(rs.getInt("tourist_area_like"));
+				taVO.setReviewCnt(rs.getInt("review_cnt"));
+				taVO.setViewNum(rs.getInt("tourist_area_view_num"));
+				taVO.setImage(rs.getString("tourist_area_image"));
+				taVO.setThumbNail(rs.getString("tourist_area_thumbnail"));
+				taVO.setDeleteState(rs.getString("delete_state"));
+				taVO.setInputDate(rs.getDate("tourist_area_upload_date"));
+			}//end if
 			
 		} finally {
 			db.dbClose(rs, pstmt, con);
@@ -473,24 +483,6 @@ public class TouristAreaDAO {
 		return result;
 	}//end updateTest
 	
-	public int updateViewNum(String id) throws SQLException {
-		int result = 0;
-		
-		DbConnection db = DbConnection.getInstance();
-		
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		try {
-			con = db.getConn("jdbc/dbcp");
-		} finally {
-			db.dbClose(null, pstmt, con);
-			
-		}
-		
-		return result;
-	}//updateViewNum
 	
 	public int selectStarScore( String id ) throws SQLException {
 		DbConnection db = DbConnection.getInstance();
@@ -833,6 +825,36 @@ public class TouristAreaDAO {
 			db.dbClose(rs, pstmt, con);
 		}
 	}//insertTouristArea 
+	
+	public boolean selectIsReview( String contId, String userId ) throws SQLException {
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		boolean resultFlag = false;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			pstmt = con.prepareStatement("	select count(*) cnt from tourist_review where tourist_area_id = ? and user_id = ?	");
+			pstmt.setString(1, contId);
+			pstmt.setString(2, userId);
+			
+			rs = pstmt.executeQuery();
+			System.out.println(rs.getInt("cnt"));
+			if( rs.getInt("cnt") == 1 ) {
+				resultFlag = true;
+			}//end if
+			
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//end finally
+		
+		return resultFlag;
+		
+	}//selectIsReview
 	
 }//class
 

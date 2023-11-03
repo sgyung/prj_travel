@@ -12,7 +12,7 @@
 <%
 	TouristAreaDAO dao = TouristAreaDAO.getInstance();
 
-	List<String> tagList = dao.selectAllTags();
+	List<String> tagList = dao.selectAllTags(1, 25);
 	for( int i = 0; i<tagList.size(); i++ ){
 		tagList.set(i, tagList.get(i).substring(1));
 	}//end for
@@ -265,7 +265,8 @@ $(function(){
 										<a data-v-2fbcbd64="" href="javascript:void(0)"  class="ta" id=" ${ i.index}">
 											<img data-v-2fbcbd64="" src="${ touristArea.image }" alt="${ touristArea.name } 사진" class="">
 											<p data-v-2fbcbd64="" class="s_tit">${ touristArea.name }</p>
-											<p data-v-2fbcbd64="" class="item_tag next">${ touristArea.tags }</p>						
+											<p data-v-2fbcbd64="" class="item_tag next">
+											${ touristArea.tags }</p>						
 											<div data-v-2fbcbd64="" class="score_area">
 											<p data-v-2fbcbd64="" class="score_count" style="width: ${ touristArea.starScore * 20}%;">별점(5점만점에 5점)</p>
 											${ touristArea.starScore}

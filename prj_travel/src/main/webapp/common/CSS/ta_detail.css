@@ -220,10 +220,11 @@ blockquote, body, button, caption, dd, div, dl, dt, fieldset, form, frame, h1, h
 }
 
 .sub_visual_wrap .sub_info_area .basic_information .info_sub_tit {
+	margin-bottom : 10px;
     float: left;
     width: 60px;
     height: 14px;
-    font-size: 14px;
+    font-size:  20px;
     line-height: 18px;
     color: #ccc;
 }
@@ -242,7 +243,7 @@ div.jisik-detail div.outline ul.jisik_list li div.qustion p.name[data-v-0fc691de
 
 .sub_visual_wrap .sub_info_area .basic_information .info_sub_cont {
     float: left;
-    /* width: 290px; */
+    width: 290px;
     min-height: 14px;
     font-size: 14px;
     color: #fff;

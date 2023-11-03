@@ -3,7 +3,7 @@ package user.vo;
 import java.util.Date;
 
 public class RestaurantVO {
-	private String id, name, addr, tel, serviceHour, priceInfo, slope, image, thumbNail, deleteState, tags;
+	private String id, name, addr, tel, serviceHour, priceInfo, slope, image, thumbNail, deleteState, tags, convenience;
 	private Double longitude, latitude;
 	private int starScore, like, reviewCnt, viewNum;
 	private Date inputDate;
@@ -13,7 +13,7 @@ public class RestaurantVO {
 	}
 
 	public RestaurantVO(String id, String name, String addr, String tel, String serviceHour, String priceInfo,
-			String slope, String image, String thumbNail, String deleteState, String tags, Double longitude,
+			String slope, String image, String thumbNail, String deleteState, String tags, String convenience, Double longitude, 
 			Double latitude, int starScore, int like, int reviewCnt, int viewNum, Date inputDate) {
 		super();
 		this.id = id;
@@ -33,6 +33,7 @@ public class RestaurantVO {
 		this.like = like;
 		this.reviewCnt = reviewCnt;
 		this.viewNum = viewNum;
+		this.convenience = convenience;
 		this.inputDate = inputDate;
 	}
 
@@ -178,6 +179,15 @@ public class RestaurantVO {
 
 	public void setInputDate(Date inputDate) {
 		this.inputDate = inputDate;
+	}
+
+	
+	public String getConvenience() {
+		return convenience;
+	}
+
+	public void setConvenience(String convenience) {
+		this.convenience = convenience;
 	}
 
 	@Override

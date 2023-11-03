@@ -52,7 +52,7 @@ public class TourBusDAO {
 				tVO.setChildFare(rs.getInt("CHILD_FARE"));
 				tVO.setStart(rs.getDate("BUSTOUR_START"));
 				tVO.setEnd(rs.getDate("BUSTOUR_END"));
-				tVO.setTime(rs.getDate("BUSTOUR_TIME"));
+				tVO.setTime(rs.getString("BUSTOUR_TIME"));
 				
 				tourList.add(tVO);
 				
@@ -92,7 +92,7 @@ public class TourBusDAO {
 				tVO.setChildFare(rs.getInt("CHILD_FARE"));
 				tVO.setStart(rs.getDate("BUSTOUR_START"));
 				tVO.setEnd(rs.getDate("BUSTOUR_END"));
-				tVO.setTime(rs.getDate("BUSTOUR_TIME"));
+				tVO.setTime(rs.getString("BUSTOUR_TIME"));
 				
 			}//end if
 			
