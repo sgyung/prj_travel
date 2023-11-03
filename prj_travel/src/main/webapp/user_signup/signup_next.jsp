@@ -217,7 +217,7 @@ $(function(){
 		// 비밀번호 유효성검사
 	    if(!getPw.test($("#password").val())) {
 	    	$("#warningBox").show();
-		    $("#warningBox").html("<p>비밀번호는 8~16자 영문(소문자), 숫자 를혼합해서 사용해야 됩니다.</p>");
+		    $("#warningBox").html("<p>비밀번호는 8~16자 영문(소문자), 숫자를 혼합해서 사용해야 됩니다.</p>");
 	        $("#password").val("");
 	        $("#password").focus();
 	        return false;

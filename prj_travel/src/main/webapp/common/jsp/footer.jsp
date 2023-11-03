@@ -25,8 +25,8 @@
         	</ul>
         	<p class="txt_copyright">Copyright©Jeju Tourism Organization, All rights reserved.</p>
         	<p class="txt_legal">홈페이지에 게시된 이메일 주소가 자동수집되는 것을 거부하며, 위반시 정보통신망법에 의해 처벌될 수 있습니다.</p>
-        	<div class="waCertification"><a href="#"><img src="https://api.visitjeju.net/editorStore/file/201811/12/5a2bca92-ef9d-4780-802d-4e92bb444944.png" border="0" alt="과학기술정보통신부 WEB ACCESSIBILITY 마크(웹 접근성 품질인증 마크)" title="국가 공인 인증기관 : 웹와치"></a></div>
-        	<div class="cetifications"><img src="https://api.visitjeju.net/editorStore/file/201910/02/4cf0ba85-38db-45da-8aa0-5d8a7d291ef3.png" alt="UNESCO, MAB, WORLD HERITAGE, GLOBAL GEOPARKS NETWORK, OFFICIAL NEW 7 WONDER OF NATURE, JEJU ISLAND"></div>
+        	<!-- <div class="waCertification"><a href="#"><img src="https://api.visitjeju.net/editorStore/file/201811/12/5a2bca92-ef9d-4780-802d-4e92bb444944.png" border="0" alt="과학기술정보통신부 WEB ACCESSIBILITY 마크(웹 접근성 품질인증 마크)" title="국가 공인 인증기관 : 웹와치"></a></div>
+        	<div class="cetifications"><img src="https://api.visitjeju.net/editorStore/file/201910/02/4cf0ba85-38db-45da-8aa0-5d8a7d291ef3.png" alt="UNESCO, MAB, WORLD HERITAGE, GLOBAL GEOPARKS NETWORK, OFFICIAL NEW 7 WONDER OF NATURE, JEJU ISLAND"></div> -->
         	
         </div> 
     </div>

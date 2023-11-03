@@ -165,7 +165,7 @@ $(function(){
 
 });//ready
 </script>
-</head>
+</head>	
 <body>
 <div class="wrap">
     
@@ -183,22 +183,22 @@ $(function(){
               <div class="carousel-item active">
                 <img src="https://api.cdn.visitjeju.net/imageResource/file/202308/28/2ecd4065-8db2-4c93-a703-c9bd431318e6.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>First slide label</h5>
-                  <p>Some representative placeholder content for the first slide.</p>
+                  <!-- <h5>First slide label</h5>
+                  <p>Some representative placeholder content for the first slide.</p> -->
                 </div>
               </div>
               <div class="carousel-item">
                 <img src="https://api.cdn.visitjeju.net/imageResource/file/202309/14/c7ad2aee-4294-4f1a-ad66-f17a6ee1e52c.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>Second slide label</h5>
-                  <p>Some representative placeholder content for the second slide.</p>
+                  <!-- <h5>Second slide label</h5>
+                  <p>Some representative placeholder content for the second slide.</p> -->
                 </div>
               </div>
               <div class="carousel-item">
                 <img src="https://api.cdn.visitjeju.net/imageResource/file/202309/26/bb18bd3f-f10d-4e5c-bfeb-2ad596185d01.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                  <h5>Third slide label</h5>
-                  <p>Some representative placeholder content for the third slide.</p>
+                  <!-- <h5>Third slide label</h5>
+                  <p>Some representative placeholder content for the third slide.</p> -->
                 </div>
               </div>
             </div>
@@ -269,7 +269,7 @@ $(function(){
         	
         		<ul class="mainQuickWrap">
         			<c:forEach var="tourTags" items="${ tourTags }" varStatus="i" begin="0" end="9">
-	        			<li><a href="../user_restaurant/restaurant.jsp?tag=${ tourTags }">#${ tourTags }</a></li>
+	        			<li><a href="../user_restaurant/restaurant.jsp?tag=${ tourTags }">${ tourTags }</a></li>
         			</c:forEach>
                 </ul>
         	</div>
@@ -277,7 +277,7 @@ $(function(){
         	<div class="tour_tag_list">
         		<ul class="mainQuickWrap">
 	        		<c:forEach var="restTags" items="${ restTags }" varStatus="i" begin="0" end="9">
-	        			<li><a href="../user_tourist_area/touristArea.jsp?tag=${ restTags }">#${ restTags }</a></li>
+	        			<li><a href="../user_tourist_area/touristArea.jsp?tag=${ restTags }">${ restTags }</a></li>
         			</c:forEach>
                 </ul>
         	</div>

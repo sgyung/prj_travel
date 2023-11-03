@@ -143,122 +143,109 @@ List<PostVO> postList = pDAO.selectPost(userid);
 <script type="text/javascript">
 $(function(){
 	
-$("#mypage_btn").click(function(){
-	location.href ="../user_mypage/mypage.jsp"
-});
+	$("#mypage_btn").click(function(){
+		location.href ="../user_mypage/mypage.jsp"
+	});
+	
 });
 </script>
 
 </head>
 <body>
 <!-- 메인 배너 -->
-<div class="wrap">
-    <div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li>관광지</li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>
-    </div>
- <div class="head">
- <i class="bi bi-info-circle"></i><span>내가쓴글 - 게시판</span>
-  </div> 
+
+<%@ include file="../common/jsp/header.jsp" %>
+
  <div class="line"></div>
-   <div class="wrapper">
-      <!-- Content Wrapper. Contains page content -->
-      <div class="content">
-         <div class="content-header">
-            <div class="container-fluid">
-               <div class="row mb-1">
-                  <div class="col-sm-1">
-                     <!-- <h1 class="m-0">회원관리</h1> -->
-                  </div>
-                  <!-- /.col -->
-               </div>
-               <!-- /.row -->
-            </div>
-            <!-- /.container-fluid -->
-         </div>
-         <!-- /.content-header -->
-<form action="admin_user_info.jsp" method="post" id="hidFrm">
-   <input type="hidden" name="id" id="id"/>
-</form>
-<form action="admin_user_post.jsp" method="post" id="postHidFrm">
-   <input type="hidden" name="id" id="post" />
-</form>
+	<div class="wrapper">
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content">
+			<div class="content-header">
+				<div class="container-fluid">
+					<div class="row mb-1">
+						<div class="col-sm-1">
+							<!-- <h1 class="m-0">회원관리</h1> -->
+						</div>
+						<!-- /.col -->
+					</div>
+					<!-- /.row -->
+				</div>
+				<!-- /.container-fluid -->
+			</div>
+			<!-- /.content-header -->
+			<form action="admin_user_info.jsp" method="post" id="hidFrm">
+				<input type="hidden" name="id" id="id" />
+			</form>
+			<form action="admin_user_post.jsp" method="post" id="postHidFrm">
+				<input type="hidden" name="id" id="post" />
+			</form>
 
-<jsp:useBean id="pVO" class="user_mypageVO.PostVO" scope="page"/>
-<jsp:setProperty property="*" name="pVO"/>
+			<jsp:useBean id="pVO" class="user_mypageVO.PostVO" scope="page" />
+			<jsp:setProperty property="*" name="pVO" />
 
-   <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">게시물 목록</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 150px"></th>
-                      <th style="width: 150px">작성일</th>
-                      <th style="width: 120px">카테고리</th>
-                      <th style="width: 60px">답변</th>
-                    </tr>
-                  </thead>
-                  <tbody>
 
-         <tr>
-            <td name="title"><a href="post_detail.jsp">asd</a></td>
-            <td>2023-10-27 </td>
-            <td>맛집</td>
-            <td>1</td>
-          </tr>                   
-                  </tbody>
-                </table>
-              </div>
-              <!-- /.card-body -->
-              <div class="card-footer clearfix">
-                <ul class="pagination justify-content-center" >
-                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-                </ul>
-                <div style="text-align: center" >
-                <input type="text" id="input" class="inputBox" style="width: 200px; height: 30px;" placeholder="제목을 입력해주세요."/>
-                <div style="display: inline-block;" >
-                <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
-                </div>
-                </div>
-              </div>
-            </div>
-            </div>
-            </div>
-           </div>
-         </section>
-      </div>
-          <button type="submit" class="btn btn-primary" id="mypage_btn" >마이페이지</button>
-   </div>
-          <div class="footer"><%@ include file="../common/jsp/footer.jsp" %></div>
+			<div class="card-header">
+				<h3 class="card-title">게시물 목록</h3>
+			</div>
+			<!-- /.card-header -->
+			<div class="card-body">
+
+				<table class="table table-bordered">
+
+					<thead>
+						<tr>
+							<th style="width: 150px"></th>
+							<th style="width: 150px">작성일</th>
+							<th style="width: 120px">카테고리</th>
+							<th style="width: 60px">답변</th>
+						</tr>
+					</thead>
+					<tbody>
+
+						<tr>
+							<td name="title"><a href="post_detail.jsp">asd</a></td>
+							<td>2023-10-27</td>
+							<td>맛집</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td name="title"><a href="post_detail.jsp">asd</a></td>
+							<td>2023-10-27</td>
+							<td>맛집</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td name="title"><a href="post_detail.jsp">asd</a></td>
+							<td>2023-10-27</td>
+							<td>맛집</td>
+							<td>1</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- /.card-body -->
+			<div class="card-footer clearfix">
+				<ul class="pagination justify-content-center">
+					<li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+					<li class="page-item"><a class="page-link" href="#">1</a></li>
+					<li class="page-item"><a class="page-link" href="#">2</a></li>
+					<li class="page-item"><a class="page-link" href="#">3</a></li>
+					<li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+				</ul>
+				<div style="text-align: center">
+					<input type="text" id="input" class="inputBox"
+						style="width: 200px; height: 30px;" placeholder="제목을 입력해주세요." />
+					<div style="display: inline-block;">
+						<input type="button" id="search" class="btn btn-warning"
+							style="width: 80px; margin-left: 10px; font-size: 13px"
+							value="검색" />
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- <button type="submit" class="btn btn-primary" id="mypage_btn" >마이페이지</button> -->
+	</div>
+
+	<%@ include file="../common/jsp/footer.jsp" %>
 </body>
 </html>
