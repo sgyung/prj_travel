@@ -183,7 +183,7 @@ public class TourBusDAO {
 			if( rs.next() ) {
 				reservation_id = rs.getString("reservation_id");
 			}//end if
-			
+		
 			pstmt.close();
 			pstmt=null;
 			
@@ -214,6 +214,7 @@ public class TourBusDAO {
 			
 			con.commit();
 		} catch(SQLException se ) {
+			se.printStackTrace();
 			con.rollback();
 		} finally {
 			db.dbClose(rs, pstmt, con);
@@ -221,4 +222,42 @@ public class TourBusDAO {
 		
 	}//insertTourReservation
 	
+	public int selectReservedSeat( TourReserveVO trVO ) throws SQLException {
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int result = 0;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			StringBuilder selectSeat = new StringBuilder();
+			selectSeat
+			.append("	select SUM(p.adult + p.child) total_people	")
+			.append("	from bustour_reservation r, people_num p	")
+			.append("	where r.reservation_id = p.reservation_id	")
+			.append("	and ( r.bustour_id= ? )	")
+			.append("	and (  RESERVATION_TIME = ? )	")
+			.append("	and ( RESERVATION_DATE = ?	)	")
+			;
+			pstmt = con.prepareStatement(selectSeat.toString());
+			pstmt.setString(1, trVO.getTourId());
+			pstmt.setString(2, trVO.getTime());
+			pstmt.setDate(3, trVO.getReserveDate());
+			rs = pstmt.executeQuery();
+			
+			if( rs.next() ) {
+				result = rs.getInt("total_people");
+			}//end if
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//end finally
+		
+		return result;
+	}//selectReservedSeat
+	
 }//class
+

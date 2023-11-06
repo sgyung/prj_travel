@@ -1,3 +1,5 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="user_mypageDAO.MyQnADAO"%>
 <%@page import="user.vo.QnAVO"%>
 <%@page import="user.dao.QnADAO"%>
 <%@page import="pageUtil.Paging"%>
@@ -9,12 +11,21 @@
 <%
 	String selectPage = request.getParameter("selectPage");
 	String pageScale = request.getParameter("pageScale");
+	String userId = request.getParameter("userId");
 	
 	Paging paging = Paging.getInstance();
 	int[] pageRange = paging.getPageRowRange(Integer.parseInt(selectPage), Integer.parseInt(pageScale));
 	
-	QnADAO qDAO = QnADAO.getInstance();
-	List<QnAVO> qnaList = qDAO.selectPageQnA(pageRange[0], pageRange[1]);
+	List<QnAVO> qnaList = new ArrayList<>();
+	System.out.println(userId);
+	if( userId != null ){
+		MyQnADAO mqnaDAO = MyQnADAO.getInstance();
+		qnaList = mqnaDAO.selectPageQnA(pageRange[0], pageRange[1], userId);
+	} else {
+		QnADAO qDAO = QnADAO.getInstance();
+		qnaList = qDAO.selectPageQnA(pageRange[0], pageRange[1]);
+	}//end else
+	
 	
 	StringBuilder qnaListHtml = new StringBuilder();
 	for( QnAVO vo : qnaList ){

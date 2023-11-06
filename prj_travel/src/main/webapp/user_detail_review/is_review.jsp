@@ -12,7 +12,6 @@
 	ReviewDAO reDAO = ReviewDAO.getInstance();
 	
 	boolean resultFlag = reDAO.selectIsReview(contId, userId, areaType);
-			
 	JSONObject jsonObj = new JSONObject();
 	jsonObj.put("resultFlag", resultFlag);
 	

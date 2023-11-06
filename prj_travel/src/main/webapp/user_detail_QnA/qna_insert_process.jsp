@@ -25,10 +25,14 @@
 	qVO.setType(areaType);
 	
 	QnADAO qDAO = QnADAO.getInstance();
+	
 	try{
 	qDAO.insertQnA(qVO);
+	int qnaCnt = qDAO.selectTotalQnA();
+	
 	resultFlag = true;
 	jsonObj.put("resultFlag", resultFlag);
+	jsonObj.put("qnaCnt", qnaCnt);
 	
 	
 	} catch( SQLException se) {

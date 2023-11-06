@@ -34,36 +34,70 @@ public class ReviewDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
+		String areaType = areaId.split("_")[0];
 		try {
 			con = db.getConn("jdbc/dbcp");
-			
 			StringBuilder selectReview = new StringBuilder();
-			selectReview
-			.append("	select totalReview.*	")
-			.append("	from (select row_number() over( order by tourist_review_date desc ) num,	")
-			.append("	TOURIST_REVIEW_ID, TOURIST_AREA_ID, USER_ID, TOURIST_REVIEW_CONTENT,	")
-			.append("	TOURIST_STAR_SCORE, TOURIST_REVIEW_DATE	")
-			.append("	from tourist_review where tourist_area_id= ? ) totalReview	")
-			.append("	where num between ? and ?	")
-			;
-			pstmt = con.prepareStatement(selectReview.toString());
-			pstmt.setString(1,  areaId);
-			pstmt.setInt(2, start);
-			pstmt.setInt(3, end);
 			
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				ReviewVO rVO = new ReviewVO();
-				rVO.setReviewId(rs.getString("TOURIST_REVIEW_ID"));
-				rVO.setAreaId(rs.getString("TOURIST_AREA_ID"));
-				rVO.setUserId(rs.getString("USER_ID"));
-				rVO.setContent(rs.getString("TOURIST_REVIEW_CONTENT"));
-				rVO.setStarScore(rs.getInt("TOURIST_STAR_SCORE"));
-				rVO.setDate(rs.getDate("TOURIST_REVIEW_DATE"));
+			if( areaType.equals("TA")) {
+					
+					selectReview
+					.append("	select totalReview.*	")
+					.append("	from (select row_number() over( order by tourist_review_date desc ) num,	")
+					.append("	TOURIST_REVIEW_ID, TOURIST_AREA_ID, USER_ID, TOURIST_REVIEW_CONTENT,	")
+					.append("	TOURIST_STAR_SCORE, TOURIST_REVIEW_DATE	")
+					.append("	from tourist_review where tourist_area_id= ? ) totalReview	")
+					.append("	where num between ? and ?	")
+					;
+					pstmt = con.prepareStatement(selectReview.toString());
+					pstmt.setString(1,  areaId);
+					pstmt.setInt(2, start);
+					pstmt.setInt(3, end);
+					
+					rs = pstmt.executeQuery();
+					
+					while(rs.next()) {
+						ReviewVO rVO = new ReviewVO();
+						rVO.setReviewId(rs.getString("TOURIST_REVIEW_ID"));
+						rVO.setAreaId(rs.getString("TOURIST_AREA_ID"));
+						rVO.setUserId(rs.getString("USER_ID"));
+						rVO.setContent(rs.getString("TOURIST_REVIEW_CONTENT"));
+						rVO.setStarScore(rs.getInt("TOURIST_STAR_SCORE"));
+						rVO.setDate(rs.getDate("TOURIST_REVIEW_DATE"));
+						
+						reviewList.add(rVO);
+					}//end while
 				
-				reviewList.add(rVO);
-			}//end while
+			} else {
+				selectReview
+				.append("	select totalReview.*	")
+				.append("	from (select row_number() over( order by RESTAURANT_REVIEW_DATE desc ) num,	")
+				.append("	REVIEW_ID, RESTAURANT_ID, USER_ID, RESTAURANT_REVIEW_CONTENT,	")
+				.append("	RESTAURANT_STAR_SCORE, RESTAURANT_REVIEW_DATE	")
+				.append("	from RESTAURANT_REVIEW	")
+				.append("	where RESTAURANT_ID= ?	) totalReview	")
+				.append("	where num between ? and ?	")
+				;
+				pstmt = con.prepareStatement(selectReview.toString());
+				pstmt.setString(1,  areaId);
+				pstmt.setInt(2, start);
+				pstmt.setInt(3, end);
+				
+				rs = pstmt.executeQuery();
+				
+				while(rs.next()) {
+					ReviewVO rVO = new ReviewVO();
+					rVO.setReviewId(rs.getString("REVIEW_ID"));
+					rVO.setAreaId(rs.getString("RESTAURANT_ID"));
+					rVO.setUserId(rs.getString("USER_ID"));
+					rVO.setContent(rs.getString("RESTAURANT_REVIEW_CONTENT"));
+					rVO.setStarScore(rs.getInt("RESTAURANT_STAR_SCORE"));
+					rVO.setDate(rs.getDate("RESTAURANT_REVIEW_DATE"));
+					
+					reviewList.add(rVO);
+				}//end while
+				
+			}//end else
 			
 		} finally {
 			db.dbClose(rs, pstmt, con);
@@ -79,10 +113,16 @@ public class ReviewDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
+		String areaId = contid.split("_")[0];
+		
 		try {
 			con = db.getConn("jdbc/dbcp");
 			
-			pstmt = con.prepareStatement("	select count(*) cnt from tourist_review where tourist_area_id= ? 	");
+			if( areaId.equals("TA")) {
+				pstmt = con.prepareStatement("	select count(*) cnt from tourist_review where tourist_area_id= ? 	");
+			} else {
+				pstmt = con.prepareStatement("	select count(*) cnt from restaurant_review where restaurant_id= ? 	");
+			}
 			pstmt.setString(1, contid);
 			
 			rs = pstmt.executeQuery();
@@ -139,7 +179,6 @@ public class ReviewDAO {
 	
 	public boolean selectIsReview( String contId, String userId, String areaType ) throws SQLException {
 		DbConnection db = DbConnection.getInstance();
-		
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -151,18 +190,19 @@ public class ReviewDAO {
 			
 			String selectReview = "";
 			if( areaType.equals("관광지")) {
-				selectReview = "	select count(*) cnt from tourist_review where tourist_area_id = ? and user_id = ?	";
+				selectReview = "	select *  from tourist_review where tourist_area_id = ? and user_id = ?	";
 			} else {
-				selectReview = "	select count(*) cnt from restaurant_review where restaurant_id = ? and user_id = ?	";
+				selectReview = "	select *  from restaurant_review where restaurant_id = ? and user_id = ?	";
 			}//end else
 			
 			pstmt = con.prepareStatement(selectReview);
-			
 			pstmt.setString(1, contId);
 			pstmt.setString(2, userId);
+			
 			rs = pstmt.executeQuery();
-			if( rs.getInt("cnt") == 1 ) {
-				resultFlag = true;
+			
+			if( rs.next() ) {
+					resultFlag = true;
 			}//end if
 			
 		} finally {
@@ -174,3 +214,4 @@ public class ReviewDAO {
 	}//selectIsReview
 	
 }//class
+;

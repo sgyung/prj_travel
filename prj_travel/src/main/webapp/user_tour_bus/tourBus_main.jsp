@@ -19,7 +19,11 @@
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="http://192.168.10.133/prj_travel/common/CSS/tour_bus.css">
+<!-- header&footer css -->
+<link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
+
+
 </style>
 <c:catch var="se" >
 <%
@@ -44,9 +48,8 @@ $(function(){
 </script>
 </head>
 <body>
-<%@ include file="../common/jsp/header.jsp" %>
 <div class="wrap">
-    
+<%@ include file="../common/jsp/header.jsp" %>
     <div class="container" id="content">
     	<section class="sub-header-wrap" style="background:url(../common/images/tour_bus_img/tour_bus_main.png) no-repeat center top;">
 			<div class="mtit"></div>
@@ -71,7 +74,7 @@ $(function(){
 									<f:formatNumber value="${ tour.childFare }" pattern="#,##0" var="childFare" />
 										<span>성인 ${ adultFare } 원 / 소인 ${ childFare } 원</span>
 										<a href="tourBus_detail.jsp?tourbus_contId=${ tour.id }" style="text-decoration :none">
-											<button type="button" >코스선택</button>
+											<button type="button" style="cursor: pointer">코스선택</button>
 										</a>
 								</div>
 							</div>
@@ -106,7 +109,7 @@ $(function(){
 		</section>
     	
     </div>
-    
+    <%@ include file="../common/jsp/footer.jsp" %>
 </div>
 </body>
 </html>

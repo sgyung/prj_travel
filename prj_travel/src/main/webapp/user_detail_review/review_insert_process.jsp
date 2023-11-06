@@ -14,6 +14,7 @@
 	String starScore = request.getParameter("starScore");
 	
 	boolean resultFlag = false;
+	int reviewCnt = 0;
 	JSONObject  jsonObj = new JSONObject();
 	
 	ReviewVO rVO = new ReviewVO();
@@ -25,12 +26,15 @@
 	try{
 		ReviewDAO rDAO = ReviewDAO.getInstance();
 		rDAO.insertReview(rVO);
+		reviewCnt = rDAO.selectTotalReview(areaId);
+		
 		resultFlag = true;
 	} catch(SQLException se ){
 		se.printStackTrace();
 	}//end catch
 	
 	jsonObj.put("resultFlag" , resultFlag);
+	jsonObj.put("reviewCnt" , reviewCnt);
 	
 	out.print(jsonObj);
 %>

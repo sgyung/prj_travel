@@ -17,7 +17,7 @@ public class QnADAO {
 	
 	private QnADAO() {
 		
-	}//TouristAreaDAO
+	}//QnADAO
 	
 	public static QnADAO getInstance() {
 		if( qnaDAO == null ) {
@@ -129,12 +129,20 @@ public class QnADAO {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		
+		String areaType = "";
 		try {
 			con = db.getConn("jdbc/dbcp");
 			
+			if( qVO.getType().equals("관광지")) {
+				areaType = "TOURIST_AREA_ID";
+			} else {
+				areaType = "RESTAURANT_ID";
+			}
+			
 			StringBuilder insertQuestion = new StringBuilder();
 			insertQuestion
-			.append("	insert into qna( INQUIRY_ID, USER_ID, TOURIST_AREA_ID, QNA_TITLE, QNA_TYPE, QNA_CONTENT, QNA_DATE, ANSWER_STATE )	")
+			.append("	insert into qna( INQUIRY_ID, USER_ID, ").append(areaType).append( ", QNA_TITLE, QNA_TYPE, QNA_CONTENT, QNA_DATE, ANSWER_STATE )	")
 			.append("  	values( qna_seq.nextval, ?,  ?,  ?, ?, ?, sysdate, 'N')	 ")
 			;
 			pstmt = con.prepareStatement(insertQuestion.toString());
@@ -175,6 +183,6 @@ public class QnADAO {
 		}//end finally
 		return totalQnA;
 	}//selectTotalQnA
-	
-
+		
+		
 }//class

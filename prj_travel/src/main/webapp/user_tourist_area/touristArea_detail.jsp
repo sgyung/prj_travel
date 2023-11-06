@@ -13,7 +13,7 @@
 <%
 	String contId = request.getParameter("contentInfo");
 	String userId = (String) session.getAttribute("sesId");
-
+	
 	if( contId == null || contId.isEmpty() ){
 		response.sendRedirect("touristArea.jsp");
 		return;
@@ -138,7 +138,26 @@
 <!-- header&footer css -->
 <link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
+.review_txt {
+    word-wrap: break-word;
+    white-space: pre-line;
+}
 
+.review_item{
+    overflow: hidden;
+    height: 100px;
+}
+
+#reviewText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#readMoreBtn {
+    display: none; /* 초기에는 버튼을 숨김 */
+    cursor: pointer;
+}
 </style>
 <script language="javascript">
 //소스출처 : http://www.kma.go.kr/weather/forecast/digital_forecast.jsp  내부에 있음
@@ -344,7 +363,7 @@ $(function(){
 		var qnaId = $(this).find("input[type=hidden]").val();
 		var output = "";
 		$.ajax({
-			url : "../user_detail_QnA/qna_detail_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_detail_process.jsp",
 			type : "GET",
 			data : "qnaId=" + qnaId,
 			dataType : "JSON",
@@ -403,17 +422,18 @@ $(function(){
 		}
 			
 		$.ajax({
-			url : "../user_detail_QnA/qna_insert_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_insert_process.jsp",
 			type : "GET",
 			data : jsonObj,
 			dataType : "JSON",
 			error : function( xhr ){
-				alert(xhr.status);
+				console.log(xhr.status);
 			},
 			success : function( jsonObj ){
 				if( jsonObj.resultFlag ){
 					alert("문의가 등록 되었습니다.");
 					$("#qnaPop").hide();
+					$("#qnaCnt").text("(" + jsonObj.qnaCnt + ")");
 					$(".active").click();
 				}//end if
 			}//success
@@ -427,8 +447,9 @@ $(function(){
 			alert("로그인 후 리뷰를 남겨주세요.");
 			return;
 		}//end if
-		var contId = $("#contId").val();
-		var areaType = ${"areaType"}.val();
+		var contId = $("#areaId").val();
+		var areaType = $("#areaType").val();
+
 		$.ajax({
 			url : "http://192.168.10.133/prj_travel/user_detail_review/is_review.jsp",
 			data : { "contId" : contId, "userId" : userId, "areaType" : areaType },
@@ -441,11 +462,12 @@ $(function(){
 				if( jsonObj.resultFlag ){
 					alert("리뷰는 한번만 작성 가능합니다.");
 					return;
-				}//end if
+				} else {
+					$("#reviewContent").val("");
+					$("#registReviewPop").show();
+				}//end else
 			}//success
 		})//ajax
-		$("#reviewContent").val("");
-		$("#registReviewPop").show();
 	})//click
 	
 	$("#reviewCancel").click(function(){
@@ -498,7 +520,7 @@ $(function(){
 		}
 		
 		$.ajax({
-			url : "../user_detail_review/review_insert_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_review/review_insert_process.jsp",
 			type : "get",
 			data : jsonObj,
 			dataType : "json",
@@ -508,7 +530,7 @@ $(function(){
 			success : function( jsonObj ){
 				if( jsonObj.resultFlag ){
 					alert("리뷰가 등록 되었습니다");
-					
+					$("#reviewTotal").text("( " +jsonObj.reviewCnt + " )");
 					$("#registReviewPop").hide();
 					$(".current").click();
 				}//end if
@@ -537,7 +559,7 @@ $(function(){
 				};
 		
 		$.ajax({
-			url : "../user_detail_review/review_page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_review/review_page_process.jsp",
 			type : "get",
 			data : jsonObj,
 			dataType : "json",
@@ -593,7 +615,7 @@ $(function(){
 				};
 		
 		$.ajax({
-			url : "../user_detail_QnA/qna_page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_page_process.jsp",
 			type : "get",
 			data : jsonObj,
 			dataType : "HTML",
@@ -896,8 +918,26 @@ $(function(){
 		}//else
 	})//click
 	
-	
-	
+	//리뷰 더보기
+	var reviewText = $("#reviewText");
+    var readMoreBtn = $("#readMoreBtn");
+
+    // 원래 텍스트 내용 저장
+    var originalText = reviewText.text();
+
+    // 일정 길이 이상인 경우 "..."을 추가하고 "더 읽기" 버튼을 표시
+    var maxLength = 100; // 원하는 길이로 설정
+    if (originalText.length > maxLength) {
+        var truncatedText = originalText.substring(0, maxLength) + "...";
+        reviewText.text(truncatedText);
+        readMoreBtn.show(); // 버튼 표시
+    }
+
+    // "더 읽기" 버튼 클릭 시 전체 텍스트 표시
+    readMoreBtn.on("click", function() {
+        reviewText.text(originalText);
+        readMoreBtn.hide(); // 버튼 숨김
+    });
 	
 });//ready
 </script>
@@ -1010,7 +1050,7 @@ $(function(){
 								<div id="tab6" class="add2020_detail_tab_box" data-v-09a75c9f="">
 									<h2 data-v-09a75c9f=""><a  data-v-09a75c9f="" id="qnaFadeBtn" class="up">질문<span class="arrow" data-v-09a75c9f=""></span></a></h2>
 									<div id="stab6" transition="fadeIn" class="add2020_detail_con tab_cont kr" style data-v-db46a16a="" data-v-09a75c9f=""><p class="jisik_tit" data-v-db46a16a="">
-        								문의게시판 <span data-v-db46a16a=""><c:out value="(${ qnaTotalCnt })" /></span>
+        								문의게시판 <span id="qnaCnt"  data-v-db46a16a=""><c:out value="(${ qnaTotalCnt })" /></span>
         								<button type="button" data-v-db46a16a="" id="qnaBtn">문의하기</button></p>
         								<table class="jisik_list" data-v-db46a16a="">
         									<thead data-v-db46a16a="">
@@ -1109,7 +1149,8 @@ $(function(){
                    			 <li data-v-09a75c9f="">
                    			 	<div id="tab3" class="add2020_detail_tab_box" data-v-09a75c9f="">
                    			 		<h2 data-v-09a75c9f=""><a data-v-09a75c9f="" id="reviewFadeBtn" class="up">리뷰<span class="arrow" data-v-09a75c9f="">축소됨</span></a></h2>
-                   			 			<div id="stab3" transition="fadeIn" class="add2020_detail_con tab_cont " style data-v-09a75c9f=""><p class="cont_tit">여행가의 리뷰<span id="reviewTotal" style="font-weight: 800; color: rgb(239, 109, 0); line-height: 24px; margin-left: 0px;"><c:out value="( ${ totalReviewCnt } )" /></span></p>
+                   			 			<div id="stab3" transition="fadeIn" class="add2020_detail_con tab_cont " style data-v-09a75c9f=""><p class="cont_tit">여행가의 리뷰
+                   			 			<span id="reviewTotal" style="font-weight: 800; color: rgb(239, 109, 0); line-height: 24px; margin-left: 0px;"><c:out value="( ${ totalReviewCnt } )" /></span></p>
                    			 				<button type="button" id="regsitReview" class="btn_regsit">리뷰 및 평가 등록</button>
                    			 				<div class="util_wrap clear">
                    			 					<div class="util_area">
@@ -1140,7 +1181,6 @@ $(function(){
 			 													<div class="user_content">
 			 														<div class="review clear"><p class="review_txt"><c:out value="${ review.content }" /></p>
 			 															<p class="review_origin_text" style="display:none;"></p>
-			 															
 																			</div>
 			 														</div>
 			 														</div>
@@ -1213,7 +1253,7 @@ $(function(){
 																			<tr data-v-2ede1d5f="">
 																				<th data-v-2ede1d5f=""><label data-v-2ede1d5f="" for="txtContent">리뷰</label></th>
 																					<td data-v-2ede1d5f="">
-																						<textarea data-v-2ede1d5f="" rows="4" cols="50" id="reviewContent" name="content" maxlength="1000" title="리뷰 입력"></textarea>
+																						<textarea data-v-2ede1d5f="" rows="4" cols="50" id="reviewContent" name="content" maxlength="450" title="리뷰 입력"></textarea>
 																						<input type="hidden"  id="userId" name="userId" value="jys" /><!--userId 임시 ( session으로 받아오기 -->
 																						<input type="hidden"  id="areaId" name="areaId" value="${contId }" />
 																						<input type="hidden" id="areaType" name="areaType" value="관광지">
@@ -1237,7 +1277,8 @@ $(function(){
 														</div>
 													
 													
-													<div id="review_popup" class="photo_popup review_photo" style="display: none"><img src="" alt=""><button type="button" class="btn_close">닫기</button></div></div></div></li>
+													<div id="review_popup" class="photo_popup review_photo" style="display: none"><img src="" alt=""><button type="button" class="btn_close">닫기</button></div></div></div>
+													</li>
                                                 </ul>
                                                </div></div>
                                                <div class="add2020_detail_right" data-v-09a75c9f="">

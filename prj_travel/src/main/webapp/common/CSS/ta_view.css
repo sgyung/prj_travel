@@ -215,6 +215,21 @@ li {
     width: 326px;
 }
 
+.container {
+    margin-top: 90px;
+}
+
+h2 {
+    font-size: 2rem;
+    padding: 20px 0 0 0;
+}
+
+.item_list_map.type_map .item_count_area a p.ico_type span.count {
+    font-weight: 600;
+    color: #ef6d00;
+    margin-top: 4px;
+}
+
 .item_list_map.type_map .item_count_area a {
     position: relative;
     display: inline-block;

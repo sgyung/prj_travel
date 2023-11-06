@@ -1,3 +1,5 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.sql.SQLException"%>
 <%@page import="user.vo.RestaurantVO"%>
 <%@page import="user.dao.RestaurantDAO"%>
 <%@page import="user.vo.QnAVO"%>
@@ -80,7 +82,6 @@
 	
 	int[] reviewRange = paging.getPageRowRange(reviewCurrentPage, pageScale);
 	List<ReviewVO> reviewList = reDAO.selectPageReview(reviewRange[0], reviewRange[1], contId);
-	
 	//review
 	pageContext.setAttribute("totalReviewPage", totalReviewPage );
 	pageContext.setAttribute("reviewList", reviewList );
@@ -107,6 +108,7 @@
 	
 	int[] pageRange = paging.getPageRowRange(qnaCurrentPage, pageScale);
 	List<QnAVO> qnaList = qDAO.selectPageQnA(pageRange[0], pageRange[1]);
+	
 	
 	//qna
 	pageContext.setAttribute("qnaList", qnaList );
@@ -343,7 +345,7 @@ $(function(){
 		var qnaId = $(this).find("input[type=hidden]").val();
 		var output = "";
 		$.ajax({
-			url : "http://192.168.10.133/prj_tavel/user_detail_QnA/qna_detail_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_detail_process.jsp",
 			type : "GET",
 			data : "qnaId=" + qnaId,
 			dataType : "JSON",
@@ -401,8 +403,9 @@ $(function(){
 				"title" : qTitle
 		}
 			
+		console.log(jsonObj);
 		$.ajax({
-			url : "http://192.168.10.133/prj_tavel/user_detail_QnA/qna_insert_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_insert_process.jsp",
 			type : "GET",
 			data : jsonObj,
 			dataType : "JSON",
@@ -413,6 +416,7 @@ $(function(){
 				if( jsonObj.resultFlag ){
 					alert("문의가 등록 되었습니다.");
 					$("#qnaPop").hide();
+					$("#qnaCnt").text("(" + jsonObj.qnaCnt + ")");
 					$(".active").click();
 				}//end if
 			}//success
@@ -441,10 +445,10 @@ $(function(){
 					alert("리뷰는 한번만 작성 가능합니다.");
 					return;
 				}//end if
+			$("#reviewContent").val("");
+			$("#registReviewPop").show();
 			}//success
 		})//ajax
-		$("#reviewContent").val("");
-		$("#registReviewPop").show();
 	})//click
 	
 	$("#reviewCancel").click(function(){
@@ -497,7 +501,7 @@ $(function(){
 		}
 		
 		$.ajax({
-			url : "http://192.168.10.133/prj_tavel/user_detail_review/review_insert_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_review/review_insert_process.jsp",
 			type : "get",
 			data : jsonObj,
 			dataType : "json",
@@ -507,7 +511,7 @@ $(function(){
 			success : function( jsonObj ){
 				if( jsonObj.resultFlag ){
 					alert("리뷰가 등록 되었습니다");
-					
+					$("#reviewTotal").text("( " +jsonObj.reviewCnt + " )");
 					$("#registReviewPop").hide();
 					$(".current").click();
 				}//end if
@@ -536,7 +540,7 @@ $(function(){
 				};
 		
 		$.ajax({
-			url : "http://192.168.10.133/prj_tavel/user_detail_review/review_page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_review/review_page_process.jsp",
 			type : "get",
 			data : jsonObj,
 			dataType : "json",
@@ -592,7 +596,7 @@ $(function(){
 				};
 		
 		$.ajax({
-			url : "http://192.168.10.133/prj_tavel/user_detail_QnA/qna_page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_page_process.jsp",
 			type : "get",
 			data : jsonObj,
 			dataType : "HTML",
@@ -617,7 +621,7 @@ $(function(){
 				"actionType" : "next"
 				};
 		$.ajax({
-			url : "page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_tourist_area/page_process.jsp",
 			data : jsonData,
 			type : "get",
 			dataType : "JSON",
@@ -675,7 +679,7 @@ $(function(){
 				"actionType" : "prev"
 				};
 		$.ajax({
-			url : "page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_tourist_area/page_process.jsp",
 			data : jsonData,
 			type : "get",
 			dataType : "JSON",
@@ -731,7 +735,7 @@ $(function(){
 				"actionType" : "next"
 				};
 		$.ajax({
-			url : "page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_tourist_area/page_process.jsp",
 			data : jsonData,
 			type : "get",
 			dataType : "JSON",
@@ -784,7 +788,7 @@ $(function(){
 				"actionType" : "prev"
 				};
 		$.ajax({
-			url : "page_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_tourist_area/page_process.jsp",
 			data : jsonData,
 			type : "get",
 			dataType : "JSON",
@@ -1212,7 +1216,7 @@ $(function(){
 																			<tr data-v-2ede1d5f="">
 																				<th data-v-2ede1d5f=""><label data-v-2ede1d5f="" for="txtContent">리뷰</label></th>
 																					<td data-v-2ede1d5f="">
-																						<textarea data-v-2ede1d5f="" rows="4" cols="50" id="reviewContent" name="content" maxlength="1000" title="리뷰 입력"></textarea>
+																						<textarea data-v-2ede1d5f="" rows="4" cols="50" id="reviewContent" name="content" maxlength="450" title="리뷰 입력"></textarea>
 																						<input type="hidden"  id="userId" name="userId" value="jys" /><!--userId 임시 ( session으로 받아오기 -->
 																						<input type="hidden"  id="areaId" name="areaId" value="${contId }" />
 																						<input type="hidden" id="areaType" name="areaType" value="관광지">

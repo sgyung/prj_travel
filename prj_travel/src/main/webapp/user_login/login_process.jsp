@@ -49,7 +49,6 @@ $(function(){
 		if( unVO != null ){
 			session.setAttribute("sesId", lVO.getId());
 			session.setAttribute("userName", unVO);
-			
 			response.sendRedirect("../user_main/main.jsp");
 		} else {
 		%>

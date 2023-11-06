@@ -19,6 +19,8 @@
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="http://192.168.10.133/prj_travel/common/CSS/tour_bus_detail.css">
+<!-- header&footer css -->
+<link rel="stylesheet" href="../common/CSS/header_footer.css">
 
 <style type="text/css">
 
@@ -100,7 +102,23 @@ td {
 <script type="text/javascript">
 $(function(){
 	$("#reservationBtn").click(function(){
-		$("#reservationPop").show();
+		$.ajax({
+			url : "http://192.168.10.133/prj_travel/user_login/checkSession.jsp",
+			type : "get",
+			dataType : "json",
+			error : function(xhr){
+				alert(xhr);
+			},
+			success : function( jsonObj ){
+				if(jsonObj.resultFlag){
+					$("#reservationPop").show();
+				} else {
+					alert("로그인 후 예약해주세요.")
+					return;
+				}//end else
+			}//success
+		})//ajax
+		
 	})//click
 	
 	$("#reserCloseBtn").click(function(){
@@ -168,7 +186,11 @@ $(function(){
 		var selectAdultFare =$("#id_adult_cnt").val();
 		var selectChildFare = $("#id_kid_cnt").val();
 		var userId = $("#userId").val();
-		var userName = $("#userName").val();
+		//var userName = $("#userName").val();
+		var userName = "${userName.name}" 
+		console.log(userName);
+		var totalSeat = 30; //총 좌석 수
+		var reserveSeat = parseInt(selectAdultFare) + parseInt(selectChildFare); //선택된 좌석 수
 		
 		if( selectDate == "" ){ 
 			alert("날짜를 선택해 주세요.");
@@ -195,25 +217,49 @@ $(function(){
 				"child" : selectChildFare,
 				"userId" : userId,
 				"userName" :  userName
-		}
+		}//jsonObj
 		
+		console.log(jsonObj);
+		//잔여좌석 check
 		$.ajax({
-			url : "tourBus_reserve_process.jsp",
+			url : "http://192.168.10.133/prj_travel/user_tour_bus/tourBus_seat_check.jsp",
 			type : "get",
-			data : jsonObj,
 			dataType : "json",
+			data : jsonObj,
 			error : function( xhr ){
-				alert(xhr.status);
+				alert(xhr)
 			},
-			success : function( jsonObj ){
-				if( jsonObj.resultFlag ){
-					alert("예약이 완료 되었습니다.");
-					
-					$("#reservationPop").hide();
-					// redirection 시키기 완료페이지로
+			success : function( json ){
+				if( (totalSeat - json.seatCnt) < reserveSeat){
+					alert( "모든 좌석이 예약되었습니다. ");
+					return;
 				}//end if
-			}
+					$.ajax({
+						url : "http://192.168.10.133/prj_travel/user_tour_bus/tourBus_reserve_process.jsp",
+						type : "get",
+						data : jsonObj,
+						dataType : "json",
+						error : function( xhr ){
+							alert(xhr.status);
+						},
+						success : function( jsonObj ){
+							if( jsonObj.resultFlag ){
+								
+								$("#reserveDate").val(selectDate);
+								$("#reserveTime").val(selectTime);
+								$("#reserveAdult").val(selectAdultFare);
+								$("#reserveChild").val(selectChildFare);
+								$("#userName").val(userName);
+								
+								$("#reserveFrm").submit();
+								
+							}//end if
+						}//success
+					})//ajax
+					
+			}//success
 		})//ajax
+		
 	})//click
 	
 });//ready
@@ -224,34 +270,23 @@ $(function(){
 <body>
 
 <div class="wrap">
-<div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li><a href="http://192.168.10.133/prj_touristArea/touristArea.jsp">관광지</a></li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>
+<%@ include file="../common/jsp/header.jsp" %>
+
     
-    
-    <div class="container my-5 py-3">
-    	<input type="hidden" id="contId" value="${contId }" />
-    	<input type="hidden" id="userName" value="장용석" /><!-- session값 넣기  -->
-    	<input type="hidden" id="userId" value="jys" /><!-- session값 넣기  -->
-  		<h1 class="my-3">${ tVO.name }</h1>
+    <div class="container my-5 py-5">
+    	<input type="hidden" id="contId" name="contId" value="${contId }" />
+    	<input type="hidden" id="userId" name="userId" value="${ sesId }" /><!-- session값 넣기  -->
+    	
+    	<form action="http://192.168.10.133/prj_travel/user_tour_bus/tourBus_reserve_complete.jsp"  id="reserveFrm">
+    		<input type="hidden" id="reserveDate" name="reserveDate" value="">
+    		<input type="hidden" id="reserveTime" name="reserveTime"  value="">
+    		<input type="hidden" id="reserveAdult" name="reserveAdult"  value="">
+    		<input type="hidden" id="reserveChild" name="reserveChild"  value="">
+    		<input type="hidden" id="userName" name="userName" value="" /><!-- session값 넣기  -->
+    		<input type="hidden" id="tourName" name="tourName"  value="${tVO.name }">
+    	</form>
+    	
+  		<h1 class="my-3" id="tourName">${ tVO.name }</h1>
   		<hr>
 	 	 <div class="" style="text-align:center">
 	 	 	<div style="border:1px solid #333;background: url(../common/images/tour_bus_img/test_img.png) no-repeat;; width:100%; height:400px"></div>
@@ -277,9 +312,9 @@ $(function(){
   		<hr>
 	 	 <div class="fs-4" style="display:flex">
 	 	 	<c:forEach var="route" items="${ routeList }" varStatus="i">
-	 	 	${ route }<div class="arrow">&gt;</div>
-	 	 		<c:if test="${ i.count eq routeCnt  }" >
-	 	 			${ route }
+	 	 	${ route }
+	 	 		<c:if test="${ i.count lt routeCnt  }" >
+	 	 			<div class="arrow">&gt;</div>
 	 	 		</c:if>
 	 	 	</c:forEach>
 	 	 </div>
@@ -442,6 +477,7 @@ $(function(){
 	</div>
 </div>
 </div>
+     <%@ include file="../common/jsp/footer.jsp" %>
 
    
 

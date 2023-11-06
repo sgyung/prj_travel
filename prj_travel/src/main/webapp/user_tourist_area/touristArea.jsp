@@ -106,6 +106,8 @@ h2 {
 
 
 
+
+
 </style>
 <script type="text/javascript">
 $(function(){
@@ -277,13 +279,13 @@ $(function(){
 									<dd data-v-2fbcbd64="" class="item_count_area clear">
 										<a data-v-2fbcbd64="" href="javascript:void(0);">
 											<p class="ico_type like">
-												<span>좋아요</span>
+												<img src="http://192.168.10.133/prj_travel/common/images/icon_img/like.png" />
 												<span class="count">${ touristArea.like }</span>
 											</p>
 										</a>
 										<a data-v-2fbcbd64="">
 											<p data-v-2fbcbd64="" class="ico_type review">
-												<span data-v-2fbcbd64="">리뷰</span>
+											<img src="http://192.168.10.133/prj_travel/common/images/icon_img/review_icon.png" />
 												<span data-v-2fbcbd64="" class="count">${ touristArea.reviewCnt }</span>
 											</p>
 										</a>

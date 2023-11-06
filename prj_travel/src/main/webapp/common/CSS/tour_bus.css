@@ -25,38 +25,7 @@ html, body, p, input, select, form, label, mark, ul, ul li, ol, ol li, dl, dl dt
     padding: 0;
 }
 
-/**
-.header {
-    height: 90px;
-    width: 100%;
-    background-color: rgb(0,0,0,0.4);
-    position: absolute; 
-    z-index : 2;
-}
 
-.header_contents{
-    width: 80%;
-    margin: 0 auto;
-    padding-top: 30px;
-    justify-content: space-between;
-}
-
-.flex { 
-    display : flex; 
- }
-
- .nav_top > ul{
-    list-style: none;
- }
-
- .nav_top > ul > li{
-    display: inline-block;
-    margin-left: 30px;
- }
-.login {
-    margin-left: 30px;
-}
-**/
 
 
 .main_content{

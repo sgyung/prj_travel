@@ -97,14 +97,7 @@
 
 
 
-.container {
-    margin-top: 90px;
-}
 
-h2 {
-    font-size: 2rem;
-    padding: 20px 0 0 0;
-}
 
 
 
@@ -280,13 +273,13 @@ $(function(){
 									<dd data-v-2fbcbd64="" class="item_count_area clear">
 										<a data-v-2fbcbd64="" href="javascript:void(0);">
 											<p class="ico_type like">
-												<span>좋아요</span>
+												<img src="http://192.168.10.133/prj_travel/common/images/icon_img/like.png" />
 												<span class="count">${ restaurant.like }</span>
 											</p>
 										</a>
 										<a data-v-2fbcbd64="">
 											<p data-v-2fbcbd64="" class="ico_type review">
-												<span data-v-2fbcbd64="">리뷰</span>
+											<img src="http://192.168.10.133/prj_travel/common/images/icon_img/review_icon.png" />
 												<span data-v-2fbcbd64="" class="count">${ restaurant.reviewCnt }</span>
 											</p>
 										</a>

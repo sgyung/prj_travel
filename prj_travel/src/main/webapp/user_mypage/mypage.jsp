@@ -1,3 +1,6 @@
+<%@page import="user_mypageDAO.MyTourBusDAO"%>
+<%@page import="user_mypageDAO.MyReviewDAO"%>
+<%@page import="user_mypageDAO.MyQnADAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 pageEncoding="UTF-8"%>
 <%@ page info="마이페이지" %>
@@ -11,6 +14,8 @@ pageEncoding="UTF-8"%>
 <!-- bootstrap CDN-->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <!-- jQuery CDN -->
+<link rel="stylesheet" href="../common/CSS/header_footer.css">
+<!-- header&footer css -->
 <link rel="stylesheet" href="../common/CSS/header_footer.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <style type="text/css">
@@ -213,38 +218,37 @@ $(function () {
 	});
 });//ready
 </script>
+    <%
+    String userId=(String)session.getAttribute("sesId");
+    if( userId == null ){
+    	response.sendRedirect("http://192.168.10.133/prj_travel/user_main/main.jsp");
+    	return;
+    }//end if
+    if( userId != null ){
+    	pageContext.setAttribute("userId", userId);
+    }//end if
+    
+    //마이페이지 QnA
+    MyQnADAO mqnaDAO = MyQnADAO.getInstance();
+    int qnaCnt = mqnaDAO.selectTotalQnA(userId);
+    pageContext.setAttribute("qnaCnt", qnaCnt);
+    //마이페이지 review
+    MyReviewDAO mrDAO = MyReviewDAO.getInstance();
+    int reviewCnt = mrDAO.selectTotalReview(userId);
+    pageContext.setAttribute("reviewCnt", reviewCnt);
+    //버스투어 예약내역
+    MyTourBusDAO mytDAO = MyTourBusDAO.getInstance();
+    int tourCnt = mytDAO.selectTotalReservation(userId);
+    pageContext.setAttribute("tourCnt", tourCnt);
+    
+    %>
 
 </head>
 <body>
 <!-- 메인 배너 -->
 <div class="wrap">
-    <div class="header">
-        <div class="header_contents flex">
-            <div class="logo">JEJU VISIT</div>
-            <div class="nav_top">
-                <ul>
-                    <li>관광지</li>
-                    <li>맛집</li>
-                    <li>게시판</li>
-                    <li>투어예약</li>
-                </ul>
-            </div>
-            <div class="search_login flex">
-                <div class="search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                </div>
-                <div class="login">로그인</div>
-            </div>
-        </div>
-    </div>
-    </div>
+    <%@ include file="../common/jsp/header.jsp" %>
     
-    <%
-    String id=(String)session.getAttribute("sesId");
-    out.print(id);
-    %>
     
     <div class="head"><span class="my_page">마이 페이지</span></div>
     <div class="line">
@@ -252,22 +256,22 @@ $(function () {
     <div class="box">
      <div class="iconbox"><i class="bi bi-person-fill"></i>
     </div>
-    <div class="namebox"><span class="user_name1">서효민</span>
+    <div class="namebox"><span class="user_name1">${ sesId }</span>
     <span class="user_name2">님의 제주여행</span>
     </div>
     <div class="boardbox"><span class="my_posts">내가쓴글</span>
     <div class="postbox">
     <a href=" ../user_post/post.jsp" class="post">게시판</a><br/>
     <div>&nbsp;</div>
-    <a href=" ../user_QandA/QandA.jsp" class="QandA">문의</a><br/>
+    <a href=" ../user_QandA/QandA.jsp" class="QandA">문의  :   ${ qnaCnt }</a><br/>
     <div>&nbsp;</div>
-    <a href=" ../user_review/review.jsp" class="review">리뷰</a>
+    <a href=" ../user_review/review.jsp" class="review">리뷰  :   ${ reviewCnt }</a>
     </div>
     
-    <a href=" " class="reservation">예약내역</a>
+    <a href="http://192.168.10.133/prj_travel/user_tour_bus/my_tour_bus.jsp" class="reservation" style="text-align:center">예약내역<br>${ tourCnt }</a>
     <input type="button" value="개인정보" class="user_info" id="info_btn">
     </div>
-    <div clas="footer"><%@ include file="../common/jsp/footer.jsp" %></div>
+    <div class="footer"><%@ include file="../common/jsp/footer.jsp" %></div>
     </div>
 </body>
 </html>

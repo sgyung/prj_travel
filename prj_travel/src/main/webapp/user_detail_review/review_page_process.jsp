@@ -1,3 +1,5 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="user_mypageDAO.MyReviewDAO"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.sql.SQLException"%>
 <%@page import="org.json.simple.JSONArray"%>
@@ -14,16 +16,26 @@
 	String selectPage = request.getParameter("selectPage");
 	String pageScale = request.getParameter("pageScale");
 	String contId = request.getParameter("contId");
+	String userId = request.getParameter("userId");
+	String areaType = request.getParameter("areaType");
 	
 	Paging paging = Paging.getInstance();
 	int[] pageRange = paging.getPageRowRange(Integer.parseInt(selectPage), Integer.parseInt(pageScale));
 	
-	ReviewDAO rDAO = ReviewDAO.getInstance();
 	JSONObject jsonObj = null;
 	JSONArray jsonArr = new JSONArray();
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
+	List<ReviewVO> reviewList = new ArrayList<ReviewVO>();
 	try {
-	List<ReviewVO> reviewList = rDAO.selectPageReview(pageRange[0], pageRange[1], contId);
+		
+		if( areaType != null ){
+			MyReviewDAO mrDAO = MyReviewDAO.getInstance();
+			reviewList = mrDAO.selectPageReview(pageRange[0], pageRange[1], userId, areaType);
+		} else {
+			ReviewDAO rDAO = ReviewDAO.getInstance();
+			reviewList = rDAO.selectPageReview(pageRange[0], pageRange[1], contId);
+		}
 	
 	for( ReviewVO vo : reviewList ){
 		jsonObj = new JSONObject();

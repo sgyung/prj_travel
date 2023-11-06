@@ -1,19 +1,18 @@
 <%@page import="org.json.simple.JSONObject"%>
-<%@page import="user.dao.TouristAreaDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
+<%@ page info="" %>
 <%
-	String contId = request.getParameter("contId");
-	String userId = request.getParameter("userId");
+	String sesId = (String) session.getAttribute("sesId");
 	
-	TouristAreaDAO tDAO = TouristAreaDAO.getInstance();
-	
-	boolean resultFlag = tDAO.selectIsReview(contId, userId);
+	boolean resultFlag = false;
+	if(sesId != null ){
+		resultFlag = true;
+	}//end if
 	
 	JSONObject jsonObj = new JSONObject();
 	jsonObj.put("resultFlag", resultFlag);
 	
 	out.print(jsonObj.toJSONString());
-	
 %>
+
