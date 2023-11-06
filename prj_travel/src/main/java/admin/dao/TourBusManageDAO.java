@@ -84,7 +84,7 @@ public class TourBusManageDAO {
 			
 			con.setAutoCommit(false);// 오토 커밋 끔
 			
-			pstmt = con.prepareStatement("select 'TB_' || Tb_SEQ.nextval bustour_id from dual ");
+			pstmt = con.prepareStatement("select 'TOURBUS_' || TOUR_SEQ.nextval bustour_id from dual ");
 			
 			rs = pstmt.executeQuery();
 			
