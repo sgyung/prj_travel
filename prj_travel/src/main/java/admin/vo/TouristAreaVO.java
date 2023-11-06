@@ -1,9 +1,11 @@
 package admin.vo;
 
 import java.sql.Date;
+import java.util.Arrays;
 
 public class TouristAreaVO {
-	private String id,name,addr,tel,serviceHour,priceInfo,slope,detailInfo,image,thumbnail,deleteState;
+	private String id,name,addr,tel,serviceHour,priceInfo,slope,detailInfo,image,thumbnail,deleteState,tags,conveniences;
+	private String[] tagName,convenienceName; 
 	private double longitude,latitude;
 	private int starScore,like,reviewCount,viewNum;
 	private Date registraitionDate;
@@ -13,8 +15,9 @@ public class TouristAreaVO {
 	}
 
 	public TouristAreaVO(String id, String name, String addr, String tel, String serviceHour, String priceInfo,
-			String slope, String detailInfo, String image, String thumbnail, String deleteState, double longitude,
-			double latitude, int starScore, int like, int reviewCount, int viewNum, Date registraitionDate) {
+			String slope, String detailInfo, String image, String thumbnail, String deleteState, String tags,
+			String conveniences, String[] tagName, String[] convenienceName, double longitude, double latitude,
+			int starScore, int like, int reviewCount, int viewNum, Date registraitionDate) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -27,6 +30,10 @@ public class TouristAreaVO {
 		this.image = image;
 		this.thumbnail = thumbnail;
 		this.deleteState = deleteState;
+		this.tags = tags;
+		this.conveniences = conveniences;
+		this.tagName = tagName;
+		this.convenienceName = convenienceName;
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.starScore = starScore;
@@ -124,6 +131,38 @@ public class TouristAreaVO {
 		this.deleteState = deleteState;
 	}
 
+	public String getTags() {
+		return tags;
+	}
+
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
+
+	public String getConveniences() {
+		return conveniences;
+	}
+
+	public void setConveniences(String conveniences) {
+		this.conveniences = conveniences;
+	}
+
+	public String[] getTagName() {
+		return tagName;
+	}
+
+	public void setTagName(String[] tagName) {
+		this.tagName = tagName;
+	}
+
+	public String[] getConvenienceName() {
+		return convenienceName;
+	}
+
+	public void setConvenienceName(String[] convenienceName) {
+		this.convenienceName = convenienceName;
+	}
+
 	public double getLongitude() {
 		return longitude;
 	}
@@ -184,13 +223,12 @@ public class TouristAreaVO {
 	public String toString() {
 		return "TouristAreaVO [id=" + id + ", name=" + name + ", addr=" + addr + ", tel=" + tel + ", serviceHour="
 				+ serviceHour + ", priceInfo=" + priceInfo + ", slope=" + slope + ", detailInfo=" + detailInfo
-				+ ", image=" + image + ", thumbnail=" + thumbnail + ", deleteState=" + deleteState + ", longitude="
-				+ longitude + ", latitude=" + latitude + ", starScore=" + starScore + ", like=" + like
-				+ ", reviewCount=" + reviewCount + ", viewNum=" + viewNum + ", registraitionDate=" + registraitionDate
-				+ "]";
+				+ ", image=" + image + ", thumbnail=" + thumbnail + ", deleteState=" + deleteState + ", tags=" + tags
+				+ ", conveniences=" + conveniences + ", tagName=" + Arrays.toString(tagName) + ", convenienceName="
+				+ Arrays.toString(convenienceName) + ", longitude=" + longitude + ", latitude=" + latitude
+				+ ", starScore=" + starScore + ", like=" + like + ", reviewCount=" + reviewCount + ", viewNum="
+				+ viewNum + ", registraitionDate=" + registraitionDate + "]";
 	}
 
-	
-	
 	
 }

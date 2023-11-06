@@ -9,13 +9,15 @@ public class RestaurantReviewVO {
 	private int starScore;
 	private String content;
 	private String restaurantId;
+	private String restaurantName;
+	private int reviewCnt;
 	
 	public RestaurantReviewVO() {
 		
 	}
 
 	public RestaurantReviewVO(String reviewId, String userId, Date reviewDate, int starScore, String content,
-			String restaurantId) {
+			String restaurantId, String restaurantName, int reviewCnt) {
 		super();
 		this.reviewId = reviewId;
 		this.userId = userId;
@@ -23,6 +25,8 @@ public class RestaurantReviewVO {
 		this.starScore = starScore;
 		this.content = content;
 		this.restaurantId = restaurantId;
+		this.restaurantName = restaurantName;
+		this.reviewCnt = reviewCnt;
 	}
 
 	public String getReviewId() {
@@ -73,11 +77,28 @@ public class RestaurantReviewVO {
 		this.restaurantId = restaurantId;
 	}
 
+	public String getRestaurantName() {
+		return restaurantName;
+	}
+
+	public void setRestaurantName(String restaurantName) {
+		this.restaurantName = restaurantName;
+	}
+
+	public int getReviewCnt() {
+		return reviewCnt;
+	}
+
+	public void setReviewCnt(int reviewCnt) {
+		this.reviewCnt = reviewCnt;
+	}
+
 	@Override
 	public String toString() {
 		return "RestaurantReviewVO [reviewId=" + reviewId + ", userId=" + userId + ", reviewDate=" + reviewDate
-				+ ", starScore=" + starScore + ", content=" + content + ", restaurantId=" + restaurantId + "]";
+				+ ", starScore=" + starScore + ", content=" + content + ", restaurantId=" + restaurantId
+				+ ", restaurantName=" + restaurantName + ", reviewCnt=" + reviewCnt + "]";
 	}
-	
+
 	
 }

@@ -1,3 +1,5 @@
+<%@page import="admin.vo.RestaurantVO"%>
+<%@page import="admin.dao.RestaurantManageDAO"%>
 <%@page import="admin.vo.TouristAreaVO"%>
 <%@page import="java.sql.SQLException"%>
 <%@page import="admin.dao.TouristAreaManageDAO"%>
@@ -31,9 +33,9 @@ $(function() {
 	
 })//ready
 
-function touristDelete(id){
-	 if (confirm("관광지를 삭제 하시겠습니까?")) {
-	    	$("#areaId").val(id);
+function restaurantDelete(id){
+	 if (confirm("맛집을 삭제 하시겠습니까?")) {
+	    	$("#restaurantId").val(id);
 	    	 $("#DelFrm").submit();
 	     } else {
 	    	return;
@@ -111,39 +113,39 @@ function touristDelete(id){
 							</a></li>
 						</ul></li>
 
-					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link"> <i
 							class="bi bi-map"></i> <i class="right fas fa-angle-left"></i>
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="admin_tourarea_list.jsp" class="nav-link active">
+							<li class="nav-item"><a href="../admin-tourarea/admin_tourarea_list.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourarea_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="../admin-tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourarea_review_list.jsp"
+							<li class="nav-item"><a href="../admin-tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
 						</ul></li>
 						
-					<li class="nav-item menu"><a href="#" class="nav-link"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
 							class="bi bi-tencent-qq"></i> <i class="right fas fa-angle-left"></i>
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
+							<li class="nav-item"><a href="admin_restaurant_list.jsp" class="nav-link active">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="admin_restaurant_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
+							<li class="nav-item"><a href="admin_restaurant_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>
@@ -154,6 +156,10 @@ function touristDelete(id){
 							<p>투어버스 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
+						<li class="nav-item"><a href="./index.html" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>투어버스 목록</p>
+							</a></li>
 							<li class="nav-item"><a href="./index.html" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>투어버스 추가</p>
@@ -183,24 +189,24 @@ function touristDelete(id){
 			</div>
 			<!-- /.content-header -->
 <%
-	TouristAreaManageDAO tamDAO = TouristAreaManageDAO.getInstance();
-	String areaId = request.getParameter("areaId");
+	RestaurantManageDAO rmDAO = RestaurantManageDAO.getInstance();
+	String restaurantId = request.getParameter("restaurantId");
 	
 	try{
-		if(areaId != null){
-			TouristAreaVO taVO = tamDAO.selectTouristArea(areaId);
+		if(restaurantId != null){
+			RestaurantVO rVO = rmDAO.selectRestaurant(restaurantId);
 			
 			String[] tagArr = null;
 			String[] reTagArr = null;
-			if( taVO.getTags() != null ){
-				tagArr = taVO.getTags().split(" ");
+			if( rVO.getTags() != null ){
+				tagArr = rVO.getTags().split(" ");
 				reTagArr = new String[tagArr.length];
 				for( int i = 0; i< tagArr.length; i++ ){
 					reTagArr[i] = tagArr[i].replace("#", "");
 				}
 			}//end if
 			
-			pageContext.setAttribute("taVO", taVO);
+			pageContext.setAttribute("rVO", rVO);
 			pageContext.setAttribute("tags", reTagArr);
 		}
 	}catch(SQLException se){
@@ -208,11 +214,10 @@ function touristDelete(id){
 	}
 %>			
 	<section class="content">
-	<form action="admin_tourarea_delete_proccess.jsp" id ="DelFrm" method="post">
- 			<input type="hidden" id="areaId" name="areaId"/>
+	<form action="admin_restaurant_delete_proccess.jsp" id ="DelFrm" method="post">
+ 			<input type="hidden" id="restaurantId" name="restaurantId"/>
             </form>
-
-            <div class="sub_visual_wrap" style="background: url('${taVO.image }') 30% 30% / cover no-repeat;" data-v-09a75c9f=""><div class="inner_wrap" data-v-09a75c9f=""><div data-v-09a75c9f=""></div>
+            <div class="sub_visual_wrap" style="background: url('${rVO.image }') 30% 30% / cover no-repeat;" data-v-09a75c9f=""><div class="inner_wrap" data-v-09a75c9f=""><div data-v-09a75c9f=""></div>
 					<div class="sub_info_area" data-v-09a75c9f="">
 					<div class="sub_info_title" data-v-09a75c9f="">
 					<h3 data-v-09a75c9f="" class="">${ taVO.name }</h3>
@@ -234,11 +239,11 @@ function touristDelete(id){
 					<p class="info_tit" data-v-09a75c9f="">기본정보</p>
 					<div class="clear" data-v-09a75c9f="">
 						<p class="info_sub_tit" data-v-09a75c9f="">주소</p>
-						<p class="info_sub_cont" data-v-09a75c9f="">${ taVO.addr }</p>
+						<p class="info_sub_cont" data-v-09a75c9f="">${ rVO.addr }</p>
 					</div>
 					<div class="clear" data-v-09a75c9f="">
 						<p class="info_sub_tit" data-v-09a75c9f="">연락처</p>
-						<p class="info_sub_cont" data-v-09a75c9f="">${ taVO.tel }</p>
+						<p class="info_sub_cont" data-v-09a75c9f="">${ rVO.tel }</p>
 					</div>
 					<div class="weather" data-v-09a75c9f="">
 					<img data-v-09a75c9f="" id="weather_img" src="" alt="" class="ico_weather" style="margin-top:20px">
@@ -275,7 +280,7 @@ function touristDelete(id){
 						<div data-helper-component-key="core-system-grid" __vue_component_directive="ice?visit-jeju;contents;kr-CONT_000000000500457;@5" __vue_component_directive_fallback="ice?visit-jeju;contents;kr-CONT_000000000500457;@5" __directive_pos="0" data-accept-components="contentsDecoration/htmlBlock.vue,contentsDecoration/contentsTitle.vue,contentsDecoration/subContentsTitle.vue,contentsDecoration/GridImageViewer.vue,contentsDecoration/relativeComponent.vue,contentsDecoration/contentsParagraph.vue,contentsDecoration/Quotation.vue,contentsDecoration/devideLine.vue,contentsDecoration/YouTube.vue,contentsDecoration/Caption.vue,contentsDecoration/html2.vue" data-fragment-name="컨텐츠" class="_grid-system-grid_ grid-container " style="background-color:transparent;width:100%;">
 							<div>
 								<!-- 상세정보  -->
-								${ taVO.detailInfo }										
+								${ rVO.detailInfo }										
 							</div>
 						</div>
 						<!---->
@@ -297,18 +302,10 @@ function touristDelete(id){
                                                			
                                                			<dt>이용 시간</dt>
                                                			<dd>
-										                    ${ taVO.serviceHour }
-               											 </dd>
-               											 <dt>요금 정보</dt>
-               											 <dd>
-               											 	 ${ taVO.priceInfo }
-               											 </dd>
-               											 <dt>경사도(난이도)</dt>
-               											 <dd>
-	               											 ${ taVO.slope } 
+										                    ${ rVO.serviceHour }
                											 </dd>
                											 <dt>편의시설</dt>
-               											 <dd>${ taVO.conveniences }</dd>
+               											 <dd>${ rVO.conveniences }</dd>
                											 <!---->
           											 </dl>
           											 <!----><!----><!----><!---->
@@ -320,7 +317,7 @@ function touristDelete(id){
 								 </div>
 										 <div style="text-align: center; margin-top: 50px">
 										 <input type="button" value="수정" id="modify" class="btn btn-info" style="width:150px; margin-right: 80px; margin-bottom: 60px">
-										 <input type="button" value="삭제" id="delete" class="btn btn-danger" onclick="touristDelete('${ param.areaId }')" style="width:150px; margin-bottom: 60px">
+										 <input type="button" value="삭제" id="delete" class="btn btn-danger" onclick="restaurantDelete('${ param.restaurantId }')" style="width:150px; margin-bottom: 60px">
 										 </div>
 								 
               </section>

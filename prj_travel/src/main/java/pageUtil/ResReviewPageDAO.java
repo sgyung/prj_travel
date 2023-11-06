@@ -7,31 +7,30 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import admin.vo.NoticeVO;
+import admin.vo.RestaurantReviewVO;
+import admin.vo.TourReviewVO;
 import kr.co.dao.DbConnection;
 
-
-public class NoticePageDAO {
-	private static NoticePageDAO npDAO;
+public class ResReviewPageDAO {
+	private static ResReviewPageDAO rrpDAO;
 	
-	private NoticePageDAO() {
+	private ResReviewPageDAO() {
 		
 	}
 	
-	public static NoticePageDAO getInstance() {
-		if(npDAO == null) {
-			npDAO = new NoticePageDAO();
+	public static ResReviewPageDAO getInstance() {
+		if(rrpDAO == null) {
+			rrpDAO = new ResReviewPageDAO();
 		}
-		return npDAO;
+		return rrpDAO;
 	}
 	
 	/**
-	 * 10월 23일 Dynamic Query
 	 * @param brVO
 	 * @return
 	 * @throws SQLException
 	 */
-	public int noticeTotalCount(PageVO pVO) throws SQLException {
+	public int resReviewTotalCount(PageVO pVO) throws SQLException {
 		int totalCount = 0;
 		
 		DbConnection db = DbConnection.getInstance();
@@ -44,18 +43,18 @@ public class NoticePageDAO {
 			con = db.getConn("jdbc/dbcp");
 			
 			StringBuilder selectCnt = new StringBuilder();
-			selectCnt.append("select count(*) cnt from notice	");
+			selectCnt
+			.append(" select count(distinct a.restaurant_id) as cnt	")
+			.append(" from restaurant a	")
+			.append(" inner join restaurant_review b on a.restaurant_id = b.restaurant_id	");
 			
 			if(pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
 				String field = "";
 				
 				if ("1".equals(pVO.getField())) {
-					field = "notice_title";
+					field = "a.restaurant_name";
 				}
 				
-				if ("2".equals(pVO.getField())) {
-					field = "notice_content";
-				}
 				
 				selectCnt.append("where ").append(field ).append(" like '%' || ? || '%'");
 			
@@ -85,8 +84,8 @@ public class NoticePageDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<NoticeVO> selectNotice(PageVO pVO) throws SQLException{
-		List<NoticeVO> list = new ArrayList<NoticeVO>();
+	public List<RestaurantReviewVO> selectRestaurantReview(PageVO pVO) throws SQLException{
+		List<RestaurantReviewVO> list = new ArrayList<RestaurantReviewVO>();
 		
 		DbConnection db = DbConnection.getInstance();
 		Connection con = null;
@@ -100,29 +99,31 @@ public class NoticePageDAO {
 			con = db.getConn("jdbc/dbcp");
 				
 		// 4. 쿼리문 생성객체 얻기 => 검색 키워드와 검색 field에 따라 Dynamic Query로 변경
-			StringBuilder selectNotice = new StringBuilder();
-			selectNotice
-	        .append("SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num ")
-	        .append("FROM (SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num, ")
-	        .append("ROW_NUMBER() OVER (ORDER BY notice_upload_date DESC) rnum ")
-	        .append("FROM notice ");
+			StringBuilder selectRestaurantReview = new StringBuilder();
+			selectRestaurantReview
+	        .append("	select *	 ")
+	        .append("	from (select a.restaurant_id,a.restaurant_name,max(b.restaurant_review_date) as latest_review_date,	 ")
+	        .append("	count(b.restaurant_review_id) as review_count, 	")
+	        .append("	row_number() over (order by max(b.restaurant_review_date) desc) as rnum	 ")
+	        .append("	from restaurant a left join restaurant_review b on a.restaurant_id = b.restaurant_id 	")
+			.append("	where b.restaurant_review_id is not null and a.delete_state = 'N' 	");
 
 			if (pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
 				String field = "";
 				
 				if ("1".equals(pVO.getField())) {
-					field = "notice_title";
-				}
-				
-				if ("2".equals(pVO.getField())) {
-					field = "notice_content";
+					field = "a.restaurant_name";
 				}
 
-				selectNotice.append("WHERE ").append(field).append(" LIKE '%' || ? || '%' ");
+				selectRestaurantReview.append(" and ").append(field).append(" LIKE '%' || ? || '%' ");
 			}
-			selectNotice.append(") WHERE rnum BETWEEN ? AND ?");
+			selectRestaurantReview
+			.append("	group by a.restaurant_id, a.restaurant_name	 ")
+			.append("	having count(b.restaurant_review_id) >= 1 	")
+			.append("	order by latest_review_date desc 	")
+			.append("	) where rnum between ? and ?	");
 			
-			pstmt = con.prepareStatement(selectNotice.toString());
+			pstmt = con.prepareStatement(selectRestaurantReview.toString());
 			
 		// 5. 바인드 변수에 값 설정
 			int bindCnt = 1;
@@ -132,22 +133,19 @@ public class NoticePageDAO {
 			
 			pstmt.setInt(bindCnt++, pVO.getStartNum());
 			pstmt.setInt(bindCnt++, pVO.getEndNum());
-			System.out.println(pVO.getEndNum());
 			
 		// 6. 쿼리문 수행 후 결과 얻기
-			NoticeVO nVO = null;
-		
+			RestaurantReviewVO reviewVO = null;
+			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
-				nVO = new NoticeVO();
-				nVO.setId(rs.getString("notice_id"));
-				nVO.setTitle(rs.getString("notice_title"));
-				nVO.setContent(rs.getString("notice_content"));
-				nVO.setRegistrationDate(rs.getDate("notice_upload_date"));
-				nVO.setViewNum(rs.getInt("notice_view_num"));
-				
-				list.add(nVO);
+				reviewVO = new RestaurantReviewVO();
+				reviewVO.setRestaurantId(rs.getString("restaurant_id"));
+				reviewVO.setRestaurantName(rs.getString("restaurant_name"));
+				reviewVO.setReviewDate(rs.getDate("latest_review_date"));
+				reviewVO.setReviewCnt(rs.getInt("review_count"));
+				list.add(reviewVO);
 			}
 			
 		} finally {
@@ -155,6 +153,4 @@ public class NoticePageDAO {
 		}
 		return list;
 	}
-	
-	
 }

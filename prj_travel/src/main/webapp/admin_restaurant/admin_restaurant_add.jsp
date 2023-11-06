@@ -5,11 +5,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>관리자 | 관광지 관리</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 | 맛집관리 | 맛집추가</title>
 <link rel="stylesheet" type="text/css"
-	href="http://localhost/html_prj/common/css/main_v20230906">
- 
+	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
 #tagAdd-btn {
             text-decoration: none;
@@ -60,8 +60,7 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;	
-		}   
-		     
+		}  
 .title {
   text-align: center;
 }
@@ -95,12 +94,12 @@
 .contents .upload-box .drag-file .image {
   width: 40px;
 }
+.contents .upload-box .drag-file .message {
+  margin-bottom: 0;
+}
 #preview{
  width: 100%;
  height: 100%;
-}
-.contents .upload-box .drag-file .message {
-  margin-bottom: 0;
 }
 .contents .upload-box .drag-file .preview {
   display: none;
@@ -150,6 +149,7 @@
 <!-- jQuery CDN -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=qo9b067gph&submodules=geocoder"></script>
+
 <script type="text/javascript">
 	$(function() {
 		
@@ -184,91 +184,85 @@
 		});//click
 		 
 		 $("#cancel").click(function() {
-			location.href = "admin_tourarea_list.jsp";
+			location.href = "admin_restaurant_list.jsp";
 		});
 		
-		 $("#logout").click(function() {
-				location.href = "../admin/admin_logout.jsp";
-			});//click 
 		
-		 	
-	});//ready
-	
-	 let tagFieldCounter = 0;
-     const tagMaxFields = 3;
-     
-
-     function tagRemoveField(wrapper) {
-         $(wrapper).remove();
-         tagFieldCounter--;
-     }
-   
-     function tagAdd() {
-         if (tagFieldCounter < tagMaxFields) {
-        	 tagFieldCounter++;
-             let wrapper = $('<div class="input-wrapper" style="margin-left:180px; margin-top:20px;"></div>');
-
-             let newInput = $('<input type="text" style = "margin-right:60px; width: 56%" placeholder="태그를 입력해주세요." class="tag" name="tagName">');
-             let removeButton = $('<button class="remove-btn" onclick="tagRemoveField(this.parentNode)">&times</button>');
-
-             wrapper.append(newInput);
-             wrapper.append(removeButton);
-
-             $('#tagInput').append(wrapper);
-         } else {
-             alert('최대 3개까지만 추가 가능합니다.');
-         }
-     }
-     
-     let conFieldCounter = 0;
-     const conMaxFields = 3;
-     
-     function conAdd() {
-         if (conFieldCounter < conMaxFields) {
-        	 conFieldCounter++;
-             let wrapper = $('<div class="input-wrapper" style="margin-left:250px;"></div>');
-
-             let newInput = $('<input type="text" style = "margin-right:60px; width: 60%; margin-bottom: 30px" placeholder="편의시설을 입력해주세요." class="con" name="convevienceName">');
-             let removeButton = $('<button class="remove-btn" onclick="conRemoveField(this.parentNode)">&times</button>');
-
-             wrapper.append(newInput);
-             wrapper.append(removeButton);
-
-             $('#convenienceInput').append(wrapper);
-         } else {
-             alert('최대 3개까지만 추가 가능합니다.');
-         }
-     }
-     
-     function conRemoveField(wrapper) {
-         $(wrapper).remove();
-         conFieldCounter--;
-     }
-     
+	})//ready
+	let tagFieldCounter = 0;
+    const tagMaxFields = 3;
     
-     function convertAddressToCoordinates() {
-    	    const address = document.getElementById('addr').value;
 
-    	    // 네이버 Geocoding API 요청
-    	    naver.maps.Service.geocode({
-    	        query: address
-    	    }, function(status, response) {
-    	        if (status === naver.maps.Service.Status.ERROR) {
-    	            alert('주소를 변환하는 중 문제가 발생했습니다.');
-    	        } else {
-    	            const item = response.v2.meta.totalCount > 0 ? response.v2.addresses[0] : null;
-    	            alert(response.v2.addresses[0].x);
-    	            if (item) {
-    	                document.getElementById('latitude').value = item.y;
-    	                document.getElementById('longitude').value = item.x;
-    	            } else {
-    	                alert('해당 주소에 대한 좌표를 찾을 수 없습니다.');
-    	            }
-    	        }
-    	    });
-    	} 
-</script>	
+    function tagRemoveField(wrapper) {
+        $(wrapper).remove();
+        tagFieldCounter--;
+    }
+  
+    function tagAdd() {
+        if (tagFieldCounter < tagMaxFields) {
+       	 tagFieldCounter++;
+            let wrapper = $('<div class="input-wrapper" style="margin-left:180px; margin-top:20px;"></div>');
 
+            let newInput = $('<input type="text" style = "margin-right:60px; width: 56%" placeholder="태그를 입력해주세요." class="tag" name="tagName">');
+            let removeButton = $('<button class="remove-btn" onclick="tagRemoveField(this.parentNode)">&times</button>');
+
+            wrapper.append(newInput);
+            wrapper.append(removeButton);
+
+            $('#tagInput').append(wrapper);
+        } else {
+            alert('최대 3개까지만 추가 가능합니다.');
+        }
+    }
+    
+    let conFieldCounter = 0;
+    const conMaxFields = 3;
+    
+    function conAdd() {
+        if (conFieldCounter < conMaxFields) {
+       	 conFieldCounter++;
+            let wrapper = $('<div class="input-wrapper" style="margin-left:250px;"></div>');
+
+            let newInput = $('<input type="text" style = "margin-right:60px; width: 60%; margin-bottom: 30px" placeholder="편의시설을 입력해주세요." class="con" name="convevienceName">');
+            let removeButton = $('<button class="remove-btn" onclick="conRemoveField(this.parentNode)">&times</button>');
+
+            wrapper.append(newInput);
+            wrapper.append(removeButton);
+
+            $('#convenienceInput').append(wrapper);
+        } else {
+            alert('최대 3개까지만 추가 가능합니다.');
+        }
+    }
+    
+    function conRemoveField(wrapper) {
+        $(wrapper).remove();
+        conFieldCounter--;
+    }
+    
+   
+    function convertAddressToCoordinates() {
+   	    const address = document.getElementById('addr').value;
+
+   	    // 네이버 Geocoding API 요청
+   	    naver.maps.Service.geocode({
+   	        query: address
+   	    }, function(status, response) {
+   	        if (status === naver.maps.Service.Status.ERROR) {
+   	            alert('주소를 변환하는 중 문제가 발생했습니다.');
+   	        } else {
+   	            const item = response.v2.meta.totalCount > 0 ? response.v2.addresses[0] : null;
+   	            if (item) {
+   	                document.getElementById('latitude').value = item.y;
+   	                document.getElementById('longitude').value = item.x;
+   	            } else {
+   	                alert('해당 주소에 대한 좌표를 찾을 수 없습니다.');
+   	            }
+   	        }
+   	    });
+   	} 
+
+</script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
 </head>
@@ -337,39 +331,39 @@
 							</a></li>
 						</ul></li>
 
-					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link"> <i
 							class="bi bi-map"></i> <i class="right fas fa-angle-left"></i>
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="admin_tourarea/admin_tourarea_list.jsp" class="nav-link active">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourarea_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourarea_review_list.jsp"
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
 						</ul></li>
 						
-					<li class="nav-item menu"><a href="#" class="nav-link"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
 							class="bi bi-tencent-qq"></i> <i class="right fas fa-angle-left"></i>
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
+							<li class="nav-item"><a href="admin_restaurant_list.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="admin_restaurant_add.jsp" class="nav-link active">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
+							<li class="nav-item"><a href="admin_restaurant_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>
@@ -400,7 +394,7 @@
 				<div class="container-fluid">
 					<div class="row mb-2">
 						<div class="col-sm-6">
-							<h1 class="m-0">관광지 관리</h1>
+							<h1 class="m-0">맛집 관리</h1>
 						</div>
 						<!-- /.col -->
 					</div>
@@ -415,10 +409,13 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">관광지 추가/수정</h3>
+                <h3 class="card-title">맛집 추가/수정</h3>
               </div>
+              
+              
+              
               <!-- /.card-header -->
-              <form action="admin_tourarea_add_proccess.jsp" method="post" id="infoFrm" enctype="multipart/form-data">
+            <form action="admin_restaurant_add_proccess.jsp" method="post" id="infoFrm" enctype="multipart/form-data">
               <div class="card-body">
                 <table class="table" style="border-left: 0px; border-right: 0px; border-top: 3px solid #535353; 
 	border-bottom: 1px solid #535353; border-spacing: 0px;">
@@ -464,15 +461,6 @@
             <div class="contents col-md-5" style="margin-top: 10px; display: inline-block;">
   	<label style="margin-left: 30px">이용시간</label>
   	<input type="text" class="inputBox" id="serviceHour" name="serviceHour" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이용시간을 입력해주세요."><br/>
-  	<label style="margin-left: 30px; margin-top: 30px">요금정보</label>
-  	<input type="text" class="inputBox" id="priceInfo" name="priceInfo" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="내용을 입력해주세요."><br/>
-  	<label style="margin-left: 30px; margin-top: 30px">경사도(난이도)</label>
-  	<select id="slope" name= "slope" class="form-select" aria-label="Default select example" style="display: inline-block; width: 40%; margin-left: 27px; margin-bottom: 150px">
-  		<option selected>난이도를 선택해주세요.</option>
-  		<option value="상">상</option>
- 		<option value="중">중</option>
-  		<option value="하">하</option>
-	</select> 
   		</div>
   		<div class="contents" style="margin-top: 10px; display: inline-block; width: 60%;" id="convenienceInput">
   		<label style="margin-left: 30px; float: left">편의시설</label>

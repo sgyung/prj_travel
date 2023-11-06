@@ -47,6 +47,9 @@ td {
 			}//end if
 		});//keyup
 
+		$("#logout").click(function() {
+			location.href = "../admin/admin_logout.jsp";
+		});//click    
 	})//ready
 	
 	function postDetail( id ) {
@@ -160,11 +163,15 @@ td {
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>맛집 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>
@@ -370,6 +377,7 @@ pageContext.setAttribute("startNum", startNum);
 					<option value="2"${ param.field eq '2'?"selected = 'selected'":"" }>내용</option>
 				</select>
                 <input type="text" name="keyword" id="keyword" class="inputBox" value ="${ param.keyword ne 'null'? parma.keyword:'' }" style="width: 200px; height: 30px;" placeholder="내용을 입력해주세요."/>
+                <input type="text" style="display: none"/>
                 <div style="display: inline-block;" >
                 <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
                 </div>

@@ -1,36 +1,22 @@
-<%@page import="java.sql.SQLException"%>
-<%@page import="admin.vo.NoticeVO"%>
-<%@page import="admin.dao.NoticeManageDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
-<c:if test="${ empty admin }">
-<c:redirect url="../admin/admin_login.jsp"/>
-</c:if>
-<%
-	NoticeManageDAO nmDAO = NoticeManageDAO.getInstance();
-try{
-	String noticeId = request.getParameter("postId");
-
-	if(noticeId != null){
-		NoticeVO nVO = nmDAO.selectNotice(noticeId);
-		pageContext.setAttribute("nVO", nVO);
-	}
-}catch(SQLException se){
-	se.printStackTrace();
-}
-%>
-    
+<%@ page info = "" %>    
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>관리자 | 게시판관리</title>
+<title>관리자 | 투어버스관리 | 투어버스예약관리</title>
 <link rel="stylesheet" type="text/css"
 	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
+thead {
+	text-align: center
+}
+
+td {
+	text-align: center
+}
 
 </style>
 <!-- jQuery CDN -->
@@ -38,27 +24,8 @@ try{
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
 	$(function() {
-		 $('#content').summernote({
-			 height: 350,                 // 에디터 높이
-			  minHeight: 100,             // 최소 높이
-			  maxHeight: 350,             // 최대 높이
-			  focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
-			  lang: "ko-KR"					// 한글 설정
-		 });
-		 
-		 $("#logout").click(function() {
-				location.href = "../admin/admin_logout.jsp";
-			});//click    
-		 
+		
 	})//ready
-	
-	function modifyProccess( id ) {
-		if(id != ''){
-		$("#postId").val(id);
-		}
-		$("#postFrm").submit();
-	}
-	
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
@@ -98,50 +65,46 @@ try{
 					data-widget="treeview" role="menu" data-accordion="true">
 					<!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-					<li class="nav-item"><a href="dashboard.jsp" class="nav-link">
+					<li class="nav-item"><a href="../admin_dashboard/dashboard.jsp" class="nav-link">
 							<i class="bi bi-speedometer"></i>
 							<p>Dashboard</p>
 					</a></li>
 
-					<li class="nav-item"><a href="admin_user.jsp" class="nav-link">
+					<li class="nav-item"><a href="../admin_user/admin_user.jsp" class="nav-link">
 							<i class="bi-people-fill"></i>
 							<p>회원관리</p>
 					</a></li>
 
-					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link"> <i
 							class="bi bi-pencil-square"></i> <i
 							class="right fas fa-angle-left"></i>
 							<p>게시판관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="admin_post_list.jsp" class="nav-link active">
+							<li class="nav-item"><a href="../admin_post/admin_post_list.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>공지사항 관리</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_question_list.jsp"
+							<li class="nav-item"><a href="../admin_post/admin_question_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>문의사항 관리</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_board_list.jsp"
+							<li class="nav-item"><a href="../admin_post/admin_board_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>자유게시판 관리</p>
 							</a></li>
 						</ul></li>
 
-					<li class="nav-item menu"><a href="#" class="nav-link"> <i
+					<li class="nav-item menu"><a href="admin_tourarea_list" class="nav-link"> <i
 							class="bi bi-map"></i> <i class="right fas fa-angle-left"></i>
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
-									<i class="far fa-circle nav-icon"></i>
-									<p>관광지 목록</p>
-							</a></li>
-							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="admin_tourarea_add" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
+							<li class="nav-item"><a href="admin_tourarea_review_list"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
@@ -152,30 +115,30 @@ try{
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
-									<i class="far fa-circle nav-icon"></i>
-									<p>맛집 목록</p>
-							</a></li>
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="./index.html" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
+							<li class="nav-item"><a href="./index2.html"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>
 						</ul></li>
 
-					<li class="nav-item menu"><a href="#" class="nav-link"> <i
+					<li class="nav-item menu"><a href="#" class="nav-link active"> <i
 							class="bi bi-bus-front"></i> <i class="right fas fa-angle-left"></i>
 							<p>투어버스 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="admin_tourbus_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>투어버스 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="admin_tourbus_add.jsp" class="nav-link active">
 									<i class="far fa-circle nav-icon"></i>
 									<p>투어버스 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="admin_tourbus_reservation.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>투어버스 예약 관리</p>
 							</a></li>
@@ -191,7 +154,7 @@ try{
 				<div class="container-fluid">
 					<div class="row mb-2">
 						<div class="col-sm-6">
-							<h1 class="m-0">게시판 관리</h1>
+							<h1 class="m-0">투어버스 관리</h1>
 						</div>
 						<!-- /.col -->
 					</div>
@@ -201,39 +164,88 @@ try{
 			</div>
 			<!-- /.content-header -->
 	<section class="content">
-      <div class="container-fluid" style="width: 80%">
+      <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">공지사항 관리</h3>
+                <h3 class="card-title">제주도심 야간여행 야밤버스</h3>
               </div>
-              
-              <form action="admin_post_add_proccess.jsp" method="post" name="postFrm" id="postFrm">
-              <input type="hidden" id="postId" name="postId"/>
               <!-- /.card-header -->
-              <div class="card-body">
+              <div class="contents" style="margin-top: 40px">
+            <div class="contents col-md-4" style="margin-top: 10px; display: inline-block;">
+  		<label style="margin-left: 30px; float: left">운행날짜</label>
+  		<input type="text" class="inputBox" id="adult" name="adult" style="width: 60%; margin-left: 40px" placeholder="운행날짜를 입력해주세요."><br/>
+		</div>
+		<div class="contents" style="margin-top: 10px; display: inline-block; width: 30%;">
+  		 <label style=" float: left; margin-right: 60px">버스시간</label>
+  		<select class="form-select" id="reservationTime" name="reservationTime" style="width:50%">
+		  <option value="1">10:00</option>
+		  <option value="2">11:00</option>
+		</select>
+		</div>
+		<div class="contents" style="margin-top: 10px; display: inline-block; width: 30%;">
+  		<input type="button" id="search" name="search" value="조회" class="btn btn-info" style="width: 40%"/>
+  		</div>
+  		</div>
+            
+              <div class="card-body" style="height: 650px; margin-top: 70px">
                 <table class="table table-bordered">
-                    <tr style="height: 80px;">
-                      <th style=" width:100px; text-align: center; vertical-align: middle;" >제목</th>
-                      <td><input type="text" name="title" class="inputBox" id="title" style=" width:90% ;height: 40px; margin-top: 10px; text-align: left;" value="${ nVO.title }"/></td>
+                  <thead>
+                    <tr>
+                      <th style="width: 20px">좌석번호</th>
+                      <th style="width: 240px">예약자</th>
+                      <th style="width: 260px">예약일자</th>
+                      <th style="width: 70px">상태</th>
+                      <th style="width: 70px"></th>
                     </tr>
-                    <tr style="height: 400px; max-height: 400px">
-                      <th style=" width:100px; text-align: center; vertical-align: middle;">내용</th>
-                      <td> 
-            			<textarea id="content" name="content" >${ nVO.content }</textarea>
-       				</td>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>JYS</td>
+                      <td>2023-10-12</td>
+                      <td><label>미승인</label>
+                      </td>
+                      <td style="text-align: center;">
+                      <input type="button" class="btn btn-primary" value="승인하기" >
+                      </td>
                     </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>JYS</td>
+                      <td>2023-10-12</td>
+                      <td><label>승인완료</label></td>
+                      <td style="text-align: center;">
+                      <input type="button" class="btn btn-secondary" value="승인취소" >
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>11</td>
+                      <td>JYS</td>
+                      <td>2023-10-12</td>
+                      <td><label>미승인</label>
+                      </td>
+                      <td style="text-align: center;">
+                      <input type="button" class="btn btn-primary" value="승인하기" >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>15</td>
+                      <td>JYS</td>
+                      <td>2023-10-12</td>
+                      <td><label>승인완료</label></td>
+                      <td style="text-align: center;">
+                      <input type="button" class="btn btn-secondary" value="승인취소">
+                    </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
               <!-- /.card-body -->
-              </form>
-              
+             
             </div>
             <!-- /.card -->
-            </div>
-          <div style="float: left; text-align: right; "> 
-            <input type="button" value="등록" class="btn btn-primary" id="insert" style="width: 150px;" onclick="modifyProccess('${ nVO.id ne null ?  nVO.id : ''}') " >
             </div>
             </div>
            </div>

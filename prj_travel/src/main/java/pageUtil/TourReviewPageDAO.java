@@ -8,30 +8,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import admin.vo.NoticeVO;
+import admin.vo.TourReviewVO;
 import kr.co.dao.DbConnection;
 
-
-public class NoticePageDAO {
-	private static NoticePageDAO npDAO;
+public class TourReviewPageDAO {
+	private static TourReviewPageDAO trpDAO;
 	
-	private NoticePageDAO() {
+	private TourReviewPageDAO() {
 		
 	}
 	
-	public static NoticePageDAO getInstance() {
-		if(npDAO == null) {
-			npDAO = new NoticePageDAO();
+	public static TourReviewPageDAO getInstance() {
+		if(trpDAO == null) {
+			trpDAO = new TourReviewPageDAO();
 		}
-		return npDAO;
+		return trpDAO;
 	}
 	
 	/**
-	 * 10월 23일 Dynamic Query
 	 * @param brVO
 	 * @return
 	 * @throws SQLException
 	 */
-	public int noticeTotalCount(PageVO pVO) throws SQLException {
+	public int tourReviewTotalCount(PageVO pVO) throws SQLException {
 		int totalCount = 0;
 		
 		DbConnection db = DbConnection.getInstance();
@@ -44,18 +43,18 @@ public class NoticePageDAO {
 			con = db.getConn("jdbc/dbcp");
 			
 			StringBuilder selectCnt = new StringBuilder();
-			selectCnt.append("select count(*) cnt from notice	");
+			selectCnt
+			.append(" select count(distinct ta.tourist_area_id) as cnt	")
+			.append(" from tourist_area ta	")
+			.append(" inner join tourist_review tr on ta.tourist_area_id = tr.tourist_area_id	");
 			
 			if(pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
 				String field = "";
 				
 				if ("1".equals(pVO.getField())) {
-					field = "notice_title";
+					field = "ta.tourist_area_name";
 				}
 				
-				if ("2".equals(pVO.getField())) {
-					field = "notice_content";
-				}
 				
 				selectCnt.append("where ").append(field ).append(" like '%' || ? || '%'");
 			
@@ -85,8 +84,8 @@ public class NoticePageDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<NoticeVO> selectNotice(PageVO pVO) throws SQLException{
-		List<NoticeVO> list = new ArrayList<NoticeVO>();
+	public List<TourReviewVO> selectTouristReview(PageVO pVO) throws SQLException{
+		List<TourReviewVO> list = new ArrayList<TourReviewVO>();
 		
 		DbConnection db = DbConnection.getInstance();
 		Connection con = null;
@@ -100,29 +99,31 @@ public class NoticePageDAO {
 			con = db.getConn("jdbc/dbcp");
 				
 		// 4. 쿼리문 생성객체 얻기 => 검색 키워드와 검색 field에 따라 Dynamic Query로 변경
-			StringBuilder selectNotice = new StringBuilder();
-			selectNotice
-	        .append("SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num ")
-	        .append("FROM (SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num, ")
-	        .append("ROW_NUMBER() OVER (ORDER BY notice_upload_date DESC) rnum ")
-	        .append("FROM notice ");
+			StringBuilder selectTouristReview = new StringBuilder();
+			selectTouristReview
+	        .append("	select *	 ")
+	        .append("	from (select ta.tourist_area_id,ta.tourist_area_name,max(tr.tourist_review_date) as latest_review_date,	 ")
+	        .append("	count(tr.tourist_review_id) as review_count, 	")
+	        .append("	row_number() over (order by max(tr.tourist_review_date) desc) as rnum	 ")
+	        .append("	from tourist_area ta left join tourist_review tr on ta.tourist_area_id = tr.tourist_area_id 	")
+			.append("	where tr.tourist_review_id is not null and ta.delete_state = 'N' 	");
 
 			if (pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
 				String field = "";
 				
 				if ("1".equals(pVO.getField())) {
-					field = "notice_title";
-				}
-				
-				if ("2".equals(pVO.getField())) {
-					field = "notice_content";
+					field = "ta.tourist_area_name";
 				}
 
-				selectNotice.append("WHERE ").append(field).append(" LIKE '%' || ? || '%' ");
+				selectTouristReview.append(" and ").append(field).append(" LIKE '%' || ? || '%' ");
 			}
-			selectNotice.append(") WHERE rnum BETWEEN ? AND ?");
+			selectTouristReview
+			.append("	group by ta.tourist_area_id, ta.tourist_area_name	 ")
+			.append("	having count(tr.tourist_review_id) >= 1 	")
+			.append("	order by latest_review_date desc 	")
+			.append("	) where rnum between ? and ?	");
 			
-			pstmt = con.prepareStatement(selectNotice.toString());
+			pstmt = con.prepareStatement(selectTouristReview.toString());
 			
 		// 5. 바인드 변수에 값 설정
 			int bindCnt = 1;
@@ -132,22 +133,19 @@ public class NoticePageDAO {
 			
 			pstmt.setInt(bindCnt++, pVO.getStartNum());
 			pstmt.setInt(bindCnt++, pVO.getEndNum());
-			System.out.println(pVO.getEndNum());
 			
 		// 6. 쿼리문 수행 후 결과 얻기
-			NoticeVO nVO = null;
-		
+			TourReviewVO trVO = null;
+			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
-				nVO = new NoticeVO();
-				nVO.setId(rs.getString("notice_id"));
-				nVO.setTitle(rs.getString("notice_title"));
-				nVO.setContent(rs.getString("notice_content"));
-				nVO.setRegistrationDate(rs.getDate("notice_upload_date"));
-				nVO.setViewNum(rs.getInt("notice_view_num"));
-				
-				list.add(nVO);
+				trVO = new TourReviewVO();
+				trVO.setTouristAreaId(rs.getString("tourist_area_id"));
+				trVO.setTourAreaName(rs.getString("tourist_area_name"));
+				trVO.setReviewDate(rs.getDate("latest_review_date"));
+				trVO.setReviewCnt(rs.getInt("review_count"));
+				list.add(trVO);
 			}
 			
 		} finally {
@@ -155,6 +153,4 @@ public class NoticePageDAO {
 		}
 		return list;
 	}
-	
-	
 }

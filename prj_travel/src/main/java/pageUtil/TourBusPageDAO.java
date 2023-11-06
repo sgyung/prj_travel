@@ -7,31 +7,24 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import admin.vo.NoticeVO;
+import admin.vo.TourBusVO;
 import kr.co.dao.DbConnection;
 
-
-public class NoticePageDAO {
-	private static NoticePageDAO npDAO;
+public class TourBusPageDAO {
+	private static TourBusPageDAO tbpDAO;
 	
-	private NoticePageDAO() {
+	private TourBusPageDAO() {
 		
 	}
 	
-	public static NoticePageDAO getInstance() {
-		if(npDAO == null) {
-			npDAO = new NoticePageDAO();
+	public static TourBusPageDAO getInstance() {
+		if(tbpDAO == null) {
+			tbpDAO = new TourBusPageDAO();
 		}
-		return npDAO;
+		return tbpDAO;
 	}
 	
-	/**
-	 * 10월 23일 Dynamic Query
-	 * @param brVO
-	 * @return
-	 * @throws SQLException
-	 */
-	public int noticeTotalCount(PageVO pVO) throws SQLException {
+	public int tourBusTotalCount(PageVO pVO) throws SQLException {
 		int totalCount = 0;
 		
 		DbConnection db = DbConnection.getInstance();
@@ -44,17 +37,13 @@ public class NoticePageDAO {
 			con = db.getConn("jdbc/dbcp");
 			
 			StringBuilder selectCnt = new StringBuilder();
-			selectCnt.append("select count(*) cnt from notice	");
+			selectCnt.append("select count(*) cnt from bustour	");
 			
 			if(pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
 				String field = "";
 				
 				if ("1".equals(pVO.getField())) {
-					field = "notice_title";
-				}
-				
-				if ("2".equals(pVO.getField())) {
-					field = "notice_content";
+					field = "bustour_name";
 				}
 				
 				selectCnt.append("where ").append(field ).append(" like '%' || ? || '%'");
@@ -85,8 +74,8 @@ public class NoticePageDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<NoticeVO> selectNotice(PageVO pVO) throws SQLException{
-		List<NoticeVO> list = new ArrayList<NoticeVO>();
+	public List<TourBusVO> selectTourBus(PageVO pVO) throws SQLException{
+		List<TourBusVO> list = new ArrayList<TourBusVO>();
 		
 		DbConnection db = DbConnection.getInstance();
 		Connection con = null;
@@ -100,29 +89,24 @@ public class NoticePageDAO {
 			con = db.getConn("jdbc/dbcp");
 				
 		// 4. 쿼리문 생성객체 얻기 => 검색 키워드와 검색 field에 따라 Dynamic Query로 변경
-			StringBuilder selectNotice = new StringBuilder();
-			selectNotice
-	        .append("SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num ")
-	        .append("FROM (SELECT notice_id, notice_title, notice_content, notice_upload_date, notice_view_num, ")
-	        .append("ROW_NUMBER() OVER (ORDER BY notice_upload_date DESC) rnum ")
-	        .append("FROM notice ");
+			StringBuilder selectTourBus = new StringBuilder();
+			selectTourBus
+	        .append("	select bustour_id, bustour_name, regist_date, operation_state ")
+	        .append("	FROM (select bustour_id, bustour_name, regist_date, operation_state, ")
+	        .append("	ROW_NUMBER() OVER (ORDER BY bustour_id DESC) rnum ")
+	        .append("	FROM bustour ");
 
 			if (pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
 				String field = "";
 				
 				if ("1".equals(pVO.getField())) {
-					field = "notice_title";
+					field = "bustour_name";
 				}
-				
-				if ("2".equals(pVO.getField())) {
-					field = "notice_content";
-				}
-
-				selectNotice.append("WHERE ").append(field).append(" LIKE '%' || ? || '%' ");
+				selectTourBus.append("	WHERE ").append(field).append(" LIKE '%' || ? || '%' ");
 			}
-			selectNotice.append(") WHERE rnum BETWEEN ? AND ?");
+			selectTourBus.append(") WHERE rnum BETWEEN ? AND ?");
 			
-			pstmt = con.prepareStatement(selectNotice.toString());
+			pstmt = con.prepareStatement(selectTourBus.toString());
 			
 		// 5. 바인드 변수에 값 설정
 			int bindCnt = 1;
@@ -132,22 +116,20 @@ public class NoticePageDAO {
 			
 			pstmt.setInt(bindCnt++, pVO.getStartNum());
 			pstmt.setInt(bindCnt++, pVO.getEndNum());
-			System.out.println(pVO.getEndNum());
 			
 		// 6. 쿼리문 수행 후 결과 얻기
-			NoticeVO nVO = null;
-		
+			TourBusVO tbVO = null;
+			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
-				nVO = new NoticeVO();
-				nVO.setId(rs.getString("notice_id"));
-				nVO.setTitle(rs.getString("notice_title"));
-				nVO.setContent(rs.getString("notice_content"));
-				nVO.setRegistrationDate(rs.getDate("notice_upload_date"));
-				nVO.setViewNum(rs.getInt("notice_view_num"));
+				tbVO = new TourBusVO();
+				tbVO.setId(rs.getString("bustour_id"));
+				tbVO.setName(rs.getString("bustour_name"));
+				tbVO.setRegistrationTime(rs.getDate("regist_date"));
+				tbVO.setOperationState(rs.getString("operation_state"));
 				
-				list.add(nVO);
+				list.add(tbVO);
 			}
 			
 		} finally {
@@ -155,6 +137,4 @@ public class NoticePageDAO {
 		}
 		return list;
 	}
-	
-	
 }

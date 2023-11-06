@@ -1,9 +1,11 @@
 package admin.vo;
 
 import java.sql.Date;
+import java.util.Arrays;
 
 public class RestaurantVO {
-	private String id,name,addr,tel,serviceHour,detailInfo,image;
+	private String id,name,addr,tel,serviceHour,detailInfo,deleteState,image,tags,conveniences,thumbnail;
+	private String[] tagName,convenienceName;
 	private double longitude,latitude;
 	private int starScore,like,reviewCount,viewNum;
 	private Date registraitionDate;
@@ -13,8 +15,9 @@ public class RestaurantVO {
 	}
 
 	public RestaurantVO(String id, String name, String addr, String tel, String serviceHour, String detailInfo,
-			String image, double longitude, double latitude, int starScore, int like, int reviewCount, int viewNum,
-			Date registraitionDate) {
+			String deleteState, String image, String tags, String conveniences, String thumbnail, String[] tagName,
+			String[] convenienceName, double longitude, double latitude, int starScore, int like, int reviewCount,
+			int viewNum, Date registraitionDate) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -22,7 +25,13 @@ public class RestaurantVO {
 		this.tel = tel;
 		this.serviceHour = serviceHour;
 		this.detailInfo = detailInfo;
+		this.deleteState = deleteState;
 		this.image = image;
+		this.tags = tags;
+		this.conveniences = conveniences;
+		this.thumbnail = thumbnail;
+		this.tagName = tagName;
+		this.convenienceName = convenienceName;
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.starScore = starScore;
@@ -80,12 +89,60 @@ public class RestaurantVO {
 		this.detailInfo = detailInfo;
 	}
 
+	public String getDeleteState() {
+		return deleteState;
+	}
+
+	public void setDeleteState(String deleteState) {
+		this.deleteState = deleteState;
+	}
+
 	public String getImage() {
 		return image;
 	}
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public String getTags() {
+		return tags;
+	}
+
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
+
+	public String getConveniences() {
+		return conveniences;
+	}
+
+	public void setConveniences(String conveniences) {
+		this.conveniences = conveniences;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
+	public String[] getTagName() {
+		return tagName;
+	}
+
+	public void setTagName(String[] tagName) {
+		this.tagName = tagName;
+	}
+
+	public String[] getConvenienceName() {
+		return convenienceName;
+	}
+
+	public void setConvenienceName(String[] convenienceName) {
+		this.convenienceName = convenienceName;
 	}
 
 	public double getLongitude() {
@@ -147,10 +204,14 @@ public class RestaurantVO {
 	@Override
 	public String toString() {
 		return "RestaurantVO [id=" + id + ", name=" + name + ", addr=" + addr + ", tel=" + tel + ", serviceHour="
-				+ serviceHour + ", detailInfo=" + detailInfo + ", image=" + image + ", longitude=" + longitude
-				+ ", latitude=" + latitude + ", starScore=" + starScore + ", like=" + like + ", reviewCount="
-				+ reviewCount + ", viewNum=" + viewNum + ", registraitionDate=" + registraitionDate + "]";
+				+ serviceHour + ", detailInfo=" + detailInfo + ", deleteState=" + deleteState + ", image=" + image
+				+ ", tags=" + tags + ", conveniences=" + conveniences + ", thumbnail=" + thumbnail + ", tagName="
+				+ Arrays.toString(tagName) + ", convenienceName=" + Arrays.toString(convenienceName) + ", longitude="
+				+ longitude + ", latitude=" + latitude + ", starScore=" + starScore + ", like=" + like
+				+ ", reviewCount=" + reviewCount + ", viewNum=" + viewNum + ", registraitionDate=" + registraitionDate
+				+ "]";
 	}
+
 	
 	
 }

@@ -101,6 +101,10 @@ td {
 				chkNull();
 			}//end if
 		});//keyup
+		
+		$("#logout").click(function() {
+			location.href = "../admin/admin_logout.jsp";
+		});//click    
 	})//ready
 	
 	function tourAreaDetail( id ) {
@@ -213,11 +217,15 @@ td {
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>맛집 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>
@@ -291,7 +299,7 @@ td {
 %>
 				<c:forEach var="list" items="${ list }" varStatus="i">
                     <tr>
-                      <td><c:out value="${ i.count }"/></td>
+                      <td><c:out value="${ i.index + startNum }"/></td>
                       <td><a href="#void" onclick="tourAreaDetail('${ list.id }')"><c:out value="${ list.name }"/></a></td>
                       <td><c:out value="${ list.registraitionDate }"/></td>
                     </tr>
@@ -306,7 +314,7 @@ td {
                 if( currentPage > pageNumber ){
                 	movePage=startPage-1;
 				%>                    
-                  <li class="page-item"><a class="page-link" href="admin_post_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&laquo;</a></li>
+                  <li class="page-item"><a class="page-link" href="admin_tourarea_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&laquo;</a></li>
                 <%
                     }else{
                 %>
@@ -325,7 +333,7 @@ td {
                   <%
                 	  }else{
                   %>
-                  <li class="page-item"><a class="page-link" href = "admin_post_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">
+                  <li class="page-item"><a class="page-link" href = "admin_tourarea_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">
                   <%= movePage %></a></li>
                  
                  <%
@@ -337,7 +345,7 @@ td {
                  <%
                 if( totalPage > endPage ){
 				%>                    
-                  <li class="page-item"><a class="page-link" href="admin_post_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&raquo;</a></li>
+                  <li class="page-item"><a class="page-link" href="admin_tourarea_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&raquo;</a></li>
                 <%
                     }else{
                 %>

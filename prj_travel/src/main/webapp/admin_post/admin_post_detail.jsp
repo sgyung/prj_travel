@@ -28,6 +28,10 @@
 		$("#delete").click(function() {
 			deletePost();
 		});
+		
+		$("#logout").click(function() {
+			location.href = "../admin/admin_logout.jsp";
+		});//click    
 	})//ready
 	
 	function postModify( id ) {
@@ -137,11 +141,15 @@
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>맛집 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>

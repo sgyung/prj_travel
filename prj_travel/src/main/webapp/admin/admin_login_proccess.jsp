@@ -29,7 +29,7 @@ if(loginFlag){
 %>
 		 <script>
             alert("아이디나 비밀번호를 확인해주세요.");
-            window.location.href='login_frm.jsp';
+            window.location.href='admin_login.jsp';
         </script>
 
 <%	

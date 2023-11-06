@@ -9,13 +9,15 @@ public class TourReviewVO {
 	private int starScore;
 	private String content;
 	private String touristAreaId;
+	private String tourAreaName;
+	private int reviewCnt;
 	
 	public TourReviewVO(){
 	
 	}
 
 	public TourReviewVO(String reviewId, String userId, Date reviewDate, int starScore, String content,
-			String touristAreaId) {
+			String touristAreaId, String tourAreaName, int reviewCnt) {
 		super();
 		this.reviewId = reviewId;
 		this.userId = userId;
@@ -23,6 +25,8 @@ public class TourReviewVO {
 		this.starScore = starScore;
 		this.content = content;
 		this.touristAreaId = touristAreaId;
+		this.tourAreaName = tourAreaName;
+		this.reviewCnt = reviewCnt;
 	}
 
 	public String getReviewId() {
@@ -73,11 +77,32 @@ public class TourReviewVO {
 		this.touristAreaId = touristAreaId;
 	}
 
+	public String getTourAreaName() {
+		return tourAreaName;
+	}
+
+	public void setTourAreaName(String tourAreaName) {
+		this.tourAreaName = tourAreaName;
+	}
+
+	public int getReviewCnt() {
+		return reviewCnt;
+	}
+
+	public void setReviewCnt(int reviewCnt) {
+		this.reviewCnt = reviewCnt;
+	}
+
 	@Override
 	public String toString() {
 		return "TourReviewVO [reviewId=" + reviewId + ", userId=" + userId + ", reviewDate=" + reviewDate
-				+ ", starScore=" + starScore + ", content=" + content + ", touristAreaId=" + touristAreaId + "]";
+				+ ", starScore=" + starScore + ", content=" + content + ", touristAreaId=" + touristAreaId
+				+ ", tourAreaName=" + tourAreaName + ", reviewCnt=" + reviewCnt + "]";
 	}
+
+	
+
+	
 	
 	
 }

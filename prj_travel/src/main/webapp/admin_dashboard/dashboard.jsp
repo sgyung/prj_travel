@@ -60,10 +60,12 @@ $(function(){
 
     // restaurantRankList에서 데이터 추출
     for (var i = 0; i < touristAreaRankList.length; i++) {
-    	if(i != 5){
+    	if(i < 5){
         var rankVO = touristAreaRankList[i];
         labels.push(rankVO.name);
         data.push(rankVO.like);
+    	}else{
+    		break;
     	}
     }
 
@@ -110,9 +112,14 @@ $(function(){
 
 		    // restaurantRankList에서 데이터 추출
 		    for (var i = 0; i < restaurantRankList.length; i++) {
+		    	if(i < 5){
 		        var rankVO = restaurantRankList[i];
 		        labels.push(rankVO.name);
 		        data.push(rankVO.like);
+		    	}else{
+		    		break;
+		    	}
+		    	
 		    }
 		    
 		    var areaChartData2 = {
@@ -268,49 +275,43 @@ function questionDetail(id) {
 							</a></li>
 						</ul></li>
           
-           <li class="nav-item menu">
-            <a href="#" class="nav-link">
-              <i class="bi bi-tencent-qq"></i>
-                <i class="right fas fa-angle-left"></i>
-             <p>맛집 관리</p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="./index.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>맛집 추가</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="./index2.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>맛집 리뷰 관리</p>
-                </a>
-              </li>
-            </ul>
-          </li>
+          <li class="nav-item menu"><a href="#" class="nav-link"> <i
+							class="bi bi-tencent-qq"></i> <i class="right fas fa-angle-left"></i>
+							<p>맛집 관리</p>
+					</a>
+						<ul class="nav nav-treeview">
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>맛집 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_add.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>맛집 추가</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_restaurant/admin_restaurant_review_list.jsp"
+								class="nav-link"> <i class="far fa-circle nav-icon"></i>
+									<p>맛집 리뷰 관리</p>
+							</a></li>
+						</ul></li>
           
-           <li class="nav-item menu">
-            <a href="#" class="nav-link">
-              <i class="bi bi-bus-front"></i>
-                <i class="right fas fa-angle-left"></i>
-             <p>투어버스 관리</p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="./index.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>투어버스 추가</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="./index2.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>투어버스 예약 관리</p>
-                </a>
-              </li>
-            </ul>
-          </li>
+           <li class="nav-item menu"><a href="#" class="nav-link"> <i
+							class="bi bi-bus-front"></i> <i class="right fas fa-angle-left"></i>
+							<p>투어버스 관리</p>
+					</a>
+						<ul class="nav nav-treeview">
+							<li class="nav-item"><a href="../admin_tourbus/admin_tourbus_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>투어버스 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourbus/admin_tourbus_add.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>투어버스 추가</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourbus/admin_tourbus_reservation.jsp"
+								class="nav-link"> <i class="far fa-circle nav-icon"></i>
+									<p>투어버스 예약 관리</p>
+							</a></li>
+						</ul></li>
           
         </ul>
       </nav>

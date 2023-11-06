@@ -104,7 +104,7 @@ public class TouristAreaPageDAO {
 			selectTouristArea
 	        .append("select tourist_area_id, tourist_area_name,tourist_area_upload_date ")
 	        .append("FROM (select tourist_area_id, tourist_area_name,tourist_area_upload_date, ")
-	        .append("ROW_NUMBER() OVER (ORDER BY tourist_area_upload_date DESC) rnum ")
+	        .append("ROW_NUMBER() OVER (ORDER BY tourist_area_id DESC) rnum ")
 	        .append("FROM tourist_area where delete_state = 'N' ");
 
 			if (pVO.getKeyword() != null && !"".equals(pVO.getKeyword()) && !"null".equals(pVO.getKeyword())) {
@@ -146,6 +146,7 @@ public class TouristAreaPageDAO {
 				
 				list.add(taVO);
 			}
+			
 			
 		} finally {
 			db.dbClose(rs, pstmt, con);
