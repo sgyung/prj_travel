@@ -113,7 +113,7 @@ public class TourBusManageDAO {
 			pstmt.setString(6, tbVO.getBusTourTime());
 			pstmt.setInt(7, tbVO.getAdultFare());
 			pstmt.setInt(8, tbVO.getChildFare());
-			pstmt.setString(9, "http://loaclhost/prj_travel/common/images/tour_bus_img/" + tbVO.getImage());
+			pstmt.setString(9, "/prj_travel/common/images/tour_bus_img/" + tbVO.getImage());
 			
 			resultCnt += pstmt.executeUpdate();
 			
