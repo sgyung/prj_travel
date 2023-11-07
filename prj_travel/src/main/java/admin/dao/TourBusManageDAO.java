@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import admin.vo.ReservationCountVO;
 import admin.vo.TourBusReservationVO;
 import admin.vo.TourBusVO;
 import kr.co.dao.DbConnection;
@@ -402,6 +403,48 @@ public class TourBusManageDAO {
 			}
 		
 		return tbrVO;
+	}
+	
+	public List<ReservationCountVO> selectUnApprovalCount() throws SQLException{
+		List<ReservationCountVO> list = new ArrayList<ReservationCountVO>();
+		ReservationCountVO rcVO = null;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder selectUnApprovalCount = new StringBuilder();
+				selectUnApprovalCount
+				.append("	SELECT T.BUSTOUR_ID, T.BUSTOUR_NAME, COUNT(*) AS UNAPPROVED_COUNT	")
+				.append("	FROM BUSTOUR_RESERVATION R	")
+				.append("	JOIN BUSTOUR T ON R.BUSTOUR_ID = T.BUSTOUR_ID	")
+				.append("    WHERE R.APPROVAL_STATE = 'N' ")
+				.append("	AND TRUNC(R.RESERVATION_DATE) = TRUNC(SYSDATE)	")
+				.append("	GROUP BY T.BUSTOUR_NAME	");
+				
+				pstmt = con.prepareStatement(selectUnApprovalCount.toString());
+				
+				rs = pstmt.executeQuery();
+				
+				while(rs.next()) {
+					rcVO = new ReservationCountVO();
+					rcVO.setTourbusId(rs.getString("BUSTOUR_ID"));
+					rcVO.setTourName(rs.getNString("BUSTOUR_NAME"));
+					rcVO.setUnapprovedCount(rs.getInt("UNAPPROVED_COUNT"));
+					
+					list.add(rcVO);
+				}	
+					
+			}finally {
+				db.dbClose(rs, pstmt, con);
+			}
+		
+		return list;
 	}
 	
 }

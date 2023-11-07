@@ -121,15 +121,15 @@ function restaurantDelete(id){
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="../admin-tourarea/admin_tourarea_list.jsp" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin-tourarea/admin_tourarea_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="../admin-tourarea/admin_tourarea_review_list.jsp"
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
@@ -222,7 +222,7 @@ function restaurantDelete(id){
             <div class="sub_visual_wrap" style="background: url('${rVO.image }') 30% 30% / cover no-repeat;" data-v-09a75c9f=""><div class="inner_wrap" data-v-09a75c9f=""><div data-v-09a75c9f=""></div>
 					<div class="sub_info_area" data-v-09a75c9f="">
 					<div class="sub_info_title" data-v-09a75c9f="">
-					<h3 data-v-09a75c9f="" class="">${ taVO.name }</h3>
+					<h3 data-v-09a75c9f="" class="">${ rVO.name }</h3>
 					<p class="h3_sub" style="margin-top:0" data-v-09a75c9f=""></p>
 					<!---->
 				</div>

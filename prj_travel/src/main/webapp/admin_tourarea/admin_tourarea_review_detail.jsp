@@ -301,6 +301,12 @@ pageContext.setAttribute("startNum", startNum);
 						<div class="col-sm-6">
 							<h1 class="m-0">관광지 리뷰 관리</h1>
 						</div>
+									<div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="../admin_dashboard/dashboard.jsp">Home</a></li>
+              <li class="breadcrumb-item active">관광지 리뷰 관리</li>
+            </ol>
+          </div>
 						<!-- /.col -->
 					</div>
 					<!-- /.row -->

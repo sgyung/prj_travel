@@ -1,3 +1,4 @@
+<%@page import="admin.vo.ReservationCountVO"%>
 <%@page import="admin.vo.RestaurantReviewVO"%>
 <%@page import="admin.vo.TourReviewVO"%>
 <%@page import="com.google.gson.Gson"%>
@@ -170,6 +171,11 @@ function noticeDetail(id) {
 function questionDetail(id) {
 	$("#questionId").val(id);
 	$("#questionFrm").submit();
+}
+
+function moveReservation(id){
+	$("#tourbusId").val(id);
+	$("#tourbusFrm").submit();
 }
 
 
@@ -439,7 +445,7 @@ try{
 	List<QandAVO> waitingAnswerList = dDAO.selectWaitingAnswer();
 	
 	for(int i = 0; i < waitingAnswerList.size(); i++){
-		if(i != 5 ){
+		if(i < 5 ){
 %>
                    <tr>
                       <td><%= i+1 %></td>
@@ -448,8 +454,6 @@ try{
                       <td><%= waitingAnswerList.get(i).getRegistrationDate() %></td>
                     </tr>
 <%
-		}else{
-			break;
 		}
 	}
 }catch(SQLException se){
@@ -606,50 +610,74 @@ try{
       <div class="container-fluid">
         <!-- Small boxes (Stat box) -->
         <div class="row">
+<%
+	try{
+		List<ReservationCountVO> list = dDAO.selectUnappovedReservation();
+		System.out.println(list.toString());
+		for(int i = 0; i < list.size(); i++){
+			if(i == 0){
+%>
           <div class="col-lg-4 col-8">
             <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
-                <h3>5건</h3>
-                <h4>1번 버스</h4>
+                <h3><%= list.get(i).getUnapprovedCount() %>건</h3>
+                <h4><%= list.get(i).getTourName() %></h4>
 
               </div>
               <div class="icon">
                 <i class="ion ion-bag"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer" onclick="moveReservation('<%=list.get(i).getTourbusId() %>')">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
+<%
+			}else if(i == 1){
+%>          
+          
           <!-- ./col -->
           <div class="col-lg-4 col-8">
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                 <h3>5건</h3>
-                <h4>2번 버스</h4>
+                <h3><%= list.get(i).getUnapprovedCount() %>건</h3>
+                <h4><%= list.get(i).getTourName() %></h4>
               </div>
               <div class="icon">
                 <i class="ion ion-bag"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer" onclick="moveReservation('<%=list.get(i).getTourbusId() %>')">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
+<%
+			}else if(i == 2){
+%>          
           <!-- ./col -->
           <div class="col-lg-4 col-8">
             <!-- small box -->
             <div class="small-box bg-warning">
               <div class="inner">
-                <h3>5건</h3>
-                <h4>3번 버스</h4>
+               <h3><%= list.get(i).getUnapprovedCount() %>건</h3>
+                <h4><%= list.get(i).getTourName() %></h4>
               </div>
               <div class="icon">
                 <i class="ion ion-bag"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer" onclick="moveReservation('<%=list.get(i).getTourbusId() %>')">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
+<%
+			}
+		}
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>                
           <!-- ./col -->
       </div>
+       <form action="../admin_tourbus/admin_tourbus_reservation.jsp" method="post" id="tourbusFrm">
+          <input type="hidden" id="tourbusId" name="tourbusId"/>
+          </form>
       <!-- ./row -->
      </div>
      <!-- ./container-fluid -->

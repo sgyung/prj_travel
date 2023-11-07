@@ -108,7 +108,7 @@ if( pass.replace(/ /g,"")  ==""){
          <img class="mb-4" src="${pageContext.request.contextPath}/images/bootstrap-logo.svg" alt="" width="72" height="57">
          <h1 class="h3 mb-3 fw-normal">관리자 로그인 페이지</h1>
          
-         <div class="form-floating">
+         <div class="form-floating"> 
             <input type="text" class="form-control" name="id" id="id" placeholder="아이디 입력...">
             <label for="id">아이디</label>
          </div>

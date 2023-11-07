@@ -331,7 +331,7 @@
 									<p>공지사항 관리</p>
 							</a></li>
 							<li class="nav-item"><a href="../admin_post/admin_question_list.jsp"
-								class="nav-link active"> <i class="far fa-circle nav-icon"></i>
+								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>문의사항 관리</p>
 							</a></li>
 							<li class="nav-item"><a href="../admin_post/admin_board_list.jsp"
@@ -345,11 +345,11 @@
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="admin_tourarea/admin_tourarea_list.jsp" class="nav-link active">
+							<li class="nav-item"><a href="admin_tourarea_list.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourarea_add.jsp" class="nav-link">
+							<li class="nav-item"><a href="admin_tourarea_add.jsp" class="nav-link active">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>

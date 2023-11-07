@@ -88,7 +88,7 @@ public class DashboardDAO {
 	
 			pstmt = con.prepareStatement(waitingAnswer.toString());
 			
-			pstmt.setString(1, "n");
+			pstmt.setString(1, "N");
 			
 			rs = pstmt.executeQuery();
 			
@@ -285,10 +285,11 @@ public class DashboardDAO {
 			
 			StringBuilder selectUnappovedReservation = new StringBuilder();
 			selectUnappovedReservation
-			.append("	select a.bustour_name,count(*) as reservation_state										")
-			.append("	from bustour a inner join bustour_reservation b on a.bustour_id = b.bustour_id			")
-			.append("	where b.approval_state = 'N' and a.bustour_name = ?										")
-			.append("	group by a.bustour_name																	");
+			.append("	SELECT T.BUSTOUR_ID, T.BUSTOUR_NAME, COALESCE(COUNT(R.APPROVAL_STATE), 0) AS UNAPPROVED_COUNT	")
+			.append("	FROM BUSTOUR T LEFT JOIN BUSTOUR_RESERVATION R ON T.BUSTOUR_ID = R.BUSTOUR_ID	")
+			.append("	AND R.APPROVAL_STATE = 'N' AND TRUNC(R.RESERVATION_DATE) = TRUNC(SYSDATE)	")
+			.append("    WHERE T.OPERATION_STATE = 'Y' ")
+			.append("	GROUP BY T.BUSTOUR_ID, T.BUSTOUR_NAME	");
 			
 			pstmt = con.prepareStatement(selectUnappovedReservation.toString());
 			
@@ -296,9 +297,9 @@ public class DashboardDAO {
 			
 			while(rs.next()){
 				reservationCountVO = new ReservationCountVO();
-				reservationCountVO.setTourName(rs.getString("bustour_name"));
-				reservationCountVO.setUnapprovedCount(rs.getInt("reservation_state"));
-				
+				reservationCountVO.setTourName(rs.getString("BUSTOUR_NAME"));
+				reservationCountVO.setTourbusId(rs.getString("BUSTOUR_ID"));
+				reservationCountVO.setUnapprovedCount(rs.getInt("UNAPPROVED_COUNT"));
 				
 				unappovedReservationList.add(reservationCountVO);
 			}
