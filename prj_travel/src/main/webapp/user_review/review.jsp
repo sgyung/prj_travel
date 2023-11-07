@@ -88,11 +88,19 @@
 	width:70px;
 	heigth:50px;
 	background:#ef6d00;
-	margin-top:70px;
 }
 
 .detail_page .util_wrap .util_area {
     float: left;
+}
+
+li.review_item:hover {
+  background-color: #f0f0f0
+}
+
+li.review_item {
+  background-color: white; /* 기본 배경색 (하얀색) */
+  transition: background-color 0.3s; /* 배경색 전환 효과를 추가 */
 }
 </style>
 <script language="javascript">
@@ -154,6 +162,7 @@ $(function(){
 					liNode += "</div>"	;
 					liNode += "<button type='button' class='btn btn-primary deleteBtn' style='color:white'>삭제</button>"	;
 					liNode += "<input type='hidden' class='reviewId' value='"+ jsonObj.reviewId  +"'/>"	;
+					liNode += "<input type='hidden' class='areaId' value='"+ jsonObj.areaId  +"'/>"	;
 					liNode += "</div>"	;
 					liNode += "</li>"	;
 				})//each
@@ -323,6 +332,7 @@ $(function(){
 					liNode += "</div>"	;
 					liNode += "<button type='button' class='btn btn-primary deleteBtn' style='color:white'>삭제</button>"	;
 					liNode += "<input type='hidden' class='reviewId' value='"+ jsonObj.reviewId  +"'/>"	;
+					liNode += "<input type='hidden' class='areaId' value='"+ jsonObj.areaId  +"'/>"	;
 					liNode += "</div>"	;
 					liNode += "</li>"	;
 				})//each
@@ -400,11 +410,31 @@ $(function(){
 			})//ajax
 			
 		} else {
-			console.log("취소")
 			return;
 		}
 		
 		
+	})//on
+	
+	$(document).on("click", ".review_item", function(){
+		if( !$(event.target).is(".deleteBtn")){
+			var areaId = $(this).find('.areaId').val()
+			var areaPath = "";
+			var category = "";
+			$(".categoryBtn").each(function(){
+				if( $(this).hasClass("on") ){
+					category = $(this).text();
+				}//end if
+			})
+			
+			if( category == "관광지"){
+				areaPath = "user_tourist_area/touristArea_detail.jsp?contentInfo="
+			} else {
+				areaPath = "user_restaurant/restaurant_detail.jsp?contentInfo="
+			}//end else
+
+			location.href="http://192.168.10.133/prj_travel/" + areaPath + areaId
+		}//end if
 	})//on
 		
 });//ready
@@ -424,7 +454,7 @@ $(function(){
 							<li data-v-09a75c9f="">
                    			 	<div id="tab3" class="add2020_detail_tab_box" data-v-09a75c9f="">
                    			 		<h2 data-v-09a75c9f=""><a data-v-09a75c9f="" id="reviewFadeBtn" class="up">리뷰<span class="arrow" data-v-09a75c9f="">축소됨</span></a></h2>
-                   			 			<div id="stab3" transition="fadeIn" class="add2020_detail_con tab_cont " style data-v-09a75c9f=""><p class="cont_tit">여행가의 리뷰
+                   			 			<div id="stab3" transition="fadeIn" class="add2020_detail_con tab_cont " style data-v-09a75c9f=""><p class="cont_tit">나의 리뷰
                    			 			<span id="reviewTotal" style="font-weight: 800; color: rgb(239, 109, 0); line-height: 24px; margin-left: 0px;"><c:out value="( ${ taReviewCnt + resReviewCnt } )" /></span></p>
                    			 				<div class="util_wrap clear">
                    			 					<div class="util_area">
@@ -454,11 +484,13 @@ $(function(){
 			 													</div>
 			 													<div class="user_content">
 			 														<div class="review clear"><p class="review_txt"><c:out value="${ review.content }" /></p>
+			 													
 			 															<p class="review_origin_text" style="display:none;"></p>
 			 															
 																			</div>
 			 														</div>
 			 														<button type="button" class="btn deleteBtn" style="color:white;">삭제</button>
+			 														<input type='hidden' class='areaId' value="${ review.areaId }"/>
 			 														<input type='hidden' class='reviewId' value="${ review.reviewId }"/>
 			 														</div>
 																</li>

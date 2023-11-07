@@ -1,3 +1,4 @@
+<%@page import="user_mypageDAO.MyPostDAO"%>
 <%@page import="user_mypageDAO.MyTourBusDAO"%>
 <%@page import="user_mypageDAO.MyReviewDAO"%>
 <%@page import="user_mypageDAO.MyQnADAO"%>
@@ -236,6 +237,10 @@ $(function () {
     MyReviewDAO mrDAO = MyReviewDAO.getInstance();
     int reviewCnt = mrDAO.selectTotalReview(userId);
     pageContext.setAttribute("reviewCnt", reviewCnt);
+    //마이페이지 게시글
+    MyPostDAO mpDAO = MyPostDAO.getInstance();
+    int postCnt = mpDAO.selectTotalPost(userId);
+    pageContext.setAttribute("postCnt", postCnt);
     //버스투어 예약내역
     MyTourBusDAO mytDAO = MyTourBusDAO.getInstance();
     int tourCnt = mytDAO.selectTotalReservation(userId);
@@ -261,11 +266,11 @@ $(function () {
     </div>
     <div class="boardbox"><span class="my_posts">내가쓴글</span>
     <div class="postbox">
-    <a href=" ../user_post/post.jsp" class="post">게시판</a><br/>
+    <a href=" http://192.168.10.133/prj_travel/user_post/my_post.jsp" class="post">게시판 : ${ postCnt }</a><br/>
     <div>&nbsp;</div>
-    <a href=" ../user_QandA/QandA.jsp" class="QandA">문의  :   ${ qnaCnt }</a><br/>
+    <a href=" http://192.168.10.133/prj_travel/user_QandA/QandA.jsp" class="QandA">문의  :   ${ qnaCnt }</a><br/>
     <div>&nbsp;</div>
-    <a href=" ../user_review/review.jsp" class="review">리뷰  :   ${ reviewCnt }</a>
+    <a href=" http://192.168.10.133/prj_travel/user_review/review.jsp" class="review">리뷰  :   ${ reviewCnt }</a>
     </div>
     
     <a href="http://192.168.10.133/prj_travel/user_tour_bus/my_tour_bus.jsp" class="reservation" style="text-align:center">예약내역<br>${ tourCnt }</a>

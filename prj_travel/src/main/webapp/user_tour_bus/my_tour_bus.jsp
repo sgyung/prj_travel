@@ -1,3 +1,5 @@
+<%@page import="user.vo.MyTourBusVO"%>
+<%@page import="user_mypageDAO.MyTourBusDAO"%>
 <%@page import="user_mypageDAO.MyQnADAO"%>
 <%@page import="user.vo.QnAVO"%>
 <%@page import="user.dao.QnADAO"%>
@@ -14,36 +16,13 @@
 <%
 	String userId = (String)session.getAttribute("sesId");
 	
-	int pageScale = 5;
-	Paging paging = Paging.getInstance();
-	//문의게시판
-	//Page목록
-	String qnaPage = request.getParameter("qnaPage");
-	int qnaCurrentPage = 1;
-	if( qnaPage != null) {
-		qnaCurrentPage = Integer.parseInt(qnaPage); 
-	}
-	MyQnADAO qDAO = MyQnADAO.getInstance();
-	int totalQnACnt = qDAO.selectTotalQnA(userId);
+	MyTourBusDAO mtbDAO = MyTourBusDAO.getInstance();
 	
-	//페이지 번호
-	int pagePerNum = 5; //한 화면에 보여줄 페이지번호 수
-	int totalQnAPage = paging.getTotalPage(totalQnACnt, pageScale);
-	//화면에 보여질 페이지 시작번호[0], 끝번호[1] 
-	int[] pagePerRange = paging.getTotalPageCnt(qnaCurrentPage, totalQnAPage, pagePerNum);
-	pageContext.setAttribute("startNum", pagePerRange[0]);
-	pageContext.setAttribute("endNum", pagePerRange[1]);
-	
-	int[] pageRange = paging.getPageRowRange(qnaCurrentPage, pageScale);
-	List<QnAVO> qnaList = qDAO.selectPageQnA(pageRange[0], pageRange[1], userId);
-	
-	
-	
-	//qna
-	pageContext.setAttribute("qnaList", qnaList );
-	pageContext.setAttribute("qnaTotalPage", totalQnAPage );
-	pageContext.setAttribute("pagePerNum", pagePerNum );
-	pageContext.setAttribute("qnaTotalCnt", totalQnACnt );
+	int totalMyTour = mtbDAO.selectTotalReservation(userId);
+	List<MyTourBusVO> tourList = mtbDAO.selectMyTour(userId);
+	//나의 투어 예약 리스트
+	pageContext.setAttribute("tourList", tourList );
+	pageContext.setAttribute("totalMyTour", totalMyTour );
 
 	
 %>
@@ -71,218 +50,36 @@ table.jisik_list[data-v-db46a16a] {
 </style>
 <script language="javascript">
 $(function(){
-	var qnaPage = 1;
-	//질문하기 닫기(x) 버튼 클릭
-	$("#closeBtn").click(function(){
-		$("#qnaPop").hide();
-	})//click
-	//질문 상세 보기 닫기(x)
-	$("#qnaDetailClose").click(function(){
-		$("#qnaDetail").hide();
-	})
-	//질문 리스트 클릭
-	$(document).on("click", ".qnaList", function(){
-		var qnaId = $(this).find("input[type=hidden]").val();
-		var output = "";
-		$.ajax({
-			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_detail_process.jsp",
-			type : "GET",
-			data : "qnaId=" + qnaId,
-			dataType : "JSON",
-			error : function(xhr){
-				alert(xhr.status);
-			},
-			success : function( jsonObj ){
-				output += "<li data-v-0fc691de='''>"
-				output += "<div data-v-0fc691de='' class='qustion'>";
-				output += "<p data-v-0fc691de='' class='name' style='display : inline-block'>";
-				output += "<strong data-v-0fc691de='' style='display : block'>"+ jsonObj.userId + "</strong>" 
-				output += "<span data-v-0fc691de=''><strong data-v-0fc691de=''>올린시간 : </strong>" + jsonObj.registrationDate + "</span></p>";
-				output += "<p data-v-0fc691de='' class='category'><strong data-v-0fc691de=''>카테고리 : </strong>[" + jsonObj.category + "]</p>";
-				output += "<p data-v-0fc691de='' class='title'>"+ jsonObj.title +"</p>";
-				output += "<div data-v-0fc691de='' class='jisik_text'>";
-				output += "<div data-v-0fc691de=''>"+ jsonObj.content +"</div>";
-				output += "<ul data-v-0fc691de='' class='thumb_img'></ul></div>";
-				output += "<p data-v-0fc691de='' class='count'><strong data-v-0fc691de=''>답변수 : </strong><span data-v-0fc691de=''>"
-				if( jsonObj.answerType == "N"){
-					output += 0
-					output+="</span></p><div data-v-0fc691de='' class='buttons'><!----></div></div>";
-				} else {
-					output += 1 
-					output+="</span></p><div data-v-0fc691de='' class='buttons'><!----></div></div>";
-					output += "<div data-v-0fc691de='' class='answer'><p data-v-0fc691de='' class='name'><strong data-v-0fc691de=''>작성자 : </strong>관리자";
-					output += "<span data-v-0fc691de=''><strong data-v-0fc691de=''>올린시간 : </strong>"+ jsonObj.answerDate +"</span></p>"
-					output +="<div data-v-0fc691de='' class='jisik_text'>";
-					output +="<div data-v-0fc691de=''>";
-					output +="<div data-v-0fc691de='' class='comment_contents'>";
-					output += jsonObj.answer +"</div>"
-					output +="<ul data-v-0fc691de='' class='thumb_img'></ul></div>"
-					output +="<div data-v-0fc691de='' class='tags'></div></div></div>"
-				}//end else
-				output +="</li>";
-				
-				$("#qnaDetailView").html(output);
-				$("#qnaDetail").show();
-			}//success
-		})//ajax
-	})//on	
-	
-	//질문 게시글 
-	$(document).on("click", ".qna_page_btn", function(){
-		var selectPage = $(this).text();
-		var userId = "${ sesId }";
-		qnaPage = parseInt(selectPage);
-		$(".qna_page_btn").each(function(){
-			if( $(this).hasClass("active") ){
-				$(this).removeClass("active");				
-			}//end if
-		})//click
-		$(this).addClass("active");
-		
-		var jsonObj = {
-				userId : userId,
-				selectPage : qnaPage,
-				pageScale : 5
-				};
-		
-		$.ajax({
-			url : "http://192.168.10.133/prj_travel/user_detail_QnA/qna_page_process.jsp",
-			type : "get",
-			data : jsonObj,
-			dataType : "HTML",
-			error : function( xhr ){
-				alert(xhr.status);
-			},
-			success : function( resData ){
-				$("#qnaTbody").empty();
-				$("#qnaTbody").append(resData);
-			}
-		})//ajax
-	})//on
-	
-	//QNA페이지 다음 버튼
-	$(document).on("click", "#qnaNextBtn", function(){
-		var pagePerNum = $("#pagePerNum").val();
-		var totalPage = $("#qnaTotalPage").val();
-		var jsonData = {
-				"currentPage" : qnaPage,
-				"totalPage" : totalPage,
-				"pagePerNum" : pagePerNum,
-				"actionType" : "next"
-				};
-		$.ajax({
-			url : "http://192.168.10.133/prj_travel/user_tourist_area/page_process.jsp",
-			data : jsonData,
-			type : "get",
-			dataType : "JSON",
-			error : function( xhr ){
-				alert( xhr.status );
-			},
-			success : function( jsonObj ) {
-				var startPage = jsonObj.startPage;
-				var endPage = jsonObj.endPage;
-				var nextPage = qnaPage + 1;  
-				var nextFlag = jsonObj.nextFlag;
-				var output = "";
-				if( nextFlag ){
-					$(".qna_page_btn").each(function(){
-						if( $(this).text() == nextPage ){
-							$(this).click();
-						}//end if
-					})
-				} else {
-					if( startPage > pagePerNum ){
-						output += "<button type='button' id='qnaPrevBtn' >&lt;</button>"
-					}
-					for( let i = startPage; i<=endPage; i++){
-						if( i == startPage ){
-							output += "<button type='button' class='qna_page_btn active'>";
-							
-						} else {
-							output += "<button type='button' class='qna_page_btn'>";
-						}//end else
-						output += i + "</button>";
-					}//end for
-					if( (endPage + pagePerNum) < totalPage ){
-						output += "<button type='button' id='qnaNextBtn' >&gt;</button>";
-					}
-					
-					
-					$("#qna_paging").empty();
-					$("#qna_paging").append(output);
-					
-					$(".active").click();
-				}//end else
-			}//success
-		})//ajax
-	})//on
-	
-	
-	//QNA페이지 이전 버튼
-	$(document).on("click", "#qnaPrevBtn", function(){
-		var pagePerNum = $("#pagePerNum").val();
-		var totalPage = $("#qnaTotalPage").val();
-		var jsonData = {
-				"currentPage" : qnaPage,
-				"totalPage" : totalPage,
-				"pagePerNum" : pagePerNum,
-				"actionType" : "prev"
-				};
-		$.ajax({
-			url : "http://192.168.10.133/prj_travel/user_tourist_area/page_process.jsp",
-			data : jsonData,
-			type : "get",
-			dataType : "JSON",
-			error : function( xhr ){
-				alert( xhr.status );
-			},
-			success : function( jsonObj ) {
-				var startPage = jsonObj.startPage;
-				var endPage = jsonObj.endPage;
-				var prevPage = qnaPage - 1;  
-				var prevFlag = jsonObj.nextFlag;
-				var output = "";
-				if( prevFlag ){
-					$(".qna_page_btn").each(function(){
-						if( $(this).text() == prevPage ){
-							$(this).click();
-						}//end if
-					})
-				} else {
-					if( startPage > pagePerNum ){
-						output += "<button type='button' id='qnaPrevBtn' >&lt;</button>"
-					}
-					for( let i = startPage; i<=endPage; i++){
-						if( i == endPage ){
-							output += "<button type='button' class='qna_page_btn active'>";
-							
-						} else {
-							output += "<button type='button' class='qna_page_btn'>";
-						}//end else
-						output += i + "</button>";
-					}//end for
-					if( (endPage) < totalPage ){
-						output += "<button type='button' id='qnaNextBtn' >&gt;</button>";
-					}
-					
-					$("#qna_paging").empty();
-					$("#qna_paging").append(output);
-					
-					$(".active").click();
-				}//end else
-			}//success
-		})//ajax
-	})//on
-	
 	$(".deleteBtn").click(function(){
-		console.log("click");
-	})
+		var reserveId = $(this).next("input.reservation_id").val();
+		
+		var confirmed = confirm("예약을 취소 하시겠습니까?");
+		if(confirmed){
+			$.ajax({
+				url : "http://192.168.10.133/prj_travel/user_tour_bus/tour_bus_delete_process.jsp",
+				type : "get",
+				dataType : "json",
+				data : { "reserveId" : reserveId },
+				error : function( xhr ){
+					alert(xhr.status);
+				},
+				success : function( jsonObj ){
+					if( jsonObj ){
+						alert("예약이 취소되었습니다.");
+						location.reload();
+					}//end if
+				}//success
+			})//ajax
+		} else {
+			return;
+		}//end else
+	})//click
 });//ready
 </script>
 </head>
 <body>
-<%@ include file="../common/jsp/header.jsp" %>
 <div id="wrap" class="wrap">
+<%@ include file="../common/jsp/header.jsp" %>
    	<div id="detailContentsView">
 	<div class="cont_wrap sub_visual" data-v-09a75c9f="">
 		<div class="add2020_detail" data-v-09a75c9f="">
@@ -294,72 +91,44 @@ $(function(){
 								<div id="tab6" class="add2020_detail_tab_box" data-v-09a75c9f="">
 									<h2 data-v-09a75c9f=""><a  data-v-09a75c9f="" id="qnaFadeBtn" class="up">질문<span class="arrow" data-v-09a75c9f=""></span></a></h2>
 									<div id="stab6" transition="fadeIn" class="add2020_detail_con tab_cont kr" style data-v-db46a16a="" data-v-09a75c9f=""><p class="jisik_tit" data-v-db46a16a="">
-        								나의 투어 예약 <span id="qnaCnt"  data-v-db46a16a=""><c:out value="(${ qnaTotalCnt })" /></span>
-        								<table class="jisik_list" data-v-db46a16a="">
+        								나의 투어 예약 <span id="qnaCnt"  data-v-db46a16a=""><c:out value="(${ totalMyTour })" /></span>
+        								<table class="jisik_list" data-v-db46a16a="" >
         									<thead data-v-db46a16a="">
         										<tr data-v-db46a16a="">
         											<th data-v-db46a16a="">투어이름</th>
         											<th data-v-db46a16a="">승인상태</th>
         											<th data-v-db46a16a="">탑승인원</th>
-        											<th data-v-db46a16a="">예약시간</th>
+        											<th data-v-db46a16a="">버스시간</th>
         											<th data-v-db46a16a="">예약일자</th>
         											<th data-v-db46a16a="">예약취소</th>
        											</tr>
    											</thead>
-   											<tbody data-v-db46a16a="" id="qnaTbody">
+   											<tbody data-v-db46a16a="" id="myTourTbody" >
    												<c:choose>
-   												<c:when test="${ not empty qnaList }">
-   												<c:forEach var="qna" items="${ qnaList }">
-   												<tr data-v-db46a16a=""  class="qnaList">
-   													<td data-v-db46a16a="">
-   														<p data-v-db46a16a="">
-   															<u class="ok" data-v-db46a16a=""><c:out value="${ qna.answerType eq 'Y'? '[답변완료]' : '[대기중]' }"></c:out></u><c:out value="${ qna.title }"></c:out>
-														</p>
+   												<c:when test="${ not empty tourList }">
+   												<c:forEach var="tour" items="${ tourList }">
+   												<tr data-v-db46a16a=""  class="tourList">
+   													<td data-v-db46a16a="" style="width:0; text-align:center"><c:out value="${ tour.name }"></c:out>	</td>								
+													<td data-v-db46a16a="" style="color:#ef6d00"><c:out value="${ tour.state eq 'N'? '미승인' : '승인'}"></c:out></td>
+													<td data-v-db46a16a=""><c:out value="성인 : ${ tour.adult }   소인 : ${ tour.child }"></c:out></td>
+													<td data-v-db46a16a=""><c:out value="${ tour.reservedTime }"></c:out></td>
+													<td data-v-db46a16a=""><c:out value="${ tour.reservedDate }"></c:out></td>
+													<td data-v-db46a16a="">
+														<button class="btn deleteBtn" style="  background: #ef6d00; color: #fff;">취소</button>
+														<input type="hidden" class="reservation_id" id="reservation_id" value="${ tour.id }" />
 													</td>
-													<td data-v-db46a16a=""><c:out value="${ qna.category }"></c:out></td>
-													<td data-v-db46a16a=""><c:out value="${ qna.answerType eq 'Y'? 1 : 0 }"></c:out></td>
-													<td data-v-db46a16a=""><c:out value="${ qna.registrationDate }"></c:out></td>
-													<input type="hidden" id="questionId" value="${ qna.qnaId }" />
-													<td data-v-db46a16a="">test</td>
-													<td data-v-db46a16a=""><button class="btn deleteBtn" style="  background: #ef6d00; color: #fff;">버튼</button></td>
 												</tr>
 												</c:forEach>
 												</c:when>
 												<c:otherwise>
 													<tr>
-														<td colspan="4" style="text-align:center; font-size:large; ">등록된 문의가 없습니다.</td>
+														<td colspan="6" style="text-align:center; font-size:large; ">예약한 투어버스가 없습니다.</td>
 													</tr>
 												</c:otherwise>
 												</c:choose>
 											</tbody>
 										</table>
-        						<input type="hidden" value="1" id="currentQnAPage" />
-        						<input type="hidden" value="${ qnaTotalPage }" id="qnaTotalPage" />
-        						<input type="hidden" value="${ pagePerNum }" id="pagePerNum" />
-        						<div class="know_paging_wrap" data-v-db46a16a=""  id="qna_paging">
         						<!---->
-        						<c:choose>
-        						<c:when test="${ endNum eq 0 }">
-        							<button type="button" class="active qna_page_btn">${startNum }</button>
-        						</c:when>
-        						<c:otherwise>
-        						<c:forEach begin="${startNum }" end="${endNum }" var="num">
-	        						<c:choose>
-										<c:when test="${ num eq 1 || endNum eq 0 }">
-											<button type="button" class="active qna_page_btn">${num}</button>
-										</c:when>
-										<c:otherwise>
-											<button type="button" class="qna_page_btn">${num}</button>
-										</c:otherwise>
-									</c:choose>
-									<c:choose>
-										<c:when test="${ num eq endNum and endNum lt qnaTotalPage }">
-											<button type="button" id="qnaNextBtn" >&gt;</button>
-										</c:when>
-									</c:choose>
-								</c:forEach>
-								</c:otherwise>
-								</c:choose>
         						
        							</div>
         							

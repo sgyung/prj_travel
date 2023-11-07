@@ -22,6 +22,9 @@
 <!-- header&footer css -->
 <link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
+.header {
+	    opacity: 0.4;
+}
 
 
 </style>
@@ -43,7 +46,17 @@
 </c:if>
 <script type="text/javascript">
 $(function(){
-
+	$(document).scroll(function() {
+		
+		var header = $(".header");
+        var scrollPos = $(window).scrollTop();
+        console.log( scrollPos );
+        if( scrollPos < 400 ){
+        	header.css("opacity", 0.7);
+        } else {
+        	header.css("opacity", 1);
+        }
+	})
 });//ready
 </script>
 </head>
@@ -52,7 +65,7 @@ $(function(){
 <%@ include file="../common/jsp/header.jsp" %>
     <div class="container" id="content">
     	<section class="sub-header-wrap" style="background:url(../common/images/tour_bus_img/tour_bus_main.png) no-repeat center top;">
-			<div class="mtit"></div>
+			<div class="mtit">예약하기</div>
 		</section>
     
     	<section class="resev-page-wrap">
@@ -63,7 +76,7 @@ $(function(){
 				</form>
 				<c:forEach var="tour" items="${ tourList }" varStatus="i">
 						<div class="swiper-slide swiper-slide-active" style="width: 380px; margin-right: 18px;">
-							<div class="slide-item" style="background:url(../common/images/tour_bus_img/${ tour.image }) no-repeat center top"></div>
+							<div class="slide-item" style="background:url('http://192.168.10.133${ tour.image }') no-repeat center top"></div>
 							<div class="cont">
 								<div class="top-item">
 									<span>TOUR0${ i.count }</span>

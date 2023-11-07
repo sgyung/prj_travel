@@ -185,13 +185,17 @@ $(function(){
 		var selectTime = $("#id_reserved_time").text();
 		var selectAdultFare =$("#id_adult_cnt").val();
 		var selectChildFare = $("#id_kid_cnt").val();
-		var userId = $("#userId").val();
+		//var userId = $("#userId").val();
 		//var userName = $("#userName").val();
+		var userId = "${sesId}"
 		var userName = "${userName.name}" 
 		console.log(userName);
 		var totalSeat = 30; //총 좌석 수
 		var reserveSeat = parseInt(selectAdultFare) + parseInt(selectChildFare); //선택된 좌석 수
 		
+		if( userId == null || userId == "" ){
+			alert("로그인 후 사용해주세요.");
+		}//end if
 		if( selectDate == "" ){ 
 			alert("날짜를 선택해 주세요.");
 			return;
@@ -219,7 +223,6 @@ $(function(){
 				"userName" :  userName
 		}//jsonObj
 		
-		console.log(jsonObj);
 		//잔여좌석 check
 		$.ajax({
 			url : "http://192.168.10.133/prj_travel/user_tour_bus/tourBus_seat_check.jsp",

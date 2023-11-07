@@ -12,11 +12,17 @@
 		if(areaId != null){
 		TouristAreaVO taVO = tamDAO.selectTouristArea(areaId);
 		
+		String[] tagArr = taVO.getTags().split(" ");
+		String[]  convenienceArr = taVO.getConveniences().split(",");
+		
 		pageContext.setAttribute("taVO", taVO);
+		pageContext.setAttribute("tagArr", tagArr);
+		pageContext.setAttribute("convenienceArr", convenienceArr);
 		}
 	}catch(SQLException se){
 		se.printStackTrace();
 	}
+	
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -206,8 +212,14 @@
 		 $("#logout").click(function() {
 				location.href = "../admin/admin_logout.jsp";
 			});//click 
+			
+		var slope = "${ taVO.slope }"
+		$("#slope").val(slope).attr("selected", "selected");
 		
-		 	
+		
+		$("#complete").click(function(){
+			
+		})//click	 	
 	});//ready
 	
 	 let tagFieldCounter = 0;
@@ -460,18 +472,24 @@
   	<h3><strong><label>기본정보</label></strong></h3>
   	<hr style="width:90%;">
   	<label style="margin-left: 30px">이름</label>
-  	<input type="text" class="inputBox" id="name" name="name" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이름을 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="name" name="name" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이름을 입력해주세요." value="${ taVO.name } "><br/>
   	<label style="margin-left: 30px; margin-top: 30px">주소</label>
-  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="주소를 입력해주세요.">
+  	<input type="text" class="inputBox" id="addr" name="addr" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="주소를 입력해주세요." value="${ taVO.addr }" >
   	<input type="button" class="btn btn-success" value="확인" id="addrBtn" onclick="convertAddressToCoordinates()" style="margin-left: 30px"><br/>
   	<label style="margin-left: 30px; margin-top: 30px">위도</label>
-  	<input type="text" class="inputBox" id="latitude" name="latitude" style="width: 22%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="위도를 입력해주세요.">
-  	<label style="margin-left: 72px; margin-top: 30px">경도</label>
-  	<input type="text" class="inputBox" id="longitude" name="longitude" style="width: 22%;display: inline-block; margin-left: 30px; margin-top: 30px" placeholder="경도를 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="latitude" name="latitude" style="width: 22%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="위도를 입력해주세요."  value="${ taVO.latitude }">
+  	<label style="margin-left: 72px; margin-top: 30px" >경도</label>
+  	<input type="text" class="inputBox" id="longitude" name="longitude" style="width: 22%;display: inline-block; margin-left: 30px; margin-top: 30px" placeholder="경도를 입력해주세요." value="${ taVO.latitude }"><br/>
   	<label style="margin-left: 30px;">연락처</label>
-  	<input type="text" class="inputBox" id="tel" name="tel" style="width: 60%;display: inline-block; margin-left: 55px; margin-top: 30px" placeholder="연락처를 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="tel" name="tel" style="width: 60%;display: inline-block; margin-left: 55px; margin-top: 30px" placeholder="연락처를 입력해주세요." value="${ taVO.tel }"><br/>
   	<label style="margin-left: 30px; margin-right: 20px; margin-top:22px; float: left;">#tag</label>
   	<a href="#void" id="tagAdd-btn" onclick="tagAdd()">+</a>
+  	<c:forEach var="tag" items="${ tagArr }">
+		<div class="input-wrapper" style="margin-left:180px; margin-top:20px;">
+		 <input type="text" style = "margin-right:60px; width: 56%" placeholder="태그를 입력해주세요." class="tag" name="tagName" value="${ tag }">
+		 <button class="remove-btn" onclick="tagRemoveField(this.parentNode)">&times</button>
+		 </div>
+  	</c:forEach>
   	</div>
   </div>
 			</td>
@@ -484,20 +502,27 @@
             <div class="contents" style="margin-top: 20px">
             <div class="contents col-md-5" style="margin-top: 10px; display: inline-block;">
   	<label style="margin-left: 30px">이용시간</label>
-  	<input type="text" class="inputBox" id="serviceHour" name="serviceHour" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이용시간을 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="serviceHour" name="serviceHour" style="width: 60%;display: inline-block; margin-left: 70px" placeholder="이용시간을 입력해주세요." value="${ taVO.serviceHour }"><br/>
   	<label style="margin-left: 30px; margin-top: 30px">요금정보</label>
-  	<input type="text" class="inputBox" id="priceInfo" name="priceInfo" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="내용을 입력해주세요."><br/>
+  	<input type="text" class="inputBox" id="priceInfo" name="priceInfo" style="width: 60%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="내용을 입력해주세요." value="${ taVO.priceInfo }"><br/>
   	<label style="margin-left: 30px; margin-top: 30px">경사도(난이도)</label>
-  	<select id="slope" name= "slope" class="form-select" aria-label="Default select example" style="display: inline-block; width: 40%; margin-left: 27px; margin-bottom: 150px">
-  		<option selected>난이도를 선택해주세요.</option>
-  		<option value="상">상</option>
- 		<option value="중">중</option>
-  		<option value="하">하</option>
-	</select> 
+  		<select id="slope" name= "slope" class="form-select" aria-label="Default select example" style="display: inline-block; width: 40%; margin-left: 27px; margin-bottom: 150px">
+	  		<option selected>난이도를 선택해주세요.</option>
+			<option value="상">상</option>
+			<option value="중">중</option>
+			<option value="하">하</option>
+		</select> 
   		</div>
   		<div class="contents" style="margin-top: 10px; display: inline-block; width: 60%;" id="convenienceInput">
   		<label style="margin-left: 30px; float: left">편의시설</label>
   		<a href="#void" id="conAdd-btn" onclick="conAdd()" >+</a>
+  		<c:forEach var="con" items="${convenienceArr }">
+  			<div class="input-wrapper" style="margin-left:250px;">
+  			<input type="text" style="margin-right:60px; width: 60%; margin-bottom: 30px" placeholder="편의시설을 입력해주세요." class="con" name="convevienceName" value="${con}">
+  			<button class="remove-btn" onclick="conRemoveField(this.parentNode)">×</button>
+  			</div>
+  		</c:forEach>
+  		
   		</div>
   		</div>
             </td>
@@ -507,7 +532,7 @@
             </tr>
             <tr>
             <td>
-            <textarea id="summernote" name="detailInfo"></textarea>
+            <textarea id="summernote" name="detailInfo"><c:out value="${ taVO.detailInfo }"></c:out></textarea>
             </td>
             </tr>
             </tbody>

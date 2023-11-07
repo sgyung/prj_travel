@@ -16,8 +16,7 @@
 	Paging paging = Paging.getInstance();
 	int[] pageRange = paging.getPageRowRange(Integer.parseInt(selectPage), Integer.parseInt(pageScale));
 	
-	List<QnAVO> qnaList = new ArrayList<>();
-	System.out.println(userId);
+	List<QnAVO> qnaList = new ArrayList<QnAVO>();
 	if( userId != null ){
 		MyQnADAO mqnaDAO = MyQnADAO.getInstance();
 		qnaList = mqnaDAO.selectPageQnA(pageRange[0], pageRange[1], userId);

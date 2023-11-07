@@ -158,6 +158,8 @@
     display: none; /* 초기에는 버튼을 숨김 */
     cursor: pointer;
 }
+
+
 </style>
 <script language="javascript">
 //소스출처 : http://www.kma.go.kr/weather/forecast/digital_forecast.jsp  내부에 있음

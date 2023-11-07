@@ -68,6 +68,15 @@ table.jisik_list[data-v-db46a16a] {
    width: 100%;
    border-top: 2px solid #535353;
 }
+
+tr.qnaList:hover {
+  background-color: #f0f0f0
+}
+
+tr.qnaList{
+  background-color: white; /* 기본 배경색 (하얀색) */
+  transition: background-color 0.3s; /* 배경색 전환 효과를 추가 */
+}
 </style>
 <script language="javascript">
 $(function(){

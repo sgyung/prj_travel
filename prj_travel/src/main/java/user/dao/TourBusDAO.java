@@ -37,7 +37,7 @@ public class TourBusDAO {
 		try {
 			con = db.getConn("jdbc/dbcp");
 			
-			pstmt = con.prepareStatement("	select * from bustour		");
+			pstmt = con.prepareStatement("	select * from bustour	 where operation_state='N'	");
 			
 			rs = pstmt.executeQuery();
 			
