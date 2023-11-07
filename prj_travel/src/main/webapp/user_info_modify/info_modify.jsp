@@ -1,3 +1,7 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="user.vo.UserVO"%>
+<%@page import="user.dao.UserDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info="정보수정" %>  
@@ -167,16 +171,53 @@ $(function(){
 <div class="wrap">
     <%@ include file="../common/jsp/header.jsp" %>
     
+    <%
+    String userId=(String)session.getAttribute("sesId");
+    System.out.println(userId);
+    
+    if( userId == null ){
+    	response.sendRedirect("http://192.168.10.132/prj_travel/user_main/main.jsp");
+    	return;
+    }//end if
+    if( userId != null ){
+    	pageContext.setAttribute("userId", userId);
+    }//end if
+    
+    UserDAO uDAO = UserDAO.getInstance();
+	try{
+		UserVO uVO = uDAO.selectUserInfo(userId);
+		//ex) 1998-09-30 00:00으로 출력되기에
+		String birthdate = uVO.getBirthdate().substring(0,11).replace("-","");
+		uVO.setBirthdate(birthdate);
+		
+		System.out.println(uVO);
+		
+		DataDecrypt dd = new DataDecrypt("a12345678901234567");
+		uVO.setTel(dd.decryption(uVO.getTel())); 
+		
+		/* uVO.setPw(DataEncrypt.messageDigest("MD5", uVO.getPw()));*/
+		
+		
+		
+		/* String tel = uVO.getTel() */
+		
+		pageContext.setAttribute("user", uVO);
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+	
+    
+    
+    %>
+    
     <div class="content_wrap">
 
         <div class="signup_form_wrap">
             <h1>정보수정</h1>
-            <form action="signup_next_request.jsp" name="frm" id="frm"  method="post">
+            <form action="info_modify_process.jsp" name="frm" id="frm"  method="post">
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg></label>
-					<input type="text" placeholder="id" name="id" class="input_box" id="id" readonly="readonly">
-					<input type="text" value="수정불가" class="btn btn-info btn_check" id="btnId">
-					<input type="hidden" id="idDupFlag" name="idDupFlag"/>
+					<input type="text" value="${ user.id }" name="id" class="input_box" id="id" readonly="readonly">
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16"><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z"/><path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></label>
@@ -187,30 +228,28 @@ $(function(){
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg></label>
-					<input type="text" placeholder="이름" name="name" class="input_box" id="name" readonly="readonly">
-					<input type="text" value="수정불가" class="btn btn-info btn_check" id="btnName">
+					<input type="text" value="${ user.name }" name="name" class="input_box" id="name" readonly="readonly">
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16"><path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg></label>
-					<input type="text" placeholder="생년월일 8자리" name="birthdate" class="input_box" id="birthdate" readonly="readonly">
-					<input type="text" value="수정불가" class="btn btn-info btn_check" id="btnBirth">
+					<input type="text" value="${ user.birthdate }" name="birthdate" class="input_box" id="birthdate" readonly="readonly">
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-phone" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></label>
-					<input type="tel" placeholder="휴대전화번호" name="tel" class="input_box" id="cel" >
+					<input type="tel" placeholder="휴대전화번호" value="${ user.tel }" name="tel" class="input_box" id="cel" >
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/></svg></label>
-					<input type="text" placeholder="우편번호" name="zipcode" class="input_box" id="zipcode" readonly="readonly">
+					<input type="text" value="${ user.zipcode }" name="zipcode" class="input_box" id="zipcode" readonly="readonly">
 					<input type="button" value="우편번호검색" class="btn btn-info btn_check" id="btnZipcode">
 				</div>
 				<div class="input_area flex reverse">
 					
-					<input type="text" placeholder="주소" name="addr" class="input_box small_input_box" id="addr" readonly="readonly">
+					<input type="text" value="${ user.addr }" name="addr" class="input_box small_input_box" id="addr" readonly="readonly">
 				</div>
 				<div class="input_area flex reverse">
 					
-					<input type="text" placeholder="상세주소" name="addrdetail" class="input_box small_input_box" id="addr_d" >
+					<input type="text" placeholder="상세주소" value="${ user.addrdetail }" name="addrdetail" class="input_box small_input_box" id="addr_d" >
 				</div>
 
             	<input type="button" value="수정하기" class="btn btn-info mod_btn" id="mod_btn">

@@ -11,7 +11,7 @@
                 <ul>
                     <li><a href="../user_tourist_area/touristArea.jsp?tag=전체">관광지</a></li>
                     <li><a href="../user_restaurant/restaurant.jsp?tag=전체">맛집</a></li>
-                    <li><a href="../user_post/post.jsp">게시판</a></li>
+                    <li><a href="../user_board/notice_list.jsp">게시판</a></li>
                     <li><a href="../user_tour_bus/tourBus_main.jsp">투어예약</a></li>
                 </ul>
             </div>

@@ -108,6 +108,7 @@
 	border-radius: 15px 15px 0 0;
 	width:250px;
 	height:169px;
+	overflow: hidden;
 }
 .img_box > img {
 	width: 100%;
@@ -228,10 +229,9 @@ $(function(){
 	            <div class="rank_box">
                 	<a href="../user_tourist_area/touristArea_detail.jsp?contentInfo=${ tourList.id }">
 	                    <div class="img_box">
-		                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" >
+		                        <img src="${ tourList.thumbNail }" >
 	                    </div>
 	                    <div class="title_box">
-	                    <%-- 위의img_box클래스의 img src경로에 넣을 값 ${ tourList.thumbNail } --%>
 	                    <span>${ tourList.name }</span>
 	                    </div>
                 	</a>
@@ -251,10 +251,9 @@ $(function(){
                 <div class="rank_box">
                		<a href="../user_restaurant/restaurant_detail.jsp?contentInfo=${ restList.id }">
 	                    <div class="img_box">
-		                        <img src="https://api.cdn.visitjeju.net/photomng/thumbnailpath/201804/30/e1c2f9e4-bf4c-488c-884c-5674f8d8b119.jpg" >
+		                        <img src="${ restList.thumbNail }" >
 	                    </div>
 	                    <div class="title_box">
-		                    <%-- 위의img_box클래스의 img src경로에 넣을 값 ${ restList.thumbNail } --%>
 		                    <span>${ restList.name }</span>
 	                    </div>
                 	</a>

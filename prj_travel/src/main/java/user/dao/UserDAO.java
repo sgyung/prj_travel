@@ -237,6 +237,57 @@ public class UserDAO {
 		}//end finally
 	}
 	
+	//회원정보수정 에서 세션에 해당하는 아이디의 정보를 받아오는 ( info_modify.jsp 에서..)
+	public UserVO selectUserInfo( String userId ) throws SQLException {
+		UserVO uVO = null;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			//1. JNDI 사용객체 생성
+			//2. DataSource 얻기
+			//3. Connection 얻기
+			con=db.getConn("jdbc/dbcp");
+			//4. 쿼리문 생성객체 얻기
+			StringBuilder selectUserInfo = new StringBuilder();
+			selectUserInfo
+			.append("	select USER_ID, USER_PW, USER_NAME, USER_BIRTH, USER_TEL, ")
+			.append("	USER_ZIPCODE, USER_ADDR0, USER_ADDR1, USER_REGISTRATION_DATE, USER_REGISTRATION_STATE ")
+			.append("	from T_USER		")
+			.append("	where user_id=?	");
+			
+			pstmt = con.prepareStatement(selectUserInfo.toString());
+			//5. 바인드변수 값 설정
+			pstmt.setString(1, userId );
+			//6. 쿼리 실행 후 결과 얻기
+			rs=pstmt.executeQuery();
+			
+			if( rs.next() ) {//검색결과 있음
+				uVO = new UserVO();
+				
+				uVO.setId(rs.getString("USER_ID"));
+				uVO.setPw(rs.getString("USER_PW"));
+				uVO.setName(rs.getString("USER_NAME"));
+				uVO.setBirthdate(rs.getString("USER_BIRTH"));
+				uVO.setTel(rs.getString("USER_TEL"));
+				uVO.setZipcode(rs.getString("USER_ZIPCODE"));
+				uVO.setAddr(rs.getString("USER_ADDR0"));
+				uVO.setAddrdetail(rs.getString("USER_ADDR1"));
+				uVO.setJoindate(rs.getDate("USER_REGISTRATION_DATE"));
+				uVO.setJointype(rs.getString("USER_REGISTRATION_STATE"));
+				
+			}//end if
+			
+		}finally {
+			//7. 연결 끊기
+			db.dbClose(rs, pstmt, con);
+		}//end finally
+		return uVO;
+	}//selectUserFindId
 	
 }//class
 
