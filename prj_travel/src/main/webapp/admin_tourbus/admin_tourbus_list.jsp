@@ -86,6 +86,9 @@ td {
 	text-align: center
 }
 
+#reservation_list td{
+	vertical-align : middle;
+}
 </style>
 <!-- jQuery CDN -->
 <script
@@ -105,7 +108,12 @@ td {
 
 		$("#logout").click(function() {
 			location.href = "../admin/admin_logout.jsp";
-		});//click    
+		});//click 
+		
+		$(document).on("clikc", ".change_state", function(){
+			$(this).
+		})//on
+		
 	})//ready
 	
 	function postDetail( id ) {
@@ -299,6 +307,7 @@ td {
                       <th style="width: 300px">투어버스</th>
                       <th style="width: 20px">등록일</th>
                       <th style="width: 20px">운행상태</th>
+                      <th style="width: 20px">운행변경</th>
                     </tr>
                   </thead>
 <%
@@ -313,7 +322,7 @@ td {
 		se.printStackTrace();
 	}
 %>	                  
-                  <tbody>
+                  <tbody id="reservation_list">
                   
                     <c:forEach var="list" items="${ list }" varStatus="i" >
 				    <tr>
@@ -321,6 +330,7 @@ td {
                       <td><a href="#void" onclick="postDetail('${ list.id }')"><c:out value="${list.name}"/></a></td>
                       <td><c:out value="${list.registrationTime}"/></td>
                       <td><c:out value="${list.operationState eq 'Y'? '운행중' : '운행 대기'}"/></td>
+                      <td><button class="btn btn-primary" class="change_state">변경</button></td>
                     </tr>
 				    </c:forEach> 
                   </tbody>

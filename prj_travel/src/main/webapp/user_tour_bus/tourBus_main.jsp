@@ -34,10 +34,9 @@
 	try{
 	TourBusDAO tDAO = TourBusDAO.getInstance();
 	List<TourBusVO> tourList = tDAO.selectAllTourBus();
-	
 	pageContext.setAttribute("tourList", tourList);
 	} catch( SQLException se ){
-		System.out.println(se);
+		se.printStackTrace();
 	}
 %>
 </c:catch >
@@ -50,7 +49,7 @@ $(function(){
 		
 		var header = $(".header");
         var scrollPos = $(window).scrollTop();
-        console.log( scrollPos );
+        
         if( scrollPos < 400 ){
         	header.css("opacity", 0.7);
         } else {
