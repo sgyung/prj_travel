@@ -178,6 +178,9 @@ pageContext.setAttribute("startNum", startNum);
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <!-- Navbar Search -->
+      <li class="nav-item">    
+        <label style="margin-right: 20px; margin-top: 5px">관리자님 안녕하세요.</label>
+       </li>
       <li class="nav-item">
         <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
        </li>
@@ -272,11 +275,15 @@ pageContext.setAttribute("startNum", startNum);
 							<p>투어버스 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourbus/admin_tourbus_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>투어버스 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourbus/admin_tourbus_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>투어버스 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_tourbus/admin_tourbus_reservation_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>투어버스 예약 관리</p>
 							</a></li>

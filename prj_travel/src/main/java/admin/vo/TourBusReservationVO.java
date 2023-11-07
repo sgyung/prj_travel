@@ -3,26 +3,29 @@ package admin.vo;
 import java.sql.Date;
 
 public class TourBusReservationVO {
-	private String reservationId,userId,tourBusId,reservationState;
-	private Date tourBusTime,tourBusDate,reservationDate;
-	private int adult,child;
+	private String reservationId,userId,tourBusId,reservationState,reservationTime,tourBusName;
+	private Date reservationDate,reservationInputDate;
+	private int adult,child,totalSeat;
 	
 	public TourBusReservationVO() {
 		
 	}
 
 	public TourBusReservationVO(String reservationId, String userId, String tourBusId, String reservationState,
-			Date tourBusTime, Date tourBusDate, Date reservationDate, int adult, int child) {
+			String reservationTime, String tourBusName, Date reservationDate, Date reservationInputDate, int adult,
+			int child, int totalSeat) {
 		super();
 		this.reservationId = reservationId;
 		this.userId = userId;
 		this.tourBusId = tourBusId;
 		this.reservationState = reservationState;
-		this.tourBusTime = tourBusTime;
-		this.tourBusDate = tourBusDate;
+		this.reservationTime = reservationTime;
+		this.tourBusName = tourBusName;
 		this.reservationDate = reservationDate;
+		this.reservationInputDate = reservationInputDate;
 		this.adult = adult;
 		this.child = child;
+		this.totalSeat = totalSeat;
 	}
 
 	public String getReservationId() {
@@ -57,20 +60,20 @@ public class TourBusReservationVO {
 		this.reservationState = reservationState;
 	}
 
-	public Date getTourBusTime() {
-		return tourBusTime;
+	public String getReservationTime() {
+		return reservationTime;
 	}
 
-	public void setTourBusTime(Date tourBusTime) {
-		this.tourBusTime = tourBusTime;
+	public void setReservationTime(String reservationTime) {
+		this.reservationTime = reservationTime;
 	}
 
-	public Date getTourBusDate() {
-		return tourBusDate;
+	public String getTourBusName() {
+		return tourBusName;
 	}
 
-	public void setTourBusDate(Date tourBusDate) {
-		this.tourBusDate = tourBusDate;
+	public void setTourBusName(String tourBusName) {
+		this.tourBusName = tourBusName;
 	}
 
 	public Date getReservationDate() {
@@ -79,6 +82,14 @@ public class TourBusReservationVO {
 
 	public void setReservationDate(Date reservationDate) {
 		this.reservationDate = reservationDate;
+	}
+
+	public Date getReservationInputDate() {
+		return reservationInputDate;
+	}
+
+	public void setReservationInputDate(Date reservationInputDate) {
+		this.reservationInputDate = reservationInputDate;
 	}
 
 	public int getAdult() {
@@ -97,13 +108,22 @@ public class TourBusReservationVO {
 		this.child = child;
 	}
 
+	public int getTotalSeat() {
+		return totalSeat;
+	}
+
+	public void setTotalSeat(int totalSeat) {
+		this.totalSeat = totalSeat;
+	}
+
 	@Override
 	public String toString() {
 		return "TourBusReservationVO [reservationId=" + reservationId + ", userId=" + userId + ", tourBusId="
-				+ tourBusId + ", reservationState=" + reservationState + ", tourBusTime=" + tourBusTime
-				+ ", tourBusDate=" + tourBusDate + ", reservationDate=" + reservationDate + ", adult=" + adult
-				+ ", child=" + child + "]";
+				+ tourBusId + ", reservationState=" + reservationState + ", reservationTime=" + reservationTime
+				+ ", tourBusName=" + tourBusName + ", reservationDate=" + reservationDate + ", reservationInputDate="
+				+ reservationInputDate + ", adult=" + adult + ", child=" + child + ", totalSeat=" + totalSeat + "]";
 	}
-	
+
+
 	
 }

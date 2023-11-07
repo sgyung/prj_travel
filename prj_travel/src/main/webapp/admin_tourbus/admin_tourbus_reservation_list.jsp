@@ -1,12 +1,18 @@
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.util.List"%>
+<%@page import="admin.dao.TourBusManageDAO"%>
+<%@page import="pageUtil.TourBusPageDAO"%>
+<%@page import="admin.vo.TourBusVO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page info = "" %>    
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>관리자 | 투어버스관리 | 투어버스예약관리</title>
+<title>관리자 | 투어버스관리</title>
 <link rel="stylesheet" type="text/css"
 	href="http://localhost/html_prj/common/css/main_v20230906"> 
 <style type="text/css">
@@ -24,8 +30,18 @@ td {
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script type="text/javascript">
 	$(function() {
+		$("#logout").click(function() {
+			location.href = "../admin/admin_logout.jsp";
+		});//click    
 		
 	})//ready
+	
+		function reservationDetail( id ) {
+			$("#tourbusId").val(id);
+			$("#tourbusFrm").submit();
+		}
+	
+	
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
@@ -100,11 +116,15 @@ td {
 							<p>관광지 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="admin_tourarea_add" class="nav-link">
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>관광지 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>관광지 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourarea_review_list"
+							<li class="nav-item"><a href="../admin_tourarea/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>관광지 리뷰 관리</p>
 							</a></li>
@@ -115,11 +135,15 @@ td {
 							<p>맛집 관리</p>
 					</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item"><a href="./index.html" class="nav-link">
+							<li class="nav-item"><a href="../admin_restaurant/admin_tourarea_list.jsp" class="nav-link">
+									<i class="far fa-circle nav-icon"></i>
+									<p>맛집 목록</p>
+							</a></li>
+							<li class="nav-item"><a href="../admin_restaurant/admin_tourarea_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>맛집 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="./index2.html"
+							<li class="nav-item"><a href="../admin_restaurant/admin_tourarea_review_list.jsp"
 								class="nav-link"> <i class="far fa-circle nav-icon"></i>
 									<p>맛집 리뷰 관리</p>
 							</a></li>
@@ -134,12 +158,12 @@ td {
 									<i class="far fa-circle nav-icon"></i>
 									<p>투어버스 목록</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourbus_add.jsp" class="nav-link active">
+							<li class="nav-item"><a href="admin_tourbus_add.jsp" class="nav-link">
 									<i class="far fa-circle nav-icon"></i>
 									<p>투어버스 추가</p>
 							</a></li>
 							<li class="nav-item"><a href="admin_tourbus_reservation.jsp"
-								class="nav-link"> <i class="far fa-circle nav-icon"></i>
+								class="nav-link active"> <i class="far fa-circle nav-icon"></i>
 									<p>투어버스 예약 관리</p>
 							</a></li>
 						</ul></li>
@@ -169,88 +193,63 @@ td {
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">제주도심 야간여행 야밤버스</h3>
+                <h3 class="card-title">투어버스 예약 관리</h3>
               </div>
               <!-- /.card-header -->
-              <div class="contents" style="margin-top: 40px">
-            <div class="contents col-md-4" style="margin-top: 10px; display: inline-block;">
-  		<label style="margin-left: 30px; float: left">운행날짜</label>
-  		<input type="text" class="inputBox" id="adult" name="adult" style="width: 60%; margin-left: 40px" placeholder="운행날짜를 입력해주세요."><br/>
-		</div>
-		<div class="contents" style="margin-top: 10px; display: inline-block; width: 30%;">
-  		 <label style=" float: left; margin-right: 60px">버스시간</label>
-  		<select class="form-select" id="reservationTime" name="reservationTime" style="width:50%">
-		  <option value="1">10:00</option>
-		  <option value="2">11:00</option>
-		</select>
-		</div>
-		<div class="contents" style="margin-top: 10px; display: inline-block; width: 30%;">
-  		<input type="button" id="search" name="search" value="조회" class="btn btn-info" style="width: 40%"/>
-  		</div>
-  		</div>
-            
-              <div class="card-body" style="height: 650px; margin-top: 70px">
+<%
+	TourBusManageDAO tbmDAO = TourBusManageDAO.getInstance();
+
+	try{
+		List<TourBusVO> list = tbmDAO.selectOperationBus();
+		
+		pageContext.setAttribute("list", list);
+		
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>            
+			  
+              <div class="card-body" style="height: 650px">
                 <table class="table table-bordered">
                   <thead>
                     <tr>
-                      <th style="width: 20px">좌석번호</th>
-                      <th style="width: 240px">예약자</th>
-                      <th style="width: 260px">예약일자</th>
-                      <th style="width: 70px">상태</th>
-                      <th style="width: 70px"></th>
+                      <th style="width: 10px">번호</th>
+                      <th style="width: 300px">제목</th>
+                      <th style="width: 20px">작성일</th>
+                      <th style="width: 20px">운행상태</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>JYS</td>
-                      <td>2023-10-12</td>
-                      <td><label>미승인</label>
-                      </td>
-                      <td style="text-align: center;">
-                      <input type="button" class="btn btn-primary" value="승인하기" >
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>JYS</td>
-                      <td>2023-10-12</td>
-                      <td><label>승인완료</label></td>
-                      <td style="text-align: center;">
-                      <input type="button" class="btn btn-secondary" value="승인취소" >
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>11</td>
-                      <td>JYS</td>
-                      <td>2023-10-12</td>
-                      <td><label>미승인</label>
-                      </td>
-                      <td style="text-align: center;">
-                      <input type="button" class="btn btn-primary" value="승인하기" >
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>15</td>
-                      <td>JYS</td>
-                      <td>2023-10-12</td>
-                      <td><label>승인완료</label></td>
-                      <td style="text-align: center;">
-                      <input type="button" class="btn btn-secondary" value="승인취소">
-                    </td>
-                    </tr>
+                 <c:choose>
+    			<c:when test="${not empty list}">
+        			<c:forEach var="list" items="${list}" varStatus="i">
+           				 <tr>
+               				 <td><c:out value="${i.count}"/></td>
+                			<td><a href="#void" onclick="reservationDetail('${ list.id }')"><c:out value="${list.name}"/></a></td>
+                			<td><c:out value="${list.registrationTime}"/></td>
+               				 <td><c:out value="${list.operationState eq 'Y' ? '운행중' : ''}"/></td>
+            			</tr>
+       			  </c:forEach>
+    			</c:when>
+    		<c:otherwise>
+        		<tr>
+            		<td colspan="4">운행중인 투어버스가 없습니다.</td>
+        		</tr>
+   			 </c:otherwise>
+		</c:choose>
                   </tbody>
                 </table>
               </div>
               <!-- /.card-body -->
-             
             </div>
             <!-- /.card -->
             </div>
             </div>
            </div>
          </section>
-            
+          <form action="admin_tourbus_reservation.jsp" method="post" id="tourbusFrm">
+          <input type="hidden" id="tourbusId" name="tourbusId"/>
+          </form>  
 			
 		</div>
 		<footer class="main-footer">

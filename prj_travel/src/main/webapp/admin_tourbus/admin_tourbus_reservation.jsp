@@ -1,6 +1,12 @@
+<%@page import="admin.vo.TourBusReservationVO"%>
+<%@page import="java.util.List"%>
+<%@page import="admin.vo.TourBusVO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="admin.dao.TourBusManageDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info = "" %>    
+<%@ page info = "" %>  
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>  
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,12 +26,128 @@ td {
 
 </style>
 <!-- jQuery CDN -->
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	 
 <script type="text/javascript">
-	$(function() {
+$(function() {
 		
-	})//ready
+	$( "#reservationDate" ).datepicker({
+		  dateFormat: 'yy-mm-dd',
+	      showOn: "button",
+	      buttonImage: "http://192.168.10.134/prj_travel/common/images/icon_img/calendar.png",
+	      buttonImageOnly: true,
+	    });
+		
+})//ready
+
+	function searchReservation(id) {
+		
+		$.ajax({
+			url:"admin_tourbus_reservation_proccess.jsp",
+			type: "get",
+			data: { tourbusId : id, reservationTime : $("#reservationTime option:selected").val(), reservationDate: $("#reservationDate").val() },
+			dataType: "json",
+			error: function(xhr) {
+				console.log(xhr.status);
+			},
+			success: function(json){
+				$("#input").empty();
+				
+				var output = "";
+					output += "<thead>";
+					output +=  "<tr>";
+					output +=	"<th style='width: 20px'>번호</th>";
+					output +=	"<th style='width: 180px'>예약자</th>";
+					output +=	"<th style='width: 60px'>성인</th>";
+					output +=	"<th style='width: 60px'>소인</th>";
+                    output += 	"<th style='width: 150px'>예약일자</th>";
+                    output += 	"<th style='width: 150px'>예약시간</th>";
+                    output +=	"<th style='width: 70px'>상태</th>";
+                    output += 	"<th style='width: 70px'>승인버튼</th>";
+                  output += "</tr>";
+                	  output += "</thead>";
+                	  output +=	"<tbody>";
+				$.each(json.jsonArr, function(i, data){
+                	  output +=	"<tr>";
+                	  output +=	"<td>"+(i+1)+"</td>";
+                	  output +=	"<td>"+data.userId+"</td>"
+                	  output +=	"<td>"+data.adult+"</td>";
+                	  output +=	"<td>"+data.child+"</td>";
+                	  output +=	"<td>"+data.reservationDate+"</td>";
+                	  output +=	"<td>"+data.reservationTime+"</td>";
+                	  output += "<td class='state'><label id='acc_"+i+"'>" + (data.reservationState === 'N' ? '미승인' : '승인완료') + "</label>";
+                	  output +=	"</td>";
+                		  output +=	"<td style='text-align: center;' id='btn_" + i + "'>";
+                		  if (data.reservationState === 'N') {
+                			    output += '<input type="button" class="btn btn-primary" onclick="complete(\'' + data.reservationId + '\','+i+')" value="승인하기">';
+                			} else {
+                			    output += '<input type="button" class="btn btn-primary"  onclick="cancel(\'' + data.reservationId + '\','+i+')" value="승인취소">';
+                			}
+                    output += "</td>";
+                    output += "</tr>";
+				});//each
+				output += "</tbody>";
+                    
+
+				$("#input").html(output);
+		
+			}//success
+		});//ajax
+	
+	}
+	
+	function complete(id,i) {
+		$.ajax({
+			url:"admin_tourbus_reservation_complete.jsp",
+			type: "get",
+			data: { reservationId : id },
+			dataType: "json",
+			error: function(xhr) {
+				console.log(xhr.status);
+			},
+			success: function(json){
+				
+				if(json.complete === 1){
+					
+					$("#acc_"+i).html("승인완료");
+       				 $("#btn_"+i).html('<input type="button" class="btn btn-primary" onclick="cancel(\'' + json.reservationId + '\','+i+')" value="승인취소">');
+         			
+				}
+				
+				
+				
+			}//success
+		})//ajax
+			
+		
+	}
+	
+	function cancel(id,i) {
+		$.ajax({
+			url:"admin_tourbus_reservation_cancel.jsp",
+			type: "get",
+			data: { reservationId : id },
+			dataType: "json",
+			error: function(xhr) {
+				console.log(xhr.status);
+			},
+			success: function(json){
+				
+				if(json.cancel === 1){
+					$("#acc_"+i).html("미승인");
+					 $("#btn_"+i).html('<input type="button" class="btn btn-primary"  onclick="complete(\'' + json.reservationId + '\','+i+')" value="승인하기">');
+				}
+				
+			}//success
+		})//ajax
+			
+		
+	}
+	
+	
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
@@ -35,7 +157,7 @@ td {
 <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
-    <ul class="navbar-nav">
+     <ul class="navbar-nav">
       <li class="nav-item d-none d-sm-inline-block">
         <a href="index3.html" class="nav-link">Home</a>
       </li>
@@ -44,6 +166,9 @@ td {
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <!-- Navbar Search -->
+      <li class="nav-item">    
+        <label style="margin-right: 20px; margin-top: 5px">관리자님 안녕하세요.</label>
+       </li>
       <li class="nav-item">
         <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
        </li>
@@ -146,7 +271,7 @@ td {
 									<i class="far fa-circle nav-icon"></i>
 									<p>투어버스 추가</p>
 							</a></li>
-							<li class="nav-item"><a href="admin_tourbus_reservation.jsp"
+							<li class="nav-item"><a href="admin_tourbus_reservation_list.jsp"
 								class="nav-link active"> <i class="far fa-circle nav-icon"></i>
 									<p>투어버스 예약 관리</p>
 							</a></li>
@@ -171,64 +296,76 @@ td {
 				<!-- /.container-fluid -->
 			</div>
 			<!-- /.content-header -->
+<%
+	TourBusManageDAO tbmDAO = TourBusManageDAO.getInstance();
+	String tourbusId = request.getParameter("tourbusId");
+	
+	try{
+		if(tourbusId != null){
+			TourBusVO tbVO = tbmDAO.selectTourBus(tourbusId);
+			
+			String[] dispatchArr = null;
+			String[] reDispatchArr = null;
+			if( tbVO.getDispatchTimes() != null ){
+				dispatchArr = tbVO.getDispatchTimes().split(" ");
+				reDispatchArr = new String[dispatchArr.length];
+				for( int i = 0; i< dispatchArr.length; i++ ){
+					reDispatchArr[i] = dispatchArr[i];
+				}
+			}//end if
+		pageContext.setAttribute("dispatches", reDispatchArr);
+		pageContext.setAttribute("tbVO", tbVO);
+			
+		}
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>			
 	<section class="content">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">투어버스 예약 관리</h3>
+                <h3 class="card-title"><c:out value="${ tbVO.name }"/></h3>
               </div>
               <!-- /.card-header -->
-              <div class="card-body" style="height: 650px">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">번호</th>
-                      <th style="width: 300px">제목</th>
-                      <th style="width: 20px">작성일</th>
-                    </tr>
+              <div class="contents" style="margin-top: 20px">
+            <div class="contents col-md-4" style="margin-top: 10px; display: inline-block;">
+  		<label style="margin-left: 30px; float: left">운행날짜</label>
+  		<input type="text" class="reservationDate" id="reservationDate" name="reservationDate" style="width: 60%; margin-left: 40px" placeholder="운행날짜를 입력해주세요."><br/>
+		</div>
+		<div class="contents" style="margin-top: 10px; display: inline-block; width: 30%;">
+  		 <label style=" float: left; margin-right: 60px">버스시간</label>
+  		<select class="form-select" id="reservationTime" name="reservationTime" style="width: 50%">
+    	<c:forEach var="dispatch" items="${dispatches}" varStatus="i">
+        	<option value="${dispatch}"><c:out value="${dispatch}"/></option>
+    	</c:forEach>
+		</select>
+		</div>
+		<div class="contents" style="margin-top: 10px; display: inline-block; width: 30%;">
+  		<input type="button" id="search" name="search" value="조회" onclick="searchReservation('${ param.tourbusId }')" class="btn btn-info" style="width: 40%"/>
+  		</div>
+  		</div>
+            
+              <div class="card-body" style="height: 650px; margin-top: 70px">
+                <table class="table table-bordered" id="input">
+                <thead>
+                <tr>
+                	<th style='width: 20px'>번호</th>
+					<th style='width: 180px'>예약자</th>
+					<th style='width: 60px'>성인</th>
+					<th style='width: 60px'>소인</th>
+                   <th style='width: 150px'>예약일자</th>
+                    <th style='width: 150px'>예약시간</th>
+                    <th style='width: 70px'>상태</th>
+                   <th style='width: 70px'>승인버튼</th>
+                 </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>제주도심 야간여행 야밤버스</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>제주도심 야간여행 야밤버스</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>제주도심 야간여행 야밤버스</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>제주도심 야간여행 야밤버스</td>
-                      <td>2023-10-12</td>
-                    </tr>
-                  </tbody>
                 </table>
               </div>
               <!-- /.card-body -->
-              <div class="card-footer clearfix">
-                <ul class="pagination justify-content-center" >
-                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-                </ul>
-                <div style="text-align: center" >
-                <input type="text" id="input" class="inputBox" style="width: 200px; height: 30px;" placeholder="제목을 입력해주세요."/>
-                <div style="display: inline-block;" >
-                <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
-                </div>
-                </div>
-              </div>
+             
             </div>
             <!-- /.card -->
             </div>

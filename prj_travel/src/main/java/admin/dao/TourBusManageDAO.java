@@ -1,8 +1,5 @@
 package admin.dao;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -11,8 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import admin.vo.TourBusReservationVO;
 import admin.vo.TourBusVO;
-import admin.vo.TouristAreaVO;
 import kr.co.dao.DbConnection;
 
 public class TourBusManageDAO {
@@ -220,4 +217,191 @@ public class TourBusManageDAO {
 		
 		return tbVO;
 	}
+	
+	public List<TourBusVO> selectOperationBus() throws SQLException{
+		List<TourBusVO> list = new ArrayList<TourBusVO>();
+			
+			DbConnection db = DbConnection.getInstance();
+			
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder selectAllTourBus = new StringBuilder();
+				selectAllTourBus
+				.append("	select bustour_id, bustour_name, regist_date,operation_state	")
+				.append("	from bustour 									")
+				.append("	where operation_state = 'Y'						");
+				
+				pstmt = con.prepareStatement(selectAllTourBus.toString());
+				
+				rs = pstmt.executeQuery();
+				TourBusVO tbVO = null;
+				
+				while(rs.next()) {
+					tbVO = new TourBusVO();
+					tbVO.setId(rs.getString("bustour_id"));
+					tbVO.setName(rs.getString("bustour_name"));
+					tbVO.setRegistrationTime(rs.getDate("regist_date"));
+					tbVO.setOperationState(rs.getString("operation_state"));
+					
+					list.add(tbVO);
+				}
+			}finally {
+				db.dbClose(rs, pstmt, con);
+			}
+			return list;
+	}
+	
+	public List<TourBusReservationVO> selectTourBusReservation(String tourbusId, Date reservationDate, String reservationTime) throws SQLException{
+		List<TourBusReservationVO> list = new ArrayList<TourBusReservationVO>();
+			DbConnection db = DbConnection.getInstance();
+			
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder selectTourBusReservation = new StringBuilder();
+				selectTourBusReservation
+				.append("	SELECT R.RESERVATION_ID, R.USER_ID, R.BUSTOUR_ID, R.RESERVATION_TIME,		")
+				.append("	R.RESERVATION_DATE, R.APPROVAL_STATE, R.REGIST_DATE, T.BUSTOUR_SEAT, T.BUSTOUR_NAME, 	")
+				.append("	COALESCE(P.ADULT, 0) AS ADULT_COUNT, COALESCE(P.CHILD, 0) AS CHILD_COUNT 	")
+				.append("	FROM BUSTOUR_RESERVATION R JOIN BUSTOUR T ON R.BUSTOUR_ID = T.BUSTOUR_ID				")
+				.append("	LEFT JOIN PEOPLE_NUM P ON R.RESERVATION_ID = P.RESERVATION_ID				")
+				.append("	WHERE R.BUSTOUR_ID = ? AND R.RESERVATION_DATE = ?		")
+				.append("	AND R.RESERVATION_TIME = ?												");
+				
+				pstmt = con.prepareStatement(selectTourBusReservation.toString());
+				
+				pstmt.setString(1, tourbusId);
+				pstmt.setDate(2, reservationDate);
+				pstmt.setString(3, reservationTime);
+				
+				rs = pstmt.executeQuery();
+				TourBusReservationVO tbrVO = null;
+				
+				while(rs.next()) {
+					tbrVO = new TourBusReservationVO();
+					tbrVO.setReservationId(rs.getString("RESERVATION_ID"));
+					tbrVO.setUserId(rs.getString("USER_ID"));
+					tbrVO.setTourBusId(rs.getString("BUSTOUR_ID"));
+					tbrVO.setReservationTime(rs.getString("RESERVATION_TIME"));
+					tbrVO.setReservationDate(rs.getDate("RESERVATION_DATE"));
+					tbrVO.setReservationState(rs.getString("APPROVAL_STATE"));
+					tbrVO.setReservationInputDate(rs.getDate("REGIST_DATE"));
+					tbrVO.setTourBusName(rs.getString("BUSTOUR_NAME"));
+					tbrVO.setTotalSeat(rs.getInt("BUSTOUR_SEAT"));
+					tbrVO.setAdult(rs.getInt("ADULT_COUNT"));
+					tbrVO.setChild(rs.getInt("CHILD_COUNT"));
+					
+					
+					list.add(tbrVO);
+				}
+			}finally {
+				db.dbClose(rs, pstmt, con);
+			}
+		return list;
+	}
+	
+	public int updateReservationState(String reservationId) throws SQLException{
+		int cnt = 0;
+			
+			DbConnection db = DbConnection.getInstance();
+			
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder updateNotice = new StringBuilder();
+				updateNotice
+				.append("	update BUSTOUR_RESERVATION			")
+				.append("	set  APPROVAL_STATE = 'Y'		")
+				.append("	where RESERVATION_ID = ? 			");
+				
+				pstmt = con.prepareStatement(updateNotice.toString());
+				
+				pstmt.setString(1, reservationId);
+				
+				cnt = pstmt.executeUpdate();
+				
+			}finally {
+				db.dbClose(null, pstmt, con);
+			}
+		return cnt;
+	}
+	
+	public int updateReservationCancel(String reservationId) throws SQLException{
+		int cnt = 0;
+			
+			DbConnection db = DbConnection.getInstance();
+			
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder updateNotice = new StringBuilder();
+				updateNotice
+				.append("	update BUSTOUR_RESERVATION			")
+				.append("	set  APPROVAL_STATE = 'N'		")
+				.append("	where RESERVATION_ID = ? 			");
+				
+				pstmt = con.prepareStatement(updateNotice.toString());
+				
+				pstmt.setString(1, reservationId);
+				
+				cnt = pstmt.executeUpdate();
+				
+			}finally {
+				db.dbClose(null, pstmt, con);
+			}
+		return cnt;
+	}
+	
+	public TourBusReservationVO selectReservation(String reservationId) throws SQLException{
+		TourBusReservationVO tbrVO = null;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder selectTourBus = new StringBuilder();
+				selectTourBus
+				.append("	SELECT RESERVATION_ID, USER_ID, APPROVAL_STATE	")
+				.append("    FROM BUSTOUR_RESERVATION 	")
+				.append("	WHERE RESERVATION_ID = ?	");
+				
+				pstmt = con.prepareStatement(selectTourBus.toString());
+				pstmt.setString(1, reservationId);
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					tbrVO = new TourBusReservationVO();
+					tbrVO.setReservationId(rs.getString("RESERVATION_ID"));
+					tbrVO.setUserId(rs.getString("USER_ID"));
+					tbrVO.setReservationState(rs.getString("APPROVAL_STATE"));
+				}	
+					
+			}finally {
+				db.dbClose(rs, pstmt, con);
+			}
+		
+		return tbrVO;
+	}
+	
 }

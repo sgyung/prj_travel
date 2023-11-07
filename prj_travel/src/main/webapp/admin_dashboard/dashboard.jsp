@@ -191,6 +191,9 @@ function questionDetail(id) {
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <!-- Navbar Search -->
+      <li class="nav-item">    
+        <label style="margin-right: 20px; margin-top: 5px">관리자님 안녕하세요.</label>
+       </li>
       <li class="nav-item">
         <input type="button" value="로그아웃" class="btn btn-outline-secondary" id="logout" style="width: 150px;" >
        </li>
