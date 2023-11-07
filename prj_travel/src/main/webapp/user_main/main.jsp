@@ -14,16 +14,10 @@
 	List<String> tourTags = dao.selectAllTourTags();
 	List<String> restTags = dao.selectAllRestTags();
 	
-	System.out.println( tourList.toString() );
-	System.out.println( restList.toString() );
-	System.out.println( tourTags.toString() );
-	System.out.println( restTags.toString() );
-	
 	pageContext.setAttribute("tourList", tourList);
 	pageContext.setAttribute("restList", restList);
 	pageContext.setAttribute("tourTags", tourTags);
 	pageContext.setAttribute("restTags", restTags);
-	
 %>
 
 <!DOCTYPE html>
