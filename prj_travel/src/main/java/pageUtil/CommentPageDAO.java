@@ -105,7 +105,7 @@ public class CommentPageDAO {
 				
 				list.add(cVO);
 			}
-			
+			System.out.println(list.toString());
 		} finally {
 			db.dbClose(rs, pstmt, con);
 		}

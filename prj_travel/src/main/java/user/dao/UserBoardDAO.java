@@ -1,17 +1,17 @@
 package user.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.dbcp.dbcp2.PStmtKey;
 
 import admin.vo.NoticeVO;
+import admin.vo.UserCommentVO;
 import kr.co.dao.DbConnection;
+import user.vo.UserBoardVO;
 
 public class UserBoardDAO {
 	private static UserBoardDAO ubDAO;
@@ -193,5 +193,101 @@ public class UserBoardDAO {
 		}
 		return cnt;
 	}
+	
+	public int insertBoard(UserBoardVO ubVO) throws SQLException{
+		int result = 0;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			StringBuilder insertNotice = new StringBuilder();
+			insertNotice
+			.append("	insert into post(POST_ID, USER_ID, POST_TITLE, CARTEGORY_ID, POST_CONTENT, POST_UPLOAD_DATE, POST_VIEW_NUM, DELETE_STATE)	")
+			.append("	values(post_seq.nextval,?, ?, ?,?, sysdate,0,'N' )");
+			
+			pstmt = con.prepareStatement(insertNotice.toString());
+			
+			pstmt.setString(1, ubVO.getUserId());
+			pstmt.setString(2, ubVO.getBoardTitle());
+			pstmt.setString(3, ubVO.getBoardCategory());
+			pstmt.setString(4, ubVO.getBoardContent());
+			
+			result = pstmt.executeUpdate();
+			
+			return result;
+			
+		}finally {
+			db.dbClose(null, pstmt, con);
+		}
+		
+	}
+	
+	public int insertComment(UserCommentVO ucVO) throws SQLException{
+			int result = 0;
+				System.out.println(ucVO);
+			DbConnection db = DbConnection.getInstance();
+			
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			
+			try {
+				con = db.getConn("jdbc/dbcp");
+				
+				StringBuilder insertComment = new StringBuilder();
+				insertComment
+				.append("	insert into post_comment(COMMENT_ID, USER_ID, POST_ID, COMMENT_CONTENT, COMMENT_DATE)	")
+				.append("	values(comment_seq.nextval,?, ?, ?,sysdate)");
+				
+				pstmt = con.prepareStatement(insertComment.toString());
+				
+				pstmt.setString(1, ucVO.getUserId());
+				pstmt.setString(2, ucVO.getPostId());
+				pstmt.setString(3, ucVO.getContent());
+				
+				result = pstmt.executeUpdate();
+				
+				return result;
+				
+			}finally {
+				db.dbClose(null, pstmt, con);
+			}
+	}
+	
+	public int updateComment(UserCommentVO ucVO) throws SQLException{
+		int result = 0;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			StringBuilder updateComment = new StringBuilder();
+			updateComment
+			.append("	update post_comment		")
+			.append("	set comment_content = ?, comment_date = sysdate  ")
+			.append("	where comment_id = ?	");
+			
+			pstmt = con.prepareStatement(updateComment.toString());
+			
+			pstmt.setString(1, ucVO.getContent());
+			pstmt.setString(2, ucVO.getUserId());
+			
+			result = pstmt.executeUpdate();
+			
+			return result;
+			
+		}finally {
+			db.dbClose(null, pstmt, con);
+		}
+	}
+	
 	
 }

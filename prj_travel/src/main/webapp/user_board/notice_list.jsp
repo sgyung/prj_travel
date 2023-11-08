@@ -71,7 +71,16 @@
 </style>
 <script type="text/javascript">
 $(function(){
-
+	
+	$("#search").click(function() {
+		chkNull();
+	});//click
+	
+	$("#keyword").keyup(function(evt) {// keydown은 값을 받을 수 없다. 값을 받으려면 keyup을 사용
+		if(evt.which == 13){
+			chkNull();
+		}//end if
+	});//keyup
 	
 });//ready
 
@@ -79,6 +88,19 @@ function postDetail( id ) {
 	$("#noticeId").val(id);
 	$("#postFrm").submit();
 }
+
+function chkNull() {
+	var keyword = $("#keyword").val();
+	
+	if(keyword.trim()==""){
+		alert("검색 키워드를 입력해주세요.");
+		return;
+	}//end if
+	
+	//글자수 제한
+	
+	$("#frmSearch").submit();
+}//chkNull
 	
 </script>
 </head>
@@ -174,7 +196,7 @@ pageContext.setAttribute("startNum", startNum);
 					<div id="stab6" transition="fadeIn"
 						class="add2020_detail_con tab_cont kr" data-v-db46a16a=""
 						data-v-09a75c9f="">
-						<p class="jisik_tit" data-v-db46a16a="">공지사항</p>
+						<p class="jisik_tit" data-v-db46a16a=""><a href="notice_list.jsp">공지사항</a></p>
 						
 						<form action="notice_detail.jsp" method="post" id="postFrm">
 							<input type="hidden" id="noticeId" name="noticeId" />
@@ -183,11 +205,11 @@ pageContext.setAttribute("startNum", startNum);
 						<table class="post_table" data-v-db46a16a="">
 							<thead data-v-db46a16a="">
 								<tr data-v-db46a16a="">
-									<th data-v-db46a16a="">번호</th>
-									<th data-v-db46a16a="">제목</th>
-									<th data-v-db46a16a="">글쓴이</th>
-									<th data-v-db46a16a="">작성일</th><!-- 제목 오른쪽에 span으로 붙히기 -->
-									<th data-v-db46a16a="">조회수</th>
+									<th data-v-db46a16a="" style="width: 10%">번호</th>
+									<th data-v-db46a16a="" style="width: 55%">제목</th>
+									<th data-v-db46a16a="" style="width: 10%">글쓴이</th>
+									<th data-v-db46a16a="" style="width: 15%">작성일</th><!-- 제목 오른쪽에 span으로 붙히기 -->
+									<th data-v-db46a16a="" style="width: 10%">조회수</th>
 								</tr>
 							</thead>
 							<tbody data-v-db46a16a="">
@@ -198,7 +220,6 @@ pageContext.setAttribute("startNum", startNum);
 										<td data-v-db46a16a="">
 											<a href="#void" onclick="postDetail('${ notice.id }')"><c:out value="${notice.title}"/></a>
 										</td>
-										<%-- <td data-v-db46a16a=""><c:out value="${ qna.category }" /></td> --%>
 										<td data-v-db46a16a=""><c:out value="관리자"/></td>
 										<td data-v-db46a16a=""><c:out value="${notice.registrationDate}" /></td>
 										<td data-v-db46a16a=""><c:out value="${notice.viewNum}" /></td>
@@ -257,7 +278,19 @@ pageContext.setAttribute("startNum", startNum);
 			                %>  
 			                  
 			                </ul>
-							
+							<div style="text-align: center; margin-top: 20px;" >
+                <form name = "frmSearch" id="frmSearch" action="notice_list.jsp" method="get">
+                <select name="field" class="inputBox" style="height: 30px;">
+					<option value="1"${ param.field eq '1'?"selected = 'selected'":"" }>제목</option>
+					<option value="2"${ param.field eq '2'?"selected = 'selected'":"" }>내용</option>
+				</select>
+                <input type="text" name="keyword" id="keyword" class="inputBox" value ="${ param.keyword ne 'null'? parma.keyword:'' }" style="width: 200px; height: 30px;" placeholder="내용을 입력해주세요."/>
+                <input type="text" style="display: none"/>
+                <div style="display: inline-block;" >
+                <input type="button" id="search" class="btn btn-warning" style="width: 80px; margin-left: 10px; font-size: 13px" value="검색" />
+                </div>
+                </form>
+                </div>
 						</div>
 
 					</div>

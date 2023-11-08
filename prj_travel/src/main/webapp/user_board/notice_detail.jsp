@@ -105,7 +105,7 @@ $(function(){
 			<div class="content">
 
 
-<div id="tab6" class="add2020_detail_tab_box" data-v-09a75c9f="">
+	<div id="tab6" class="add2020_detail_tab_box" data-v-09a75c9f="">
 					<div id="stab6" transition="fadeIn"
 						class="add2020_detail_con tab_cont kr" data-v-db46a16a=""
 						data-v-09a75c9f="">

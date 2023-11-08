@@ -15,19 +15,19 @@
 
 <%
 BoardPageDAO bpDAO = BoardPageDAO.getInstance();
-PageVO resVO = new PageVO();
+PageVO tourVO = new PageVO();
 
 String field=request.getParameter("field");
 String keyword=request.getParameter("keyword");
 
 // 페이지가 최초 호출시에는 field나 keyword가 없다. 검색을 하지 않는 경우에도 값이 없다.
-resVO.setField(request.getParameter("field"));
-resVO.setKeyword(request.getParameter("keyword"));
+tourVO.setField(request.getParameter("field"));
+tourVO.setKeyword(request.getParameter("keyword"));
 
 
 
 // 1. 총 레코드의 수 => 검색키워드에 해당하는 총 레코드의 수
-int totalCount = bpDAO.boardRestaurantTotalCount(resVO); /* bpDAO.boardTouristTotalcount...를 + 해주면 되는거아닌가? */
+int totalCount = bpDAO.boardTouristTotalCount(tourVO); /* bpDAO.boardTouristTotalcount...를 + 해주면 되는거아닌가? */
 
 // 2. 한 화면에 보여줄 게시물의 수
 int pageScale = 5;
@@ -65,8 +65,8 @@ if( totalPage <= endPage){
 int movePage=0;
 
 // Dynamic Query에 의해서 구해진 시작번호와 끝번호를 VO에 넣는다.
-resVO.setStartNum(startNum);
-resVO.setEndNum(endNum);
+tourVO.setStartNum(startNum);
+tourVO.setEndNum(endNum);
 
 pageContext.setAttribute("startNum", startNum);
 pageContext.setAttribute("endNum", endNum);
@@ -142,7 +142,7 @@ $(function(){
 	
 	$("#inputBtn").click(function() {
 		if('${sesId}'!= null){
-		location.href = "board_add.jsp?category=res";
+		location.href = "board_add.jsp?category=tour";
 		}else{
 			alert("로그인 후 이용해 주세요.");
 			location.href = "../user_login/login.jsp";
@@ -176,9 +176,10 @@ function chkNull() {
 	
 function postDetail(id) {
 	$("#postId").val(id);
-	$("#type").val("res");
+	$("#torist").val("tour");
 	$("#postFrm").submit();
-}	
+}
+	
 </script>
 </head>
 <body>
@@ -192,10 +193,10 @@ function postDetail(id) {
 PostManageDAO postDAO = PostManageDAO.getInstance();
 
 	try{
-		List<PostVO> list = bpDAO.selectRestaurantBoard(resVO);
+		List<PostVO> list = bpDAO.selectTouristBoard(tourVO);
 		System.out.println(list.toString());
 		
-		pageContext.setAttribute("restaurantList", list);
+		pageContext.setAttribute("tourist", list);
 %>
 
 		<div class="content_wrap">
@@ -204,7 +205,7 @@ PostManageDAO postDAO = PostManageDAO.getInstance();
 					<div id="stab6" transition="fadeIn"
 						class="add2020_detail_con tab_cont kr" data-v-db46a16a=""
 						data-v-09a75c9f="">
-						<p class="jisik_tit" data-v-db46a16a="">맛집 게시판</p>
+						<p class="jisik_tit" data-v-db46a16a="">관광지 게시판</p>
 						
 						<form action="board_detail.jsp" method="post" id="postFrm">
 							<input type="hidden" id="postId" name="postId" />
@@ -224,23 +225,23 @@ PostManageDAO postDAO = PostManageDAO.getInstance();
 							<tbody data-v-db46a16a="" id="Output" >
 
 						<c:choose>
-					    <c:when test="${empty restaurantList}">
+					    <c:when test="${empty tourist}">
 					        <tr>
 					            <td colspan="5">게시글이 존재하지 않습니다.</td>
 					        </tr>
 					    </c:when>
 					    <c:otherwise>
-					        <c:forEach var="restaurantList" items="${restaurantList}" varStatus="i">
+					        <c:forEach var="tourist" items="${tourist}" varStatus="i">
 					            <tr data-v-db46a16a="">
-					                <td data-v-db46a16a><c:out value="${i.index + startNum}" /></td>
+					                <td data-v-db46a16a"><c:out value="${i.index + startNum}" /></td>
 					                <td data-v-db46a16a>
-					                    <a href="#void" onclick="postDetail('${restaurantList.postId}')">
-					                        <c:out value="${restaurantList.postTitle}" />
+					                    <a href="#void" onclick="postDetail('${tourist.postId}')">
+					                        <c:out value="${tourist.postTitle}" />
 					                    </a>
 					                </td>
-					                <td data-v-db46a16a><c:out value="${restaurantList.userId}" /></td>
-					                <td data-v-db46a16a><c:out value="${restaurantList.postDate}" /></td>
-					                <td data-v-db46a16a><c:out value="${restaurantList.postViewNum}" /></td>
+					                <td data-v-db46a16a><c:out value="${tourist.userId}" /></td>
+					                <td data-v-db46a16a><c:out value="${tourist.postDate}" /></td>
+					                <td data-v-db46a16a><c:out value="${tourist.postViewNum}" /></td>
 					            </tr>
 					        </c:forEach>
 					    </c:otherwise>
@@ -264,7 +265,7 @@ PostManageDAO postDAO = PostManageDAO.getInstance();
 			                if( currentPage > pageNumber ){
 			                	movePage=startPage-1;
 							%>                    
-			                <li class="page-item"><a class="page-link" href="board_restaurant_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&laquo;</a></li>
+			                <li class="page-item"><a class="page-link" href="board_tourist_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&laquo;</a></li>
 			                <%
 			                    }else{
 			                %>
@@ -283,7 +284,7 @@ PostManageDAO postDAO = PostManageDAO.getInstance();
 			                <%
 			                	}else{
 			                %>
-			                <li class="page-item"><a class="page-link" href="board_restaurant_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">
+			                <li class="page-item"><a class="page-link" href="board_tourist_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">
 			                <%= movePage %></a></li>
 			                 
 			                <%
@@ -296,7 +297,7 @@ PostManageDAO postDAO = PostManageDAO.getInstance();
 			                if( totalPage > endPage ){
 			                	movePage = endPage +1;
 							%>                    
-			                  <li class="page-item"><a class="page-link" href="board_restaurant_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&raquo;</a></li>
+			                  <li class="page-item"><a class="page-link" href="board_tourist_list.jsp?currentPage=<%= movePage %>&keyword=${ param.keyword }&field=${ param.field }">&raquo;</a></li>
 			                <%
 			                    }else{
 			                %>
@@ -309,7 +310,7 @@ PostManageDAO postDAO = PostManageDAO.getInstance();
 
 							<div style="text-align: center; margin-top: 20px">
 								<form name="frmSearch" id="frmSearch"
-									action="board_restaurant_list.jsp" method="get">
+									action="board_tour_list.jsp" method="get">
 									<select name="field" class="inputBox" style="height: 30px;">
 										<option value="1"
 											${ param.field eq '1'?"selected = 'selected'":"" }>아이디</option>

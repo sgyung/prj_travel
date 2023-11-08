@@ -210,7 +210,7 @@
                 <h3 class="card-title">공지사항 관리</h3>
               </div>
               <!-- /.card-header -->
-              <div class="card-body" style="height: 650px">
+              <div class="card-body" style="height: 650px;">
 <%
 	NoticeManageDAO nmDAO = NoticeManageDAO.getInstance();
 
@@ -225,11 +225,11 @@
 	border-bottom: 1px solid #535353; border-spacing: 0px" >
 			<tbody>
 			<tr>
-			<th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">제목</th>
+			<th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4; width: 200px">제목</th>
 			<td>${ nVO.title }</td>
             </tr>
             <tr style="height: 300px">
-            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">내용</th>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4; width: 200px">내용</th>
             <td>
             <div style="margin: 10px 0px;">
             ${ nVO.content }
@@ -237,15 +237,15 @@
             </td>
             </tr>
             <tr>
-            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">작성자</th>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4; width: 200px">작성자</th>
             <td>관리자</td>
             </tr>
             <tr>
-            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">작성일</th>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4; width: 200px">작성일</th>
             <td>${ nVO.registrationDate }</td>
             </tr>
             <tr>
-            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4">조회수</th>
+            <th style="text-align: center;	vertical-align: middle; border-right: 1px solid #535353; background: #F1F3F4; width: 200px">조회수</th>
             <td>${ nVO.viewNum }</td>
             </tr>
             <!-- <tr>

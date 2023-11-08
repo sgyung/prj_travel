@@ -207,6 +207,8 @@ pageContext.setAttribute("postId", postId);
 			
 		}//commentList
 	 
+		
+		
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
