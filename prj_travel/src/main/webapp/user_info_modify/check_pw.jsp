@@ -2,6 +2,18 @@
     pageEncoding="UTF-8"%>
 <%@ page info="" %>  
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%
+    String userId=(String)session.getAttribute("sesId");
+    if( userId == null ){
+    	response.sendRedirect("http://192.168.10.133/prj_travel/user_main/main.jsp");
+    	return;
+    }//end if
+    if( userId != null ){
+    	pageContext.setAttribute("userId", userId);
+    }//end if
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
