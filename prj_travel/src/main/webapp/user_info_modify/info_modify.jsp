@@ -1,10 +1,43 @@
+<%@page import="kr.co.sist.util.cipher.DataEncrypt"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.sql.SQLException"%>
 <%@page import="user.vo.UserVO"%>
 <%@page import="user.dao.UserDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info="정보수정" %>  
+<%@ page info="정보수정" %>
+
+<%
+    String userId=(String)session.getAttribute("sesId");
+    System.out.println(userId);
+    
+    if( userId == null ){
+    	response.sendRedirect("http://192.168.10.132/prj_travel/user_main/main.jsp");
+    	return;
+    }//end if
+    if( userId != null ){
+    	pageContext.setAttribute("userId", userId);
+    }//end if
+    
+    UserDAO uDAO = UserDAO.getInstance();
+	try{
+		UserVO uVO = uDAO.selectUserInfo(userId);
+		//ex) 1998-09-30 00:00으로 출력되기에
+		String birthdate = uVO.getBirthdate().substring(0,11).replace("-","").trim();
+		uVO.setBirthdate(birthdate);
+		
+		System.out.println(uVO);
+		
+		DataDecrypt dd = new DataDecrypt("a12345678901234567");
+		uVO.setTel(dd.decryption(uVO.getTel())); 
+		
+		/* uVO.setPw(DataEncrypt.messageDigest("MD5", uVO.getPw()));*/
+		
+		pageContext.setAttribute("user", uVO);
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,6 +52,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <!-- header&footer css -->
 <link rel="stylesheet" href="../common/CSS/header_footer.css">
+
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
     //본 예제에서는 도로명 주소 표기 방식에 대한 법령에 따라, 내려오는 데이터를 조합하여 올바른 주소를 구성하는 방법을 설명합니다.
@@ -98,8 +132,12 @@
 
 .input_box:focus {
 	outline : none;
-	border: solid #0DCAF0;
+	border: solid #ef6d00;
     border-width: 0 0 2px;
+}
+
+#new_pw , #re_new_pw {
+	display:none;
 }
 
 .btn_check {
@@ -111,6 +149,20 @@
 	font-size: 12px;
 }
 
+.textBox{
+	width:100%;
+	margin-top:20px;
+	padding: 20px;
+	display: none;
+	background-color: #fafafa;
+}
+
+.textBox > p {
+	font-size: 13px;
+	color: #e65f3e;
+	margin-bottom: 0px;
+	text-align: left;
+}
 
 .mod_btn {
 	width:100%;
@@ -122,47 +174,64 @@
 	flex-direction: row-reverse;
 }
 
+.login_main {
+	width:100%;
+	margin:0 auto;
+	justify-content: space-between;
+}
+
+.login_main_btn {
+	width: 200px;
+}
+
+.space {
+	height: 30px;
+}
+
 </style>
 
 <script type="text/javascript">
 $(function(){
-
-	 $("#btnId").click(function(){
-		 alert("아이디는 수정 불가합니다.");
-	}); 
-	 
-	 $("#btnName").click(function(){
-		 alert("이름은 수정 불가합니다.");
-	}); 
-	
-	 $("#btnBirth").click(function(){
-		 alert("생년월일은 수정 불가합니다.");
-	}); 
 	
 	$("#btnZipcode").click(function(){
 	      searchZipcode();
    	});
 	
+	$("#changePw").click(function(){	
+		location.href = "change_pw.jsp";
+ 	});
+	
+	$("#withdraw").click(function(){	
+		location.href = "withdraw.jsp";
+ 	});
+	
 	$("#mod_btn").click(function(){
-		//입력값에 대한 유효성 검증
-		if($("#idDupFlag").val() == 0){
-			alert($("#id").val()+"정보수정 완료.");
-	        location.href="../user_mypage/mypage.jsp"
-			return;
-		}//end if
+		//입력값 정규식 널체크
 		
-		if($("#password").val() != $("#re_password").val()){
-	        alert("비밀번호가 서로 다릅니다. 비밀번호를 확인해 주세요."); 
-	        $("#password").focus();
-	        return; 
-	    }
+		var cel=$("#cel").val();
+		
+		var getCel= RegExp(/^01[0179][0-9]{7,8}$/);
+		
+		$("#cel").focus();
+		if( cel.replace(/ /g,"") == ""){
+			$("#warningBox").show();
+		    $("#warningBox").html("<p>전화번호를 입력해주세요.</p>");
+		    $("#cel").val("");
+		    $("#cel").focus();
+		    return;
+		}
+		
+		//휴대전화번호 유효성검사
+	    if(!getCel.test( cel )) {
+	    	$("#warningBox").show();
+		    $("#warningBox").html("<p>올바른 전화번호를 입력해주세요.</p>");
+	        $("#cel").val("");
+	        $("#cel").focus();
+	        return;
+	      }
 		
 		$("#frm").submit();
 	});//click
-	
-	$("#id").keydown(function(){
-		$("#idDupFlag").val(0);
-	});
 	
 });//ready
 </script>
@@ -170,45 +239,6 @@ $(function(){
 <body>
 <div class="wrap">
     <%@ include file="../common/jsp/header.jsp" %>
-    
-    <%
-    String userId=(String)session.getAttribute("sesId");
-    System.out.println(userId);
-    
-    if( userId == null ){
-    	response.sendRedirect("http://192.168.10.132/prj_travel/user_main/main.jsp");
-    	return;
-    }//end if
-    if( userId != null ){
-    	pageContext.setAttribute("userId", userId);
-    }//end if
-    
-    UserDAO uDAO = UserDAO.getInstance();
-	try{
-		UserVO uVO = uDAO.selectUserInfo(userId);
-		//ex) 1998-09-30 00:00으로 출력되기에
-		String birthdate = uVO.getBirthdate().substring(0,11).replace("-","");
-		uVO.setBirthdate(birthdate);
-		
-		System.out.println(uVO);
-		
-		DataDecrypt dd = new DataDecrypt("a12345678901234567");
-		uVO.setTel(dd.decryption(uVO.getTel())); 
-		
-		/* uVO.setPw(DataEncrypt.messageDigest("MD5", uVO.getPw()));*/
-		
-		
-		
-		/* String tel = uVO.getTel() */
-		
-		pageContext.setAttribute("user", uVO);
-	}catch(SQLException se){
-		se.printStackTrace();
-	}
-	
-    
-    
-    %>
     
     <div class="content_wrap">
 
@@ -220,13 +250,6 @@ $(function(){
 					<input type="text" value="${ user.id }" name="id" class="input_box" id="id" readonly="readonly">
 				</div>
 				<div class="input_area flex">
-					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16"><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z"/><path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></label>
-					<input type="password" placeholder="비밀번호" name="pw" class="input_box" id="password">
-				</div>
-				<div class="input_area flex reverse">
-					<input type="password" placeholder="재확인" name="re_pw" class="input_box small_input_box" id="re_password">
-				</div>
-				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg></label>
 					<input type="text" value="${ user.name }" name="name" class="input_box" id="name" readonly="readonly">
 				</div>
@@ -236,12 +259,12 @@ $(function(){
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-phone" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></label>
-					<input type="tel" placeholder="휴대전화번호" value="${ user.tel }" name="tel" class="input_box" id="cel" >
+					<input type="tel" placeholder="휴대전화번호" value="${ user.tel }" name="tel" class="input_box" id="cel" maxlength="11" >
 				</div>
 				<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/></svg></label>
 					<input type="text" value="${ user.zipcode }" name="zipcode" class="input_box" id="zipcode" readonly="readonly">
-					<input type="button" value="우편번호검색" class="btn btn-info btn_check" id="btnZipcode">
+					<input type="button" value="우편번호검색" class="btn btn-warning btn_check" id="btnZipcode">
 				</div>
 				<div class="input_area flex reverse">
 					
@@ -251,8 +274,20 @@ $(function(){
 					
 					<input type="text" placeholder="상세주소" value="${ user.addrdetail }" name="addrdetail" class="input_box small_input_box" id="addr_d" >
 				</div>
+				
+				<div class="textBox" id="warningBox"></div>
+				
+				<div class="space"></div>
+				
+				
+				<div class="login_main flex">
+		            <input type="button" value="비밀번호변경" class="btn btn-warning login_main_btn" id="changePw">
+		            <input type="button" value="회원탈퇴" class="btn btn-warning login_main_btn" id="withdraw">
+	            </div>
+				
 
-            	<input type="button" value="수정하기" class="btn btn-info mod_btn" id="mod_btn">
+            	<input type="button" value="수정하기" class="btn btn-warning mod_btn" id="mod_btn">
+            	
             </form>
             
         </div>
@@ -260,9 +295,8 @@ $(function(){
     </div>
 
 	<%@ include file="../common/jsp/footer.jsp" %>
+	
     </div>
 	
-</div>
-      
 </body>
 </html>

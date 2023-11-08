@@ -49,16 +49,15 @@
 }
 
 .login_main_btn {
-
 	width: 100px;
 }
-
-
 
 </style>
 <script type="text/javascript">
 $(function(){
 
+	
+	
 });//ready
 </script>
 </head>
@@ -71,19 +70,17 @@ $(function(){
         <div class="changed_form_wrap">
         
         <div class="changed_form_text">
-            <h1>비밀번호 변경</h1>
+            <h1>회원탈퇴</h1>
         </div>
         <div class="changed_form_text">
-            <p>비밀번호가 변경되었습니다</p>
-            <p>변경된 비밀번호로 이용 가능합니다</p>
+            <p>정말로 탈퇴하시겠습니까?</p>
         </div>
-        
-        <div class="login_main flex">
-            <!-- <a href="../user_login/login.jsp">
-	            <input type="button" value="로그인" class="btn btn-warning login_main_btn">
-            </a> -->
-            <a href="../user_main/main.jsp">
-	            <input type="button" value="메인" class="btn btn-warning login_main_btn">
+            <div class="login_main flex">
+            <a href="withdraw_process.jsp">
+	            <input type="button" value="회원탈퇴" class="btn btn-warning login_main_btn" id="withdraw">
+            </a>
+            <a href="javascript:history.back();">
+	            <input type="button" value="뒤로가기" class="btn btn-warning login_main_btn" id="back">
             </a>
             </div>
         </div>

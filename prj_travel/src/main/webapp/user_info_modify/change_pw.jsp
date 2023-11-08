@@ -1,8 +1,42 @@
+<%@page import="java.sql.SQLException"%>
+<%@page import="user.vo.UserVO"%>
+<%@page import="user.dao.UserDAO"%>
 <%@page import="kr.co.sist.util.cipher.DataEncrypt"%>
 <%@page import="user.vo.UserIdPwVO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page info="" %>  
+<%@ page info="" %>
+<%
+    String userId=(String)session.getAttribute("sesId");
+    System.out.println(userId);
+    
+    if( userId == null ){
+    	response.sendRedirect("http://192.168.10.132/prj_travel/user_main/main.jsp");
+    	return;
+    }//end if
+    if( userId != null ){
+    	pageContext.setAttribute("userId", userId);
+    }//end if
+    
+    UserDAO uDAO = UserDAO.getInstance();
+	try{
+		UserVO uVO = uDAO.selectUserInfo(userId);
+		//ex) 1998-09-30 00:00으로 출력되기에
+		String birthdate = uVO.getBirthdate().substring(0,11).replace("-","").trim();
+		uVO.setBirthdate(birthdate);
+		
+		System.out.println(uVO);
+		
+		DataDecrypt dd = new DataDecrypt("a12345678901234567");
+		uVO.setTel(dd.decryption(uVO.getTel())); 
+		
+		
+		pageContext.setAttribute("user", uVO);
+	}catch(SQLException se){
+		se.printStackTrace();
+	}
+%>
+  
 <!DOCTYPE html>
 <html>
 <head>
@@ -159,20 +193,12 @@ function checkPw() {
             <p>비밀번호를 변경해 주세요.</p>
         </div>
         
-        	<%
-            UserIdPwVO upVO = (UserIdPwVO)session.getAttribute("userData");
-            
-    		String id = upVO.getId();
-          	
-    		pageContext.setAttribute("id", id);
-            %>
-        
-            <form action="search_pw_next_process.jsp" method="post" name="frm" id="frm">
+            <form action="../user_search_pw/search_pw_next_process.jsp" method="post" name="frm" id="frm">
             	<div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
   <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
 </svg></label>
-					<input type="text" value="${ id }" name="id" id="id" class="input_box" readonly="readonly">
+					<input type="text" value="${ user.id }" name="id" id="id" class="input_box" readonly="readonly">
 				</div>
                 <div class="input_area flex">
 					<label class="input_area_img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">

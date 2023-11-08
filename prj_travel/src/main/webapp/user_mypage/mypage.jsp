@@ -215,7 +215,7 @@ top:63%;
 <script type="text/javascript">
 $(function () {
 	$("#info_btn").click(function(){
-		location.href ="../user_info_modify/info_modify.jsp"
+		location.href ="../user_info_modify/check_pw.jsp"
 	});
 });//ready
 </script>

@@ -115,7 +115,7 @@ public class UserDAO {
 			//3. Connection 얻기
 			con=db.getConn("jdbc/dbcp");
 			//4. 쿼리문 생성객체 얻기
-			String selectData = "select user_name from T_USER where user_id=? and user_pw=?";
+			String selectData = "select user_name from T_USER where user_id=? and user_pw=? and user_registration_state='Y' ";
 			pstmt = con.prepareStatement(selectData);
 			//5. 바인드변수 값 설정
 			pstmt.setString(1, lVO.getId());
@@ -288,6 +288,74 @@ public class UserDAO {
 		}//end finally
 		return uVO;
 	}//selectUserFindId
+	
+	//VO 받아서 정보수정
+	public void updateUserInfo( UserVO uVO ) throws SQLException{
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+		//1. JDNI 사용객체 생성
+		//2. DataSource 얻기
+		//3. Connection 얻기
+			con = db.getConn("jdbc/dbcp");
+		//4. 쿼리문 생성객체 얻기
+			StringBuilder updateUserInfo = new StringBuilder();
+			updateUserInfo
+			.append("	update T_USER	")
+			.append("	set USER_TEL=? , USER_ZIPCODE=?, USER_ADDR0=?, USER_ADDR1=?	")
+			.append("	where USER_ID=?	");
+			
+			pstmt=con.prepareStatement(updateUserInfo.toString());
+		//5. 바인드 변수 값 설정
+			pstmt.setString(1, uVO.getTel());
+			pstmt.setString(2, uVO.getZipcode());
+			pstmt.setString(3, uVO.getAddr());
+			pstmt.setString(4, uVO.getAddrdetail());
+			pstmt.setString(5, uVO.getId());
+			
+		//6. 쿼리 수행 후 결과 얻기
+			pstmt.executeUpdate();
+		} finally {
+		//7. 연결 끊기
+			db.dbClose(null, pstmt, con);
+		}//end finally
+	}
+	
+	//userId에 해당하는 사용자의 registration state 를 N으로 
+	public void withdrawUser( String userId ) throws SQLException{
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+		//1. JDNI 사용객체 생성
+		//2. DataSource 얻기
+		//3. Connection 얻기
+			con = db.getConn("jdbc/dbcp");
+		//4. 쿼리문 생성객체 얻기
+			StringBuilder updateUserInfo = new StringBuilder();
+			updateUserInfo
+			.append("	update T_USER	")
+			.append("	set USER_REGISTRATION_STATE='N'	")
+			.append("	where USER_ID=?	");
+			
+			pstmt=con.prepareStatement(updateUserInfo.toString());
+		//5. 바인드 변수 값 설정
+			
+			pstmt.setString(1, userId);
+			
+		//6. 쿼리 수행 후 결과 얻기
+			pstmt.executeUpdate();
+		} finally {
+		//7. 연결 끊기
+			db.dbClose(null, pstmt, con);
+		}//end finally
+	}
+	
 	
 }//class
 
