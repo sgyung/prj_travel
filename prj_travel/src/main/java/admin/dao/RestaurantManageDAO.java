@@ -163,6 +163,7 @@ public class RestaurantManageDAO {
 	
 	public int insertTransactionArea(RestaurantVO rVO) throws SQLException{
 		int resultCnt = 0;
+		int deleteCnt = 0;
 	
 		DbConnection db = DbConnection.getInstance();
 		
@@ -177,16 +178,26 @@ public class RestaurantManageDAO {
 			
 			con.setAutoCommit(false);// 오토 커밋 끔
 			
-			pstmt = con.prepareStatement("select 'RES_' || RES_SEQ.nextval restaurant_id from dual ");
-			
-			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
-				restaurantId = rs.getString("restaurant_id");
-			}
-			
-			pstmt.close();
-			rs.close();
+			if( rVO.getId() != null ) {
+				pstmt = con.prepareStatement("	delete from restaurant where restaurant_id = ?	");
+				pstmt.setString(1, rVO.getId());
+				deleteCnt = pstmt.executeUpdate();
+				
+				restaurantId = rVO.getId();
+				pstmt.close();
+			} else {
+				pstmt = con.prepareStatement("select 'RES_' || RES_SEQ.nextval restaurant_id from dual ");
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					restaurantId = rs.getString("restaurant_id");
+				}
+				
+				pstmt.close();
+				rs.close();
+				
+			}//end else
 			
 			//touristArea 테이블 insert
 			StringBuilder insertRestaurant = new StringBuilder();
@@ -213,7 +224,6 @@ public class RestaurantManageDAO {
 			resultCnt += pstmt.executeUpdate();
 			
 			pstmt.close();
-			rs.close();
 			
 			
 			//restaurant_tags 테이블 insert
@@ -247,7 +257,112 @@ public class RestaurantManageDAO {
 				}//end for
 			}//end if
 			
-			if(resultCnt == (1+tags.length + conveniArr.length)) {
+			if((resultCnt+deleteCnt) == (1+ deleteCnt + tags.length + conveniArr.length)) {
+				con.commit();
+			}else {
+				con.rollback();
+			}
+			
+			return resultCnt;				
+			
+		}finally {
+			db.dbClose(rs, pstmt, con);
+		}
+	}//insertTouristArea
+	
+	public int updateTransactionArea(RestaurantVO rVO) throws SQLException{
+		int resultCnt = 0;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			String restaurantId = rVO.getId();
+			con = db.getConn("jdbc/dbcp");
+			con.setAutoCommit(false);// 오토 커밋 끔
+			
+			//수정전 삭제
+			pstmt = con.prepareStatement("	delete from restaurant where restaurant_id = ?	");
+			pstmt.setString(1,  restaurantId);
+			
+			resultCnt = pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			/*
+			 * pstmt = con.
+			 * prepareStatement("select 'RES_' || RES_SEQ.nextval restaurant_id from dual "
+			 * );
+			 * 
+			 * rs = pstmt.executeQuery();
+			 * 
+			 * if(rs.next()) { restaurantId = rs.getString("restaurant_id"); }
+			 * 
+			 * pstmt.close(); rs.close();
+			 */
+			
+			//touristArea 테이블 insert
+			StringBuilder insertRestaurant = new StringBuilder();
+			insertRestaurant
+			.append("	insert into restaurant(restaurant_id, restaurant_name, restaurant_addr, restaurant_tel,	")
+			.append("	restaurant_service_hours, ")
+			.append("	restaurant_longitude, restaurant_latitude, restaurant_like, restaurant_view_num,	")
+			.append("	restaurant_image, restaurant_thumbnail,delete_state, restaurant_upload_date,restaurant_detail_content )	")
+			.append("	values( ?, ?, ?, ?, ?,	")
+			.append("	?, ?, 0, 0, ?, ?, 'N', sysdate,? ) 	");
+			
+			pstmt = con.prepareStatement(insertRestaurant.toString());
+			pstmt.setString(1, restaurantId);
+			pstmt.setString(2, rVO.getName());
+			pstmt.setString(3, rVO.getAddr());
+			pstmt.setString(4, rVO.getTel());
+			pstmt.setString(5, rVO.getServiceHour());
+			pstmt.setDouble(6, rVO.getLongitude());
+			pstmt.setDouble(7, rVO.getLatitude());
+			pstmt.setString(8, rVO.getImage());
+			pstmt.setString(9, rVO.getThumbnail());
+			pstmt.setString(10, rVO.getDetailInfo());
+			
+			resultCnt += pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			
+			//restaurant_tags 테이블 insert
+			String[] tags = rVO.getTagName();
+			if(tags != null) {
+				for(int i = 0; i < tags.length; i++) {
+					StringBuilder insertTags = new StringBuilder();
+					insertTags
+					.append(" insert into restaurant_tags(restaurant_id, tag_name )	")
+					.append(" values(? , ?)	");
+					
+					pstmt = con.prepareStatement(insertTags.toString());
+					
+					pstmt.setString(1, restaurantId);
+					pstmt.setString(2, tags[i]);
+					
+					resultCnt += pstmt.executeUpdate();
+				}//end for
+			}// end if
+			
+			//편의시설 insert
+			String[] conveniArr = rVO.getConvenienceName();
+			if(conveniArr != null) {
+				for( int i = 0; i<conveniArr.length; i++) {
+					
+					pstmt = con.prepareStatement("	insert into restaurant_convenience(restaurant_id, convenience_name ) values ( ?, ? )	");
+					pstmt.setString(1, restaurantId);
+					pstmt.setString(2, conveniArr[i]);
+					
+					resultCnt += pstmt.executeUpdate();
+				}//end for
+			}//end if
+			
+			if(resultCnt == (2+tags.length + conveniArr.length)) {
 				con.commit();
 			}else {
 				con.rollback();

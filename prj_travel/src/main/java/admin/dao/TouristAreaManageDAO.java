@@ -165,7 +165,9 @@ public class TouristAreaManageDAO {
 	}
 	
 	public int insertTransactionArea(TouristAreaVO taVO) throws SQLException{
+		
 		int resultCnt = 0;
+		int deleteCnt = 0;
 	
 		DbConnection db = DbConnection.getInstance();
 		
@@ -180,16 +182,26 @@ public class TouristAreaManageDAO {
 			
 			con.setAutoCommit(false);// 오토 커밋 끔
 			
-			pstmt = con.prepareStatement("select 'TA_' || TA_SEQ.nextval tourist_area_id from dual ");
-			
-			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
-				touristAreaId = rs.getString("tourist_area_id");
+			if( taVO.getId() != null ) {
+				pstmt = con.prepareStatement("	delete from tourist_area where tourist_area_id = ?	");
+				pstmt.setString(1, taVO.getId());
+				deleteCnt = pstmt.executeUpdate();
+				
+				touristAreaId = taVO.getId();
+				pstmt.close();
+			} else {
+				pstmt = con.prepareStatement("select 'TA_' || TA_SEQ.nextval tourist_area_id from dual ");
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					touristAreaId = rs.getString("tourist_area_id");
+				}
+				
+				pstmt.close();
+				rs.close();
 			}
 			
-			pstmt.close();
-			rs.close();
 			
 			//touristArea 테이블 insert
 			StringBuilder insertTouristArea = new StringBuilder();
@@ -218,7 +230,6 @@ public class TouristAreaManageDAO {
 			resultCnt += pstmt.executeUpdate();
 			
 			pstmt.close();
-			rs.close();
 			
 			
 			//tourist_tags 테이블 insert
@@ -252,7 +263,7 @@ public class TouristAreaManageDAO {
 				}//end for
 			}//end if
 			
-			if(resultCnt == (1+tags.length + conveniArr.length)) {
+			if((resultCnt+deleteCnt) == (1+deleteCnt +tags.length + conveniArr.length)) {
 				con.commit();
 			}else {
 				con.rollback();
@@ -409,5 +420,115 @@ public class TouristAreaManageDAO {
 		}
 		return resultCnt;
 	}
+	
+	public int updateTransactionArea(TouristAreaVO taVO) throws SQLException{
+		int resultCnt = 0;
+	
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			String touristAreaId = taVO.getId();
+			con = db.getConn("jdbc/dbcp");
+			con.setAutoCommit(false);// 오토 커밋 끔
+			
+			//수정전 삭제
+			pstmt = con.prepareStatement("	delete from tourist_area where tourist_area_id = ?	");
+			pstmt.setString(1,  touristAreaId);
+			
+			resultCnt = pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			/*
+			 * pstmt = con.
+			 * prepareStatement("select 'TA_' || TA_SEQ.nextval tourist_area_id from dual "
+			 * );
+			 * 
+			 * rs = pstmt.executeQuery();
+			 * 
+			 * if(rs.next()) { touristAreaId = rs.getString("tourist_area_id"); }
+			 * 
+			 * pstmt.close(); rs.close();
+			 */
+			
+			//touristArea 테이블 insert
+			StringBuilder insertTouristArea = new StringBuilder();
+			insertTouristArea
+			.append("	insert into tourist_area(tourist_area_id, tourist_area_name, tourist_area_addr, tourist_area_tel,	")
+			.append("	tourist_area_service_hours, tourist_area_price_info, tourist_area_slope,	")
+			.append("	Tourist_area_longitude, tourist_area_latitude, tourist_area_like, tourist_area_view_num,	")
+			.append("	tourist_area_image, tourist_area_thumbnail,delete_state, tourist_area_upload_date,tourist_area_detail_info )	")
+			.append("	values( ?, ?, ?, ?, ?,	")
+			.append("	?, ?, ?, ?, 0, 0, ?, ?, 'N', sysdate,? ) 	");
+			
+			pstmt = con.prepareStatement(insertTouristArea.toString());
+			pstmt.setString(1, touristAreaId);
+			pstmt.setString(2, taVO.getName());
+			pstmt.setString(3, taVO.getAddr());
+			pstmt.setString(4, taVO.getTel());
+			pstmt.setString(5, taVO.getServiceHour());
+			pstmt.setString(6, taVO.getPriceInfo());
+			pstmt.setString(7, taVO.getSlope());
+			pstmt.setDouble(8, taVO.getLongitude());
+			pstmt.setDouble(9, taVO.getLatitude());
+			pstmt.setString(10, taVO.getImage());
+			pstmt.setString(11, taVO.getThumbnail());
+			pstmt.setString(12, taVO.getDetailInfo());
+			
+			resultCnt += pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			
+			//tourist_tags 테이블 insert
+			String[] tags = taVO.getTagName();
+			if(tags != null) {
+				for(int i = 0; i < tags.length; i++) {
+					StringBuilder insertTags = new StringBuilder();
+					insertTags
+					.append(" insert into tourist_tags(Tourist_area_id, tag_name )	")
+					.append(" values(? , ?)	");
+					
+					pstmt = con.prepareStatement(insertTags.toString());
+					
+					pstmt.setString(1, touristAreaId);
+					pstmt.setString(2, tags[i]);
+					
+					resultCnt += pstmt.executeUpdate();
+				}//end for
+			}// end if
+			
+			//편의시설 insert
+			String[] conveniArr = taVO.getConvenienceName();
+			if(conveniArr != null) {
+				for( int i = 0; i<conveniArr.length; i++) {
+					
+					pstmt = con.prepareStatement("	insert into tourist_convenience(tourist_area_id, convenience_name ) values ( ?, ? )	");
+					pstmt.setString(1, touristAreaId);
+					pstmt.setString(2, conveniArr[i]);
+					
+					resultCnt += pstmt.executeUpdate();
+				}//end for
+			}//end if
+			
+			if(resultCnt == (2+tags.length + conveniArr.length)) {
+				con.commit();
+			}else {
+				con.rollback();
+			}
+			
+			return resultCnt;				
+			
+		}finally {
+			db.dbClose(rs, pstmt, con);
+		}
+	}//insertTouristArea
+	
+	
+	
 	
 }

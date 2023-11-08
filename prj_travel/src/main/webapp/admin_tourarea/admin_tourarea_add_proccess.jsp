@@ -18,8 +18,9 @@ request.setCharacterEncoding("UTF-8");
 %>    
 
 <%
+
 //1. 업로드될 파일이 저장된 폴더의 경로를 얻기
-File saveDir = new File("C:/Users/USER/git/prj_travel/prj_travel/src/main/webapp/common/images/tourArea_img");
+File saveDir = new File("e:/dev/testtesttest");
 //2. 파일의 최대 크기 설정(30MByte)
 int maxSize = 1024*1024*30;
 	try{
@@ -28,6 +29,7 @@ int maxSize = 1024*1024*30;
 					maxSize, "UTF-8", new DefaultFileRenamePolicy());
 		
 		// 4. 업로드 파일명 받기(<input type = "file")
+		
 		String fileName = mr.getFilesystemName("chooseImg");
 		
 		File uploadFile = new File(saveDir.getAbsolutePath() + "/" + fileName);
@@ -43,6 +45,7 @@ int maxSize = 1024*1024*30;
 		TouristAreaManageDAO tamDAO = TouristAreaManageDAO.getInstance();
 		TouristAreaVO taVO = new TouristAreaVO();
 		
+		String areaId = mr.getParameter("areaId");
 		String name = mr.getParameter("name");
 		String addr = mr.getParameter("addr");
 		double latitude = Double.parseDouble(mr.getParameter("latitude"));
@@ -54,7 +57,13 @@ int maxSize = 1024*1024*30;
 		String priceInfo = mr.getParameter("priceInfo");
 		String slope = mr.getParameter("slope");
 		String detailInfo = mr.getParameter("detailInfo");
+		int deleteCnt = 0;
+		if( areaId != null ){
+			deleteCnt = 1;
+			taVO.setId(areaId);
+		}
 		int resultCnt = 0;
+		
 		
 		taVO.setName(name);
 		taVO.setAddr(addr);
@@ -80,9 +89,9 @@ int maxSize = 1024*1024*30;
 		taVO.setSlope(slope);
 		taVO.setDetailInfo(detailInfo);
 		
-		
 		if(!flag){// 여기 안에서 DB에 넣는 메소드 넣는다.
 			taVO.setImage(fileName);
+			
 			taVO.setThumbnail(fileName);
 			
 			resultCnt = tamDAO.insertTransactionArea(taVO);
@@ -90,12 +99,12 @@ int maxSize = 1024*1024*30;
 			
 				
 				
-			if(resultCnt == (1+tagNamesLength+convenienceNamesLength) ){
+			if(( resultCnt+deleteCnt) == ((1+deleteCnt)+tagNamesLength+convenienceNamesLength) ){
 
 %>
 		<script>
             alert("관광지가 성공적으로 등록되었습니다.");
-            window.location.href = "admin_tourarea_add.jsp";
+            window.location.href = "admin_tourarea_list.jsp";
         </script>
 <%				
 			}else{

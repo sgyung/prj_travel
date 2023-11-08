@@ -17,6 +17,7 @@
 		
 		pageContext.setAttribute("taVO", taVO);
 		pageContext.setAttribute("tagArr", tagArr);
+		pageContext.setAttribute("areaId", areaId);
 		pageContext.setAttribute("convenienceArr", convenienceArr);
 		}
 	}catch(SQLException se){
@@ -200,9 +201,51 @@
 		 			reader.readAsDataURL(file);
 		 	})//change
 		 
+		 
+		 	
+		 	
 		 // 폼 submit
 		 $("#complete").click(function() {
-			$("#infoFrm").submit();
+		 	// File이 선택되지 않았을 경우
+			 if ($("#chooseImg").get(0).files.length === 0) {
+				 img = $("#preview").attr("src");
+				 title = $("#name").val();
+				 addr = $("#addr").val();
+				 latitude = $("#latitude").val();
+				 longitude = $("#longitude").val();
+				 tel = $("#tel").val();
+				 serviceHour = $("#serviceHour").val();
+				 priceInfo = $("#priceInfo").val();
+				 slope = $("#slope").val();
+				 
+				 var tags = "";
+				 $(".tag").each(function(){
+					 tags += $(this).val() + " "
+				 })
+				 var con = "";
+				 $(".con").each(function(){
+					 con += $(this).val() + " "
+				 })
+				 
+				 detailInfo = $("#summernote").val();
+				 
+				 $("#sub_title").val(title);
+				 $("#sub_addr").val(addr);
+				 $("#sub_latitude").val(latitude);
+				 $("#sub_longitude").val(longitude);
+				 $("#sub_tag").val(tags);
+				 $("#sub_tel").val(tel);
+				 $("#sub_serviceHour").val(serviceHour);
+				 $("#sub_priceInfo").val(priceInfo);
+				 $("#sub_convevienceName").val(con);
+				 $("#sub_slope").val(slope);
+				 $("#sub_detailInfo").val(detailInfo);
+				 $("#sub_img").val(img);
+				 
+				 $("#sub_frm").submit();
+	        } else {
+				$("#infoFrm").submit();
+	        }//end else
 		});//click
 		 
 		 $("#cancel").click(function() {
@@ -217,9 +260,7 @@
 		$("#slope").val(slope).attr("selected", "selected");
 		
 		
-		$("#complete").click(function(){
-			
-		})//click	 	
+	
 	});//ready
 	
 	 let tagFieldCounter = 0;
@@ -453,7 +494,7 @@
                 <h3 class="card-title">관광지 추가/수정</h3>
               </div>
               <!-- /.card-header -->
-              <form action="admin_tourarea_add_proccess.jsp" method="post" id="infoFrm" enctype="multipart/form-data">
+              <form action="admin_tourarea_add_proccess.jsp" method="post" id="infoFrm" enctype="multipart/form-data" method="post">
               <div class="card-body">
                 <table class="table" style="border-left: 0px; border-right: 0px; border-top: 3px solid #535353; 
 	border-bottom: 1px solid #535353; border-spacing: 0px;">
@@ -463,10 +504,11 @@
 			<div class="contents" style="margin-top: 20px">
     <div class="upload-box col-md-5">
       <div class="drag-file" id="drop-file">
-        <img src="${ taVO.image }" id="preview" >
+        <img src="${ taVO.image }" id="preview" style="display : inline">
       </div>
       <label class="file-label" for="chooseImg">이미지 등록</label>
-      <input class="file" id="chooseImg" type="file" name="" >
+      <input class="file" id="chooseImg" type="file" name="chooseImg" >
+      <input id="fileFlag" type="hidden" name="fileFlag" value="" >
     </div>
   	<div class="contents" style="margin-top: 10px; display: inline-block; width: 80%" id="tagInput">
   	<h3><strong><label>기본정보</label></strong></h3>
@@ -479,7 +521,7 @@
   	<label style="margin-left: 30px; margin-top: 30px">위도</label>
   	<input type="text" class="inputBox" id="latitude" name="latitude" style="width: 22%;display: inline-block; margin-left: 70px; margin-top: 30px" placeholder="위도를 입력해주세요."  value="${ taVO.latitude }">
   	<label style="margin-left: 72px; margin-top: 30px" >경도</label>
-  	<input type="text" class="inputBox" id="longitude" name="longitude" style="width: 22%;display: inline-block; margin-left: 30px; margin-top: 30px" placeholder="경도를 입력해주세요." value="${ taVO.latitude }"><br/>
+  	<input type="text" class="inputBox" id="longitude" name="longitude" style="width: 22%;display: inline-block; margin-left: 30px; margin-top: 30px" placeholder="경도를 입력해주세요." value="${ taVO.longitude }"><br/>
   	<label style="margin-left: 30px;">연락처</label>
   	<input type="text" class="inputBox" id="tel" name="tel" style="width: 60%;display: inline-block; margin-left: 55px; margin-top: 30px" placeholder="연락처를 입력해주세요." value="${ taVO.tel }"><br/>
   	<label style="margin-left: 30px; margin-right: 20px; margin-top:22px; float: left;">#tag</label>
@@ -541,10 +583,26 @@
             <div>
             <input type="button" value="취소" class="btn btn-secondary" id="cancel" style="margin-right: 30px; width: 150px;" >
             <input type="button" value="등록/수정" class="btn btn-warning" id="complete" style="width: 150px; display: inline-block;" >
+            <input type="hidden" value="${ areaId }" id="areaId" name="areaId" >
             </div>
             </div>
             </div>
               </form>
+              <form action="http://192.168.10.133/prj_travel/admin_tourarea/admin_tourarea_update_proccess.jsp" id="sub_frm" method="post">
+              	<input type="hidden"  id="sub_title" name="sub_title" />
+              	<input type="hidden"  id="sub_addr" name="sub_addr" />
+              	<input type="hidden"  id="sub_latitude" name="sub_latitude" />
+              	<input type="hidden"  id="sub_longitude" name=sub_longitude />
+              	<input type="hidden"  id="sub_tag" name="sub_tag" />
+              	<input type="hidden"  id="sub_tel" name="sub_tel" />
+              	<input type="hidden"  id="sub_serviceHour" name="sub_serviceHour" />
+              	<input type="hidden"  id="sub_convevienceName" name="sub_convevienceName" />
+              	<input type="hidden"  id="sub_priceInfo" name="sub_priceInfo" />
+              	<input type="hidden"  id="sub_slope" name="sub_slope" />
+              	<input type="hidden"  id="sub_detailInfo" name="sub_detailInfo" />
+              	<input type="hidden"  id="sub_img" name="sub_img" />
+              	<input type="hidden"  id="sub_areaId" name="sub_areaId" value="${ areaId }" />
+              	</form>
             </div>
             </div>
             </div>

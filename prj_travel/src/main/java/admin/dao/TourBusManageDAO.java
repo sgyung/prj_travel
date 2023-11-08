@@ -68,6 +68,7 @@ public class TourBusManageDAO {
 	
 	public int insertTourBusTransaction(TourBusVO tbVO) throws SQLException{
 		int resultCnt = 0;
+		int deleteCnt = 0;
 		
 		DbConnection db = DbConnection.getInstance();
 		
@@ -82,16 +83,27 @@ public class TourBusManageDAO {
 			
 			con.setAutoCommit(false);// 오토 커밋 끔
 			
-			pstmt = con.prepareStatement("select 'TOURBUS_' || TOUR_SEQ.nextval bustour_id from dual ");
-			
-			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
-				bustourId = rs.getString("bustour_id");
+			if( tbVO.getId() != null ) {
+				pstmt = con.prepareStatement("	delete from bustour where bustour_id = ?	");
+				pstmt.setString(1, tbVO.getId());
+				deleteCnt = pstmt.executeUpdate();
+				
+				bustourId = tbVO.getId();
+				pstmt.close();
+			} else {
+				pstmt = con.prepareStatement("select 'TOURBUS_' || TOUR_SEQ.nextval bustour_id from dual ");
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					bustourId = rs.getString("bustour_id");
+				}
+				
+				pstmt.close();
+				rs.close();
 			}
 			
-			pstmt.close();
-			rs.close();
+			
 			
 			//touristArea 테이블 insert
 			StringBuilder insertBusTour = new StringBuilder();
@@ -116,7 +128,6 @@ public class TourBusManageDAO {
 			resultCnt += pstmt.executeUpdate();
 			
 			pstmt.close();
-			rs.close();
 			
 			
 			//tourbus_dispatch 테이블 insert
@@ -151,7 +162,111 @@ public class TourBusManageDAO {
 				}//end for
 			}//end if
 			
-			if(resultCnt == (1+dispatchTimes.length + routeArr.length)) {
+			if(( resultCnt + deleteCnt) == (1+deleteCnt + dispatchTimes.length + routeArr.length)) {
+				con.commit();
+			}else {
+				con.rollback();
+			}
+			
+			return resultCnt;				
+			
+		}finally {
+			db.dbClose(rs, pstmt, con);
+		}
+	}
+	
+	public int updateTourBusTransaction(TourBusVO tbVO) throws SQLException{
+		int resultCnt = 0;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			String bustourId = tbVO.getId();
+			con = db.getConn("jdbc/dbcp");
+			con.setAutoCommit(false);// 오토 커밋 끔
+			
+			//수정전 삭제
+			pstmt = con.prepareStatement("	delete from bustour where BUSTOUR_ID = ?	");
+			pstmt.setString(1,  bustourId);
+			
+			resultCnt = pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			/*
+			 * pstmt = con.
+			 * prepareStatement("select 'TOURBUS_' || TOUR_SEQ.nextval bustour_id from dual "
+			 * );
+			 * 
+			 * rs = pstmt.executeQuery();
+			 * 
+			 * if(rs.next()) { bustourId = rs.getString("bustour_id"); }
+			 * 
+			 * pstmt.close(); rs.close();
+			 */
+			
+			//touristArea 테이블 insert
+			StringBuilder insertBusTour = new StringBuilder();
+			insertBusTour
+			.append("	insert into bustour(bustour_id, bustour_name, bustour_tel, bustour_start,	")
+			.append("	bustour_end, bustour_time, bustour_seat, adult_fare, child_fare,	")
+			.append("	bustour_image, regist_date, operation_state)	")
+			.append("	values( ?, ?, ?, ?, ?,	")
+			.append("	?,45, ?, ?, ?, sysdate,'N' ) 	");
+			
+			pstmt = con.prepareStatement(insertBusTour.toString());
+			pstmt.setString(1, bustourId);
+			pstmt.setString(2, tbVO.getName());
+			pstmt.setString(3, tbVO.getTel());
+			pstmt.setDate(4, tbVO.getStartTime());
+			pstmt.setDate(5, tbVO.getEndTime());
+			pstmt.setString(6, tbVO.getBusTourTime());
+			pstmt.setInt(7, tbVO.getAdultFare());
+			pstmt.setInt(8, tbVO.getChildFare());
+			pstmt.setString(9, tbVO.getImage());
+			
+			resultCnt += pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			
+			//tourbus_dispatch 테이블 insert
+			String[] dispatchTimes = tbVO.getDispatchTime();
+			if(dispatchTimes != null) {
+				for(int i = 0; i < dispatchTimes.length; i++) {
+					StringBuilder insertDispatchTimes = new StringBuilder();
+					insertDispatchTimes
+					.append(" insert into bustour_dispatch(bustour_id, bustour_time )	")
+					.append(" values(? , ?)	");
+					
+					pstmt = con.prepareStatement(insertDispatchTimes.toString());
+					
+					pstmt.setString(1, bustourId);
+					pstmt.setString(2, dispatchTimes[i]);
+					
+					resultCnt += pstmt.executeUpdate();
+				}//end for
+			}// end if
+			
+			//편의시설 insert
+			String[] routeArr = tbVO.getRoute();
+			if(routeArr != null) {
+				for( int i = 0; i<routeArr.length; i++) {
+					
+					pstmt = con.prepareStatement("	insert into bustour_route(bustour_id, route_num,route_name ) values ( ?, ?, ? )	");
+					pstmt.setString(1, bustourId);
+					pstmt.setInt(2, i+1);
+					pstmt.setString(3, routeArr[i]);
+					
+					resultCnt += pstmt.executeUpdate();
+				}//end for
+			}//end if
+			
+			if(resultCnt == (2+dispatchTimes.length + routeArr.length)) {
 				con.commit();
 			}else {
 				con.rollback();
@@ -446,5 +561,62 @@ public class TourBusManageDAO {
 		
 		return list;
 	}
+	
+	public int updateTourBusState(String id) throws SQLException {
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int result = 0;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			StringBuilder updateTourBus = new StringBuilder();
+			updateTourBus
+			.append("	UPDATE bustour	")
+			.append("	SET OPERATION_STATE = CASE	")
+			.append("	WHEN OPERATION_STATE = 'N' THEN 'Y'	")
+			.append("	WHEN OPERATION_STATE = 'Y' THEN 'N'	")
+			.append("	ELSE OPERATION_STATE	")
+			.append("	END	")
+			.append("	WHERE bustour_Id = ?	")
+			;
+			pstmt = con.prepareStatement(updateTourBus.toString());
+			pstmt.setString(1, id);
+			result = pstmt.executeUpdate();
+			
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//finally
+		
+		return result;
+	}//updateTourBusState
+	
+	public int deleteTourBus( String id) throws SQLException {
+		DbConnection db = DbConnection.getInstance();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int result = 0;
+		
+		try {
+			con = db.getConn("jdbc/dbcp");
+			
+			pstmt = con.prepareStatement("	delete from bustour where bustour_id = ?	");
+			pstmt.setString(1,  id);
+			
+			result = pstmt.executeUpdate();
+			
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//end finally
+		
+		return result;
+	}//deleteTourBus
 	
 }

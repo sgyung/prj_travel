@@ -110,10 +110,25 @@ td {
 			location.href = "../admin/admin_logout.jsp";
 		});//click 
 		
-		$(document).on("clikc", ".change_state", function(){
-			$(this).
+		//버스 운행 상태 변경
+		$(document).on("click", ".change_state", function(){
+			var index = $(".change_state").index(this);
+			var tourId =$("#" + "tourId_" + index ).val();
+			$.ajax({
+				url : "http://192.168.10.133/prj_travel/admin_tourbus/admin_tourbus_change_state.jsp",
+				type : "get",
+				dataType : "json",
+				data : { "tourId" : tourId },
+				error : function( xhr ){
+					alert(xhr);
+				},
+				success : function( jsonObj ){
+					if( jsonObj.resultFlag ){
+						location.reload();
+					}//end if
+				}//success
+			})//ajax
 		})//on
-		
 	})//ready
 	
 	function postDetail( id ) {
@@ -133,6 +148,7 @@ td {
 		
 		$("#frmSearch").submit();
 	}//chkNull
+	
 </script>
 
 <jsp:include page = "../include/set_style.jsp"></jsp:include>
@@ -330,8 +346,9 @@ td {
                       <td><a href="#void" onclick="postDetail('${ list.id }')"><c:out value="${list.name}"/></a></td>
                       <td><c:out value="${list.registrationTime}"/></td>
                       <td><c:out value="${list.operationState eq 'Y'? '운행중' : '운행 대기'}"/></td>
-                      <td><button class="btn btn-primary" class="change_state">변경</button></td>
+                      <td><button class="btn btn-primary change_state"  >변경</button></td>
                     </tr>
+                      <input type="hidden"  id="tourId_${ i.index }"  value="${ list.id }"/>
 				    </c:forEach> 
                   </tbody>
                 </table>

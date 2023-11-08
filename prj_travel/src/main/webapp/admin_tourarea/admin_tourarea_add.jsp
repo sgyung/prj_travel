@@ -178,8 +178,11 @@
 		 			reader.readAsDataURL(file);
 		 	})//change
 		 
+		 	
+		 	
 		 // 폼 submit
 		 $("#complete").click(function() {
+			 
 			$("#infoFrm").submit();
 		});//click
 		 

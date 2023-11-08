@@ -14,7 +14,7 @@ request.setCharacterEncoding("UTF-8");
 %>     
 <%
 //1. 업로드될 파일이 저장된 폴더의 경로를 얻기
-File saveDir = new File("C:/Users/USER/git/prj_travel/prj_travel/src/main/webapp/common/images/restaurant_img");
+File saveDir = new File("e:/dev/testtesttest");
 //2. 파일의 최대 크기 설정(30MByte)
 int maxSize = 1024*1024*30;
 	try{
@@ -38,6 +38,7 @@ int maxSize = 1024*1024*30;
 		RestaurantManageDAO rmDAO = RestaurantManageDAO.getInstance();
 		RestaurantVO rVO = new RestaurantVO();
 		
+		String areaId = mr.getParameter("areaId");
 		String name = mr.getParameter("name");
 		String addr = mr.getParameter("addr");
 		double latitude = Double.parseDouble(mr.getParameter("latitude"));
@@ -47,6 +48,11 @@ int maxSize = 1024*1024*30;
 		String[] convenienceNames = mr.getParameterValues("convevienceName");
 		String serviceHour = mr.getParameter("serviceHour");
 		String detailInfo = mr.getParameter("detailInfo");
+		int deleteCnt = 0;
+		if( areaId != null ){
+			deleteCnt = 1;
+			rVO.setId(areaId);
+		}
 		int resultCnt = 0;
 		
 		rVO.setName(name);
@@ -81,19 +87,19 @@ int maxSize = 1024*1024*30;
 			
 				
 				
-			if(resultCnt == (1+tagNamesLength+convenienceNamesLength) ){
+			if((resultCnt + deleteCnt) == ((1 + deleteCnt) +tagNamesLength+convenienceNamesLength) ){
 
 %>
 		<script>
             alert("맛집이 성공적으로 등록되었습니다.");
-            window.location.href = "admin_restaurant_add.jsp";
+            window.location.href = "admin_restaurant_list.jsp";
         </script>
 <%				
 			}else{
 %>
 		<script>
             alert("오류가 발생했습니다. 다시 입력해주세요.");
-            window.location.href = "admin_restaurant_add.jsp";
+            window.location.href = "admin_restaurant_list.jsp";
         </script>
 <% 				
 				uploadFile.delete();

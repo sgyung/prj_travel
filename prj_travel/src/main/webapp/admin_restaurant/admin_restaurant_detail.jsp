@@ -30,6 +30,9 @@ $(function() {
 	});//click    
 	
 	
+	$("#modify").click(function(){
+		$("#detail_frm").submit();
+	})//click
 	
 })//ready
 
@@ -321,6 +324,9 @@ function restaurantDelete(id){
 										 <input type="button" value="수정" id="modify" class="btn btn-info" style="width:150px; margin-right: 80px; margin-bottom: 60px">
 										 <input type="button" value="삭제" id="delete" class="btn btn-danger" onclick="restaurantDelete('${ param.restaurantId }')" style="width:150px; margin-bottom: 60px">
 										 </div>
+										  <form action="http://192.168.10.133/prj_travel/admin_restaurant/admin_restaurant_modify.jsp" id="detail_frm" name="detail_frm">
+										 	<input type="hidden" id="areaId" name="areaId" value="${ rVO.id }"/>
+										 </form>
 								 
               </section>
               </div>

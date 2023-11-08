@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="../common/CSS/header_footer.css">
 <style type="text/css">
 .header {
-	    opacity: 0.4;
+	    opacity: 0.7;
 }
 
 

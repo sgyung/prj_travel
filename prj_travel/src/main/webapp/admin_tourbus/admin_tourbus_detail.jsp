@@ -113,6 +113,24 @@ $(function() {
 	 $("#logout").click(function() {
 			location.href = "../admin/admin_logout.jsp";
 		});//click
+		
+	$("#complete").click(function(){
+		$("#detail_frm").submit();
+	})//click
+	
+	$("#cancel").click(function(){
+		 if (confirm("관광지를 삭제 하시겠습니까?")) {
+		    	 $("#delete_frm").submit();
+		     } else {
+		    	return;
+		     }
+	})//click
+	
+	$("#list").click(function(){
+		location.href="admin_tourbus_list.jsp";	
+	})
+	
+	
 	
 })//ready
 	
@@ -449,6 +467,13 @@ $(function() {
     <input type="button" value="삭제" class="btn btn-secondary" id="cancel" style="margin-right: 30px; width: 150px;">
     <input type="button" value="수정" class="btn btn-warning" id="complete" style="width: 150px;">
   </div>
+  
+  <form action="http://192.168.10.133/prj_travel/admin_tourbus/admin_tourbus_modify.jsp" id="detail_frm" name="detail_frm">
+	<input type="hidden" id="tourId" name="tourId" value="${ tbVO.id }"/>
+ </form>
+  <form action="http://192.168.10.133/prj_travel/admin_tourbus/admin_tourbus_delete_proccess.jsp" id="delete_frm" name="delete_frm">
+	<input type="hidden" id="tourId" name="tourId" value="${ tbVO.id }"/>
+ </form>
   </div>
 
 </div>

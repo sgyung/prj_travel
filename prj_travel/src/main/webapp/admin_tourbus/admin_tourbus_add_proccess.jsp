@@ -44,6 +44,7 @@ int maxSize = 1024*1024*30;
 		TourBusManageDAO tbmDAO = TourBusManageDAO.getInstance();
 		TourBusVO tbVO = new TourBusVO();
 		
+		String tourId = mr.getParameter("tourId");
 		String name = mr.getParameter("name");
 		String tel = mr.getParameter("tel");
 		String[] routes = mr.getParameterValues("route");
@@ -51,6 +52,13 @@ int maxSize = 1024*1024*30;
 		String busTourTime = mr.getParameter("busTourTime");
 		int adultFare = Integer.parseInt(mr.getParameter("adultFare"));
 		int childFare = Integer.parseInt(mr.getParameter("childFare"));
+		int deleteCnt = 0;
+		
+		if( tourId != null ){
+			deleteCnt = 1;
+			tbVO.setId(tourId);
+		}
+		
 		int resultCnt = 0;
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -93,7 +101,7 @@ int maxSize = 1024*1024*30;
 			
 				
 				
-			if(resultCnt == (1+dispatchTimesLength+routesLength) ){
+			if( ( resultCnt + deleteCnt ) == (( 1 + deleteCnt )+dispatchTimesLength+routesLength) ){
 
 %>
 		<script>
