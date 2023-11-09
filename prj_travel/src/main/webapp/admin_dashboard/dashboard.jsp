@@ -14,7 +14,7 @@
 <%@ page info = "" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
 <c:if test="${ empty admin }">
-<c:redirect url="../admin/admin_login.jsp"/>
+<c:redirect url="http://jtour.sist.co.kr/admin/admin_login.jsp"/>
 </c:if>
 <!DOCTYPE html>
 <html lang="ko">

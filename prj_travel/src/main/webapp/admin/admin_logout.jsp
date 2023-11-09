@@ -5,5 +5,5 @@
 <%
 	session.removeAttribute("admin");
 	session.invalidate();
-	response.sendRedirect("../admin_dashboard/dashboard.jsp");
+	response.sendRedirect("http://jtour.sist.co.kr/admin_dashboard/dashboard.jsp");
 %>

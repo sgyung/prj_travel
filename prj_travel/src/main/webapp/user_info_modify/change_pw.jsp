@@ -11,7 +11,7 @@
     System.out.println(userId);
     
     if( userId == null ){
-    	response.sendRedirect("http://192.168.10.132/prj_travel/user_main/main.jsp");
+    	response.sendRedirect("http://jtour.sist.co.kr/user_main/main.jsp");
     	return;
     }//end if
     if( userId != null ){

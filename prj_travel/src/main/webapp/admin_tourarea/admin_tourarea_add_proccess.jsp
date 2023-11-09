@@ -20,7 +20,7 @@ request.setCharacterEncoding("UTF-8");
 <%
 
 //1. 업로드될 파일이 저장된 폴더의 경로를 얻기
-File saveDir = new File("e:/dev/testtesttest");
+File saveDir = new File("e:/dev/prj_travel_deploy/common/images/touristArea_img");
 //2. 파일의 최대 크기 설정(30MByte)
 int maxSize = 1024*1024*30;
 	try{

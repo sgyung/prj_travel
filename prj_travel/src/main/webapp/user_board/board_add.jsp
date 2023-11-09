@@ -112,9 +112,9 @@ $(function(){
 	
 	$("#cancel").click(function() {
 		if ('${param.category}' === 'res') {
-		    location.href = 'board_restaurant_list.jsp';
+		    location.href ="http://jtour.sist.co.kr/user_board/board_restaurant\_list.jsp';
 		} else if ('${param.category}' === 'tour') {
-		    location.href = 'board_tourist_list.jsp';
+		    location.href = 'http://jtour.sist.co.kr/user_board/board_tourist_list.jsp';
 		}
 	})//click
 	

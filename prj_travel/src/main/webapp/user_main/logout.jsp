@@ -5,5 +5,5 @@
 	session.removeAttribute("sesId");
 	session.removeAttribute("userData");
 	session.invalidate();
-	response.sendRedirect("main.jsp");
+	response.sendRedirect("http://jtour.sist.co.kr/user_main/main.jsp");
 %>  

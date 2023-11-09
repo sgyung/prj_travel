@@ -21,7 +21,7 @@ boolean loginFlag = adminDAO.selectAdmin(id, pass);
 if(loginFlag){
 	session.setAttribute("admin", id);
 	
-	response.sendRedirect("../admin_dashboard/dashboard.jsp");
+	response.sendRedirect("http://jtour.sist.co.kr/admin_dashboard/dashboard.jsp");
 %>
 
 <%	

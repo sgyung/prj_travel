@@ -49,8 +49,8 @@ $(function(){
                     	<div class="depth02" id="depth02">
                     		<ul class="depth02_2 menu-wrap">
                     			<li><a href="http://192.168.10.133/prj_travel/user_board/notice_list.jsp" title="공지사항" class="asd t-menu-item"><span>공지사항</span></a></li>
-                    			<li><a href="http://192.168.10.133//prj_tarvel/user_board/tourist_list.jsp" title="관광지게시판" class="asd t-menu-item"><span>자유게시판</span></a></li>
-                    			<li><a href="http://192.168.10.133//prj_tarvel/user_board/restaurant_list.jsp" title="맛집게시판" class="asd t-menu-item"><span>자유게시판</span></a></li>
+                    			<li><a href="http://192.168.10.133/prj_travel/user_board/board_tourist_list.jsp" title="관광지게시판" class="asd t-menu-item"><span>관광지게시판</span></a></li>
+                    			<li><a href="http://192.168.10.133/prj_travel/user_board/board_restaurant_list.jsp" title="맛집게시판" class="asd t-menu-item"><span>맛집게시판</span></a></li>
                    			</ul>
                			</div>
                     </li>

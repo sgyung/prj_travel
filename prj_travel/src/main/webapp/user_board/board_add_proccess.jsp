@@ -36,14 +36,14 @@ try{
 	
 	<script>
 	alert("글이 성공적으로 작성되었습니다.");
-	location.href = "board_restaurant_list.jsp";
+	location.href = "http://jtour.sist.co.kr/user_board/board_restaurant_list.jsp";
 	</script>
 <%	
 		}else if("tour".equals(type)){
 %>
 	<script>
 	alert("글이 성공적으로 작성되었습니다.");
-	location.href = "board_tourist_list.jsp";
+	location.href ="http://jtour.sist.co.kr/user_board/board_tourist_list.jsp";
 	</script>
 <% 			
 		}
@@ -51,7 +51,7 @@ try{
 %>
 	<script>
 	alert("오류가 발생하였습니다. 다시 작성해주세요.");
-	location.href = "board_add.jsp";
+	location.href = "http://jtour.sist.co.kr/user_board/board_add.jsp";
 	</script>
 <%		
 	}
@@ -60,7 +60,7 @@ try{
 %>
 	<script>
 	alert("오류가 발생하였습니다. 다시 작성해주세요.");
-	location.href = "board_add.jsp";
+	location.href = "http://jtour.sist.co.kr/user_board/board_add.jsp";
 	</script>
 <%	
 }
